@@ -26,8 +26,8 @@ module DirectLink
   end
   class ErrorNotFound < @@LoggingError ; end
   class ErrorBadLink < @@LoggingError
-    def initialize link
-      super "#{link.inspect} -- if you think this link is valid, please report the issue"
+    def initialize link, sure = false
+      super "#{link.inspect}#{" -- if you think this link is valid, please report the issue" unless sure}"
     end
   end
 
@@ -176,6 +176,7 @@ def DirectLink link
   rescue URI::InvalidURIError
     link = URI.escape link
   end
+  raise DirectLink::ErrorBadLink.new link, true unless URI(link).host
 
   struct = Module.const_get(__callee__).class_variable_get :@@directlink
 

@@ -14,8 +14,8 @@ Gem::Specification.new do |spec|
 
   spec.require_path = "lib"
   spec.bindir       = "bin"
-  spec.executables  = "directlink"
-  spec.test_files   = ["spec"]
+  spec.executable   = "directlink"
+  spec.test_file    = "test.rb"
   spec.files        = `git ls-files -z`.split(?\0) - spec.test_files
 
   spec.requirements << "you may need to create apps and provide their API tokens:"

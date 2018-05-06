@@ -206,10 +206,6 @@ describe DirectLink do
       end
     end
 
-  end
-
-  describe "DirectLink()" do
-
     describe "throws ErrorBadLink if method does not match the link" do
       %i{ google imgur flickr _500px wiki }.each do |method|
         it method do
@@ -218,6 +214,17 @@ describe DirectLink do
           end
         end
       end
+    end
+
+  end
+
+  describe "DirectLink()" do
+
+    it "throws ErrorBadLink if link is invalid" do
+      e = assert_raises DirectLink::ErrorBadLink do
+        DirectLink "test"
+      end
+      assert_equal "test".inspect, e.message
     end
 
     describe "does not shadow the internal exception" do
@@ -273,7 +280,27 @@ describe DirectLink do
 
   describe "./bin" do
     require "open3"
+
+    describe "shows usage help if misused" do
+      [
+        ["usage: directlink [--debug] [--json] <url1> <url2> <url3> ...\n", nil],
+        ["usage: directlink [--debug] [--json] <url1> <url2> <url3> ...\n", "--help"],
+        ["usage: directlink [--debug] [--json] <url1> <url2> <url3> ...\n", "-h"],
+        ["DirectLink::ErrorBadLink: \"--\"\n", "--"],
+        ["DirectLink::ErrorBadLink: \"-\"\n", "-"],
+        ["DirectLink::ErrorBadLink: \"-\"\n", "- -"],
+        ["DirectLink::ErrorBadLink: \"asd\"\n", "asd"],
+      ].each_with_index do |(expected_output, param), i|
+        it "##{i + 1}" do
+          string, status = Open3.capture2e "ruby -Ilib bin/directlink #{param}"
+          assert_equal [1, expected_output], [status.exitstatus, string]
+        end
+      end
+    end
+
     # that hack around `export` is for crossplatform Travis test, since Ubuntu uses `sh` that can't `source`
+    # TODO: but maybe I could make Open3 use the shell I need, since `source` works fine for `.travis.yaml`'s `:script`
+
     describe "fails" do
       [
         [1, "http://example.com/", "FastImage::UnknownImageType"],      # TODO: is it possible to obtain it from `.cause`?
@@ -289,6 +316,7 @@ describe DirectLink do
         end
       end
     end
+
     valid_imgur_image_url = "https://i.imgur.com/HQHBBBD.jpg"
     [
       ["#{valid_imgur_image_url}\nimage/jpeg 1024x768\n\n#{valid_imgur_image_url}\nimage/jpeg 1024x768\n"],
@@ -299,6 +327,7 @@ describe DirectLink do
         assert_equal [0, expected_output], [status.exitstatus, string]
       end
     end
+
   end
 
 end
