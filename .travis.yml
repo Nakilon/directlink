@@ -8,7 +8,14 @@ os:
   - osx
 rvm:
   - ruby-head
-  - 3.0
+  - 2.5
+  - 2.4
+  - 2.3
+  - 2.2
+  - 2.1
   - 2.0
-  - 1.9
   - jruby-head
+matrix:
+  allow_failures:   # seems like NetHTTPUtils does not pass query params or smth
+  - rvm: jruby-head
+    os: osx

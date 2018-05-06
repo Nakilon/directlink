@@ -72,14 +72,12 @@ describe DirectLink do
         end
       end
       it 400 do
-        begin
+        e = assert_raises DirectLink::ErrorAssert do
           NetHTTPUtils.stub :request_data, ->*{ raise NetHTTPUtils::Error.new "", 400 } do
             DirectLink.imgur valid_imgur_image_url
           end
-          fail
-        rescue DirectLink::ErrorAssert => e
-          fail unless e.cause.code == 400
         end
+        assert_equal 400, e.cause.code if Exception.instance_methods.include? :cause  # Ruby 2.1
       end
 
       [ # TODO: move these end line comments to test names; and do the same in other tests
