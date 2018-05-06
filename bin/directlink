@@ -1,0 +1,43 @@
+#!/usr/bin/env ruby
+
+Signal.trap :INT do
+  abort "\n(interrupted by SIGINT)"
+end
+
+
+abort "usage: directlink [--debug] [--json] <url1> <url2> <url3> ..." if ARGV.empty?
+
+require "directlink"
+DirectLink.silent = true
+
+# TODO: use OptionParser
+debug = json = nil
+loop do
+  case ARGV.first
+  when "--debug"
+    debug = ARGV.shift
+    DirectLink.silent = false
+  when "--json"
+    json = ARGV.shift
+  else
+    break
+  end
+end
+
+begin
+  if json
+    require "json"
+    puts JSON.pretty_generate ARGV.map{ |link| DirectLink(link).to_h }
+  else
+    puts ARGV.map{ |link| s = DirectLink ARGV.first; "#{s.url}\n#{s.type} #{s.width}x#{s.height}" }.join "\n\n"
+  end
+rescue FastImage::UnknownImageType,
+       FastImage::ImageFetchFailure,
+       DirectLink::ErrorMissingEnvVar,
+       DirectLink::ErrorAssert,
+       DirectLink::ErrorNotFound,
+       DirectLink::ErrorBadLink => e
+  puts e.backtrace if debug
+  c = e.class.to_s
+  abort c == e.to_s ? c : "#{c}: #{e}"
+end

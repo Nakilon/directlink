@@ -13,6 +13,8 @@ Gem::Specification.new do |spec|
   spec.add_development_dependency "minitest"
 
   spec.require_path = "lib"
+  spec.bindir       = "bin"
+  spec.executables  = "directlink"
   spec.test_files   = ["spec"]
   spec.files        = `git ls-files -z`.split(?\0) - spec.test_files
 
