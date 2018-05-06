@@ -2,3 +2,7 @@
 language: ruby
 
 script: ruby test.rb
+
+rvm:
+  - ruby-head
+  - 2.0
