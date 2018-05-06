@@ -1,4 +1,4 @@
-#!/usr/bin/env ruby
+#!/usr/bin/env ruby -W0
 
 Signal.trap :INT do
   abort "\n(interrupted by SIGINT)"
