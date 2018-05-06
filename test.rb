@@ -1,4 +1,5 @@
 STDOUT.sync = true
+
 require "minitest/autorun"
 require "minitest/mock"
 
@@ -40,7 +41,7 @@ describe DirectLink do
          830 https://lh3.googleusercontent.com/-VB3YlLVL_tQ/Wo21yTbKl_I/AAAAAAAAApU/3DURmsYBklcv0kif2ZRjhoLG4mTHYf8OwCJoC/w254-h318-n/180218_00001.jpg
         1002 https://lh3.googleusercontent.com/-d8FkfLWq-_4/WpQXzEfFgBI/AAAAAAAADww/J32xKSAYUkgIc3pyrZnNmRec6kjdnJBHgCJoC/w239-h318-n/gplus-485739203.jpg
       ".scan(/(\S+) (\S+)/).each do |i, url|
-        it "google_##{i}" do
+        it "##{i}" do
           assert_kind_of String, DirectLink.google(url)
         end
       end
@@ -110,7 +111,7 @@ describe DirectLink do
         ["http://imgur.com/gallery/dCQprEq/new", "https://i.imgur.com/dCQprEq.jpg", 5760, 3840, "image/jpeg"],
       ].each_with_index do |t, i|
         url, n, first, last, type = t
-        it "test_##{i + 1}" do
+        it "##{i + 1}" do
           real = DirectLink::imgur url
           case last
           when NilClass
@@ -154,7 +155,7 @@ describe DirectLink do
     ].each do |method, tests|
       describe method do
         tests.each_with_index do |(input, expectation), i|
-          it "test_##{i + 1}" do
+          it "##{i + 1}" do
             if expectation.is_a? Class
               assert_raises expectation do
                 DirectLink.method(method).call input
@@ -170,7 +171,7 @@ describe DirectLink do
 
   end
 
-  describe DirectLink do
+  describe "DirectLink()" do
 
     describe "throws ErrorBadLink if method does not match the link" do
       %i{ google imgur flickr _500px wiki }.each do |method|
@@ -216,7 +217,7 @@ describe DirectLink do
         ["https://i.redd.it/si758zk7r5xz.jpg", FastImage::ImageFetchFailure],                                                       # was URL2Dimensions::Error404
         ["http://www.cutehalloweencostumeideas.org/wp-content/uploads/2017/10/Niagara-Falls_04.jpg", FastImage::ImageFetchFailure], # was URL2Dimensions::Error404
       ].each_with_index do |(input, expectation), i|
-        it "test_##{i + 1}" do
+        it "##{i + 1}" do
           if expectation.is_a? Class
             assert_raises expectation do
               DirectLink input
@@ -224,7 +225,7 @@ describe DirectLink do
           else
             u, w, h, t = expectation
             result = DirectLink input
-            assert_equal DirectLink.class_variable_get(:@@directlink).new(url: u, width: w, height: h, type: t),
+            assert_equal DirectLink.class_variable_get(:@@directlink).new(u, w, h, t),
                          result, "#{input} :: #{result.inspect} != #{expectation.inspect}"
           end
         end

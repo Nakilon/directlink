@@ -151,7 +151,7 @@ module DirectLink
 
   def self.wiki link
     raise ErrorBadLink.new link unless %r{\Ahttps?://([a-z]{2}\.wikipedia|commons.wikimedia)\.org/wiki(/[^/]+)*/(?<id>File:.+)} =~ link
-    t = JSON.load( NetHTTPUtils.request_data "https://commons.wikimedia.org/w/api.php", form: {
+    t = JSON.load json = NetHTTPUtils.request_data( "https://commons.wikimedia.org/w/api.php", form: {
       format: "json",
       action: "query",
       prop: "imageinfo",
@@ -159,7 +159,7 @@ module DirectLink
       titles: id,
     } )
     imageinfo = t["query"]["pages"].values.first["imageinfo"]
-    raise ErrorAssert.new "unexpected format of API response about #{link}" unless imageinfo
+    raise ErrorAssert.new "unexpected format of API response about #{link}: #{json}" unless imageinfo
     imageinfo.first["url"]
   end
 
@@ -185,25 +185,26 @@ def DirectLink link
     u = DirectLink.google link
     f = FastImage.new(u, raise_on_failure: true, http_header: {"User-Agent" => "Mozilla"})
     w, h = f.size
-    return struct.new url: u, width: w, height: h, type: f.type
+    return struct.new u, w, h, f.type
   end
 
   if %w{ imgur com } == URI(link).host.split(?.).last(2)
     imgur = DirectLink.imgur(link).sort_by{ |u, w, h, t| - w * h }.map do |u, w, h, t|
-      struct.new url: u, width: w, height: h, type: t
+      struct.new u, w, h, t
     end
     return imgur.size == 1 ? imgur.first : imgur
   end
 
   if %w{ 500px com } == URI(link).host.split(?.).last(2)
     w, h, u, t = DirectLink._500px(link)
-    return struct.new url: u, width: w, height: h, type: t
+    return struct.new u, w, h, t
   end
 
-  if %w{ flickr com } == URI(link).host.split(?.).last(2)
+  if %w{ www flickr com } == URI(link).host.split(?.).last(3) ||
+     %w{ flic kr } == URI(link).host.split(?.).last(2)
     w, h, u = DirectLink.flickr(link)
     f = FastImage.new(u, raise_on_failure: true, http_header: {"User-Agent" => "Mozilla"})
-    return struct.new url: u, width: w, height: h, type: f.type
+    return struct.new u, w, h, f.type
   end
 
   if %w{ wikipedia org } == URI(link).host.split(?.).last(2) ||
@@ -211,11 +212,11 @@ def DirectLink link
     u = DirectLink.wiki link
     f = FastImage.new(u, raise_on_failure: true, http_header: {"User-Agent" => "Mozilla"})
     w, h = f.size
-    return struct.new url: u, width: w, height: h, type: f.type
+    return struct.new u, w, h, f.type
   end
 
   f = FastImage.new(link, raise_on_failure: true, http_header: {"User-Agent" => "Mozilla"})
   w, h = f.size
-  struct.new url: link, width: w, height: h, type: f.type
+  struct.new link, w, h, f.type
 
 end
