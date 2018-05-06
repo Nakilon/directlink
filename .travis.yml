@@ -1,8 +1,14 @@
 ---
 language: ruby
 
-script: ruby test.rb
+script: "source api_tokens_for_travis.sh && ruby test.rb"
 
+os:
+  - linux
+  - osx
 rvm:
   - ruby-head
+  - 3.0
   - 2.0
+  - 1.9
+  - jruby-head
