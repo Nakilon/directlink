@@ -169,6 +169,43 @@ describe DirectLink do
       end
     end
 
+    {
+      google: %w{
+        https://lh3.googleusercontent.com/-NVJgqmI_2Is/WqMM2OMYg-I/AAAAAAAALrk/5-p3JL3iZt0Ho9dOf_p3gpddzqwr3Wp0ACJoC/w424-h318-n/001
+        https://lh3.googleusercontent.com/-2JzV0ErXvv8/Wsdr-m5Q_aI/AAAAAAAA_-I/Lw_e6qEMPUck4yW9yWhkC-nBNd5em8c3QCJoC/w530-h795-n/888052_800n.jpg
+        //lh3.googleusercontent.com/proxy/DZtTi5KL7PqiBwJc8weNGLk_Wi2UTaQH0AC_h2kuURiu0AbwyI2ywOk2XgdAjL7ceg=w530-h354-n
+        //lh3.googleusercontent.com/-h1siEcRFqJ8/Wiv1iDQhNVI/AAAAAAAAQV4/9gGepSmYkDMLyVTG_1EBCMmj-UhmclXWwCJoC/w530-h353-p/001
+        //1.bp.blogspot.com/-rYk_u-qROQc/WngolJ8M0LI/AAAAAAAAD-w/woivnaIVzasBPG5C2T1t-VrWKRd_U6lMgCLcBGAs/w530-h278-p/i-469.jpg
+      },
+      imgur: %w{
+        https://imgur.com/3eThW
+      },
+      _500px: %w{
+        https://500px.com/photo/112134597/milky-way-by-tom-hall
+      },
+      flickr: %w{
+        https://www.flickr.com/photos/tomas-/17220613278/
+        https://flic.kr/p/vPvCWJ
+      },
+      wiki: %w{
+        https://en.wikipedia.org/wiki/Third_Party_System#/media/File:United_States_presidential_election_results,_1876-1892.svg
+        http://commons.wikimedia.org/wiki/File:Eduard_Bohlen_anagoria.jpg
+      },
+    }.each do |method, tests|
+      describe "DirectLink() calls #{method}" do
+        tests.each_with_index do |input, i|
+          it "##{i + 1}" do
+            called = false
+            m = DirectLink.method method
+            DirectLink.stub method, ->link{ called = true } do
+              DirectLink.method(method).call input
+              assert called, "DirectLink::#{method} was not called"
+            end
+          end
+        end
+      end
+    end
+
   end
 
   describe "DirectLink()" do
