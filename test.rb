@@ -94,15 +94,16 @@ describe DirectLink do
         ["http://imgur.com/a/AdJUK", 3, "https://i.imgur.com/Yunpxnx.jpg", "https://i.imgur.com/2epn2nT.jpg"], # needs https because of authorship # WAT?
         ["http://imgur.com/gallery/vR4Am", 7, "https://i.imgur.com/yuUQI25.jpg", "https://i.imgur.com/RdxyAMQ.jpg"],
         ["http://imgur.com/gallery/qP2RQtL", "https://i.imgur.com/qP2RQtL.png"], # single image gallery?
-        ["http://imgur.com/gallery/jm0OKQM", "https://i.imgur.com/jm0OKQM.gif"],
         ["http://imgur.com/gallery/nKAwE/new", 28, "https://i.imgur.com/VQhR8hB.jpg", "https://i.imgur.com/axlzNRL.jpg"],
         ["http://m.imgur.com/rarOohr", "https://i.imgur.com/rarOohr.jpg"],
         ["http://imgur.com/r/wallpaper/j39dKMi", "https://i.imgur.com/j39dKMi.jpg"],
-        ["http://imgur.com/gallery/oZXfZ", 12, "https://i.imgur.com/t7RjRXU.jpg", "https://i.imgur.com/anlPrvS.jpg"],
+        ["http://imgur.com/gallery/jm0OKQM", DirectLink::ErrorNotFound],  # this id does not belong to gallery but to an image, that is probably irrelevant
+        ["http://imgur.com/gallery/oZXfZ", DirectLink::ErrorNotFound],    # this id does not belong to gallery but to an album, that is probably irrelevant
         ["http://imgur.com/gallery/dCQprEq/new", "https://i.imgur.com/dCQprEq.jpg", 5760, 3840, "image/jpeg"],
         ["https://imgur.com/S5u2xRB?third_party=1#_=_", "https://i.imgur.com/S5u2xRB.jpg", 2448, 2448, "image/jpeg"],
         ["https://imgur.com/3eThW", "https://i.imgur.com/3eThW.jpg", 2560, 1600, "image/jpeg"],
         ["https://i.imgur.com/RGO6i.mp4", "https://i.imgur.com/RGO6i.gif", 339, 397, "image/gif"],
+        ["https://imgur.com/a/oacI3gl", 2, "https://i.imgur.com/9j4KdkJ.png", "https://i.imgur.com/QpOBvRY.png"],
         # some other tests not sure we need them
         ["http://i.imgur.com/7xcxxkR.gifv", "http://i.imgur.com/7xcxxkRh.gif"],
         ["http://imgur.com/HQHBBBD", "https://i.imgur.com/HQHBBBD.jpg", 1024, 768, "image/jpeg"],
@@ -112,15 +113,23 @@ describe DirectLink do
       ].each_with_index do |t, i|
         url, n, first, last, type = t
         it "##{i + 1}" do
-          real = DirectLink::imgur url
           case last
           when NilClass
-            assert_equal 1, real.size
-            assert_equal n, real.first.first
+            if n.is_a? Class
+              assert_raises n do
+                DirectLink.imgur url
+              end
+            else
+              real = DirectLink.imgur url
+              assert_equal 1, real.size
+              assert_equal n, real.first.first
+            end
           when Numeric
+            real = DirectLink.imgur url
             assert_equal 1, real.size
             assert_equal [n, first, last, type], real.first
           when String
+            real = DirectLink.imgur url
             assert_equal n, real.size
             assert_equal first, real.first.first
             assert_equal last, real.last.first
@@ -179,6 +188,9 @@ describe DirectLink do
       },
       imgur: %w{
         https://imgur.com/3eThW
+        https://i.imgur.com/3eThW
+        https://m.imgur.com/3eThW
+        https://www.imgur.com/3eThW
       },
       _500px: %w{
         https://500px.com/photo/112134597/milky-way-by-tom-hall
@@ -317,13 +329,42 @@ describe DirectLink do
       end
     end
 
-    valid_imgur_image_url = "https://i.imgur.com/HQHBBBD.jpg"
+    valid_imgur_image_urls = "https://avatars1.githubusercontent.com/u/2870363?100 https://imgur.com/a/oacI3gl"
     [
-      ["#{valid_imgur_image_url}\nimage/jpeg 1024x768\n\n#{valid_imgur_image_url}\nimage/jpeg 1024x768\n"],
-      ["[\n  {\n    \"url\": \"https://i.imgur.com/HQHBBBD.jpg\",\n    \"width\": 1024,\n    \"height\": 768,\n    \"type\": \"image/jpeg\"\n  },\n  {\n    \"url\": \"https://i.imgur.com/HQHBBBD.jpg\",\n    \"width\": 1024,\n    \"height\": 768,\n    \"type\": \"image/jpeg\"\n  }\n]\n", "json"],
+      ['https://avatars1.githubusercontent.com/u/2870363?100
+        jpeg 460x460
+        
+        https://i.imgur.com/QpOBvRY.png
+        image/png 460x460
+        https://i.imgur.com/9j4KdkJ.png
+        image/png 100x100
+        '.gsub(/^ {8}/, "")],
+      ['[
+          {
+            "url": "https://avatars1.githubusercontent.com/u/2870363?100",
+            "width": 460,
+            "height": 460,
+            "type": "jpeg"
+          },
+          [
+            {
+              "url": "https://i.imgur.com/QpOBvRY.png",
+              "width": 460,
+              "height": 460,
+              "type": "image/png"
+            },
+            {
+              "url": "https://i.imgur.com/9j4KdkJ.png",
+              "width": 100,
+              "height": 100,
+              "type": "image/png"
+            }
+          ]
+        ]
+        '.gsub(/^ {8}/, ""), "json"],
     ].each do |expected_output, param|
       it "#{param || "default"} succeeds" do
-        string, status = Open3.capture2e "export #{File.read("api_tokens_for_travis.sh").gsub(/\n?export/, ?\s).strip} && ruby -Ilib bin/directlink#{" --#{param}" if param} #{valid_imgur_image_url} #{valid_imgur_image_url}"
+        string, status = Open3.capture2e "export #{File.read("api_tokens_for_travis.sh").gsub(/\n?export/, ?\s).strip} && ruby -Ilib bin/directlink#{" --#{param}" if param} #{valid_imgur_image_urls}"
         assert_equal [0, expected_output], [status.exitstatus, string]
       end
     end

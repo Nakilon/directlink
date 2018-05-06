@@ -54,15 +54,13 @@ module DirectLink
     raise ErrorMissingEnvVar.new "define IMGUR_CLIENT_ID env var" unless ENV["IMGUR_CLIENT_ID"]
 
     case link
-    when /\Ahttps?:\/\/((m|i|www)\.)?imgur\.com\/(a|gallery)\/[a-zA-Z0-9]{5}(#[a-zA-Z0-9]{2})?\z/,
-         /\Ahttps?:\/\/imgur\.com\/gallery\/[a-zA-Z0-9]{5}\/new\z/
-      raise ErrorBadLink.new link unless /\/(?<type>a|gallery)\/(?<id>[a-zA-Z0-9]{5})/ =~ link
+    when /\Ahttps?:\/\/(?:(?:i|m|www)\.)?imgur\.com\/(a|gallery)\/([a-zA-Z0-9]{5}(?:[a-zA-Z0-9]{2})?)\z/,
+         /\Ahttps?:\/\/imgur\.com\/(gallery)\/([a-zA-Z0-9]{5}(?:[a-zA-Z0-9]{2})?)\/new\z/
       timeout = 1
       json = begin
         NetHTTPUtils.request_data "https://api.imgur.com/3/#{
-          # type == "gallery" ? "gallery" : "album"
-          "album"
-        }/#{id}/0.json", header: { Authorization: "Client-ID #{ENV["IMGUR_CLIENT_ID"]}" }
+          $1 == "gallery" ? "gallery" : "album"
+        }/#{$2}/0.json", header: { Authorization: "Client-ID #{ENV["IMGUR_CLIENT_ID"]}" }
       rescue NetHTTPUtils::Error => e
         case e.code
         when 500
@@ -87,23 +85,17 @@ module DirectLink
         # one day single-video item should hit this but somehow it didn't yet
         raise ErrorAssert.new "unknown data format #{data.inspect} for #{link}"
       end
-    when /\/\/i\./,
-         /\Ahttps?:\/\/((m|www)\.)?imgur\.com\/(gallery\/|r\/[A-Za-z0-9][A-Za-z0-9_]{2,20}\/)?[a-zA-Z0-9]{5}([a-zA-Z0-9]{2})?(\?r|\?third_party=1#_=_|\/new|\.jpg|\.gifv|\.mp4)?\z/
+    when /\Ahttps?:\/\/(?:(?:i|m|www)\.)?imgur\.com\/([a-zA-Z0-9]{7})(?:\.(?:gifv|jpg))?\z/,
+         /\Ahttps?:\/\/(?:(?:i|m|www)\.)?imgur\.com\/([a-zA-Z0-9]{5})\.mp4\z/,
+         /\Ahttps?:\/\/imgur\.com\/([a-zA-Z0-9]{5}(?:[a-zA-Z0-9]{2})?)\z/,
+         /\Ahttps?:\/\/imgur\.com\/([a-zA-Z0-9]{7})(?:\?\S+)?\z/,
+         /\Ahttps?:\/\/imgur\.com\/r\/[0-9_a-z]+\/([a-zA-Z0-9]{7})\z/
       json = begin
-        NetHTTPUtils.request_data "https://api.imgur.com/3/image/#{
-          link[/(?<=\/)[a-zA-Z0-9]{5}([a-zA-Z0-9]{2})?(?=(\?r|\?third_party=1#_=_|\/new|\.(?:jpg|gifv|mp4|png))?\z)/] or \
-            raise ErrorBadLink.new link
-        }/0.json", header: { Authorization: "Client-ID #{ENV["IMGUR_CLIENT_ID"]}" }
+        NetHTTPUtils.request_data "https://api.imgur.com/3/image/#{$1}/0.json", header: { Authorization: "Client-ID #{ENV["IMGUR_CLIENT_ID"]}" }
       rescue NetHTTPUtils::Error => e
         raise ErrorNotFound.new link.inspect if e.code == 404
         raise ErrorAssert.new "unexpected http error for #{link}"
       end
-      [ JSON.load(json)["data"] ]
-    when /\Ahttps:\/\/imgur\.com\/[a-zA-Z0-9]{5}\z/
-      json = NetHTTPUtils.request_data "https://api.imgur.com/3/image/#{
-        # we don't rescue this only because currently the regex is compatible with one two lines higher
-        link[/(?<=\/)[a-zA-Z0-9]{5}\z/]
-      }/0.json", header: { Authorization: "Client-ID #{ENV["IMGUR_CLIENT_ID"]}" }
       [ JSON.load(json)["data"] ]
     else
       raise ErrorBadLink.new link
@@ -189,7 +181,10 @@ def DirectLink link
     return struct.new u, w, h, f.type
   end
 
-  if %w{ imgur com } == URI(link).host.split(?.).last(2)
+  if %w{ imgur com } == URI(link).host.split(?.).last(2) ||
+     %w{ i imgur com } == URI(link).host.split(?.).last(3) ||
+     %w{ m imgur com } == URI(link).host.split(?.).last(3) ||
+     %w{ www imgur com } == URI(link).host.split(?.).last(3)
     imgur = DirectLink.imgur(link).sort_by{ |u, w, h, t| - w * h }.map do |u, w, h, t|
       struct.new u, w, h, t
     end
