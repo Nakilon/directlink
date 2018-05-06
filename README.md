@@ -1,20 +1,18 @@
 [![Build Status](https://travis-ci.org/Nakilon/directlink.png?)](https://travis-ci.org/Nakilon/directlink)  
 ![Gem Version](https://badge.fury.io/rb/directlink.png?)
 
-TODO: make this README neat. Or not.
-
 ## Usage:
 ```
 $ directlink
-usage: directlink [--debug] [--json] <link1> <link2> <link> ...
+usage: directlink [--debug] [--json] <link1> <link2> <link3> ...
 ```
-Converts `<img src=` attributes from Google services to high resolution version:
+Converts `<img src=` attribute value from any Google web service to its high resolution version:
 ```
 $ directlink //4.bp.blogspot.com/-5kP8ndL0kuM/Wpt82UCqvmI/AAAAAAAAEjI/ZbbZWs0-kgwRXEJ9JEGioR0bm6U8MOkvQCKgBGAs/w530-h278-p/IMG_20171223_093922.jpg
 https://4.bp.blogspot.com/-5kP8ndL0kuM/Wpt82UCqvmI/AAAAAAAAEjI/ZbbZWs0-kgwRXEJ9JEGioR0bm6U8MOkvQCKgBGAs/s0/IMG_20171223_093922.jpg
 jpeg 4160x3120
 ```
-Retrieves all images from Imgur albums and galleries, orders them by resolution:
+Retrieves all images from Imgur album or gallery, orders them by resolution from high to low:
 ```
 $ directlink https://imgur.com/a/oacI3gl
 https://i.imgur.com/QpOBvRY.png
@@ -35,14 +33,8 @@ jpeg 460x460
 ```
 Emits JSON:
 ```
-$ directlink --json https://avatars1.githubusercontent.com/u/2870363?100 https://imgur.com/a/oacI3gl
+$ directlink --json https://imgur.com/a/oacI3gl https://avatars1.githubusercontent.com/u/2870363?100
 [
-  {
-    "url": "https://avatars1.githubusercontent.com/u/2870363?100",
-    "width": 460,
-    "height": 460,
-    "type": "jpeg"
-  },
   [
     {
       "url": "https://i.imgur.com/QpOBvRY.png",
@@ -56,7 +48,13 @@ $ directlink --json https://avatars1.githubusercontent.com/u/2870363?100 https:/
       "height": 100,
       "type": "image/png"
     }
-  ]
+  ],
+  {
+    "url": "https://avatars1.githubusercontent.com/u/2870363?100",
+    "width": 460,
+    "height": 460,
+    "type": "jpeg"
+  }
 ]
 ```
 
@@ -70,4 +68,4 @@ $ directlink --json https://avatars1.githubusercontent.com/u/2870363?100 https:/
 * the `DirectLink::ErrorAssert` should never happen and you might report it if it does
 * style: `@@` and lambdas are used to keep things private
 * style: all exceptions should be classified as `DirectLink::Error*` or `FastImage::*`
-* we don't call `NetHTTPUtils` on user input -- we contribute to FastImage and allow it to raise
+* we don't pass user input to `NetHTTPUtils` -- we contribute to gem FastImage and expect it to raise
