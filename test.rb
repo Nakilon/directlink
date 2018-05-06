@@ -273,6 +273,7 @@ describe DirectLink do
 
   describe "./bin" do
     require "open3"
+    # that hack around `export` is for crossplatform Travis test, since Ubuntu uses `sh` that can't `source`
     describe "fails" do
       [
         [1, "http://example.com/", "FastImage::UnknownImageType"],      # TODO: is it possible to obtain it from `.cause`?
@@ -283,7 +284,7 @@ describe DirectLink do
         [1, "https://imgur.com/a/badlinkpattern", "DirectLink::ErrorBadLink: \"https://imgur.com/a/badlinkpattern\" -- if you think this link is valid, please report the issue"],
       ].each_with_index do |(expected_exit_code, link, expected_output, unset), i|
         it "##{i + 1}" do
-          string, status = Open3.capture2e "source api_tokens_for_travis.sh#{unset} && ruby -Ilib bin/directlink #{link}"
+          string, status = Open3.capture2e "export #{File.read("api_tokens_for_travis.sh").gsub(/\n?export/, ?\s).strip}#{unset} && ruby -Ilib bin/directlink #{link}"
           assert_equal [expected_exit_code, "#{expected_output}\n"], [status.exitstatus, string]
         end
       end
@@ -294,7 +295,7 @@ describe DirectLink do
       ["[\n  {\n    \"url\": \"https://i.imgur.com/HQHBBBD.jpg\",\n    \"width\": 1024,\n    \"height\": 768,\n    \"type\": \"image/jpeg\"\n  },\n  {\n    \"url\": \"https://i.imgur.com/HQHBBBD.jpg\",\n    \"width\": 1024,\n    \"height\": 768,\n    \"type\": \"image/jpeg\"\n  }\n]\n", "json"],
     ].each do |expected_output, param|
       it "#{param || "default"} succeeds" do
-        string, status = Open3.capture2e "source api_tokens_for_travis.sh && ruby -Ilib bin/directlink#{" --#{param}" if param} #{valid_imgur_image_url} #{valid_imgur_image_url}"
+        string, status = Open3.capture2e "export #{File.read("api_tokens_for_travis.sh").gsub(/\n?export/, ?\s).strip} && ruby -Ilib bin/directlink#{" --#{param}" if param} #{valid_imgur_image_url} #{valid_imgur_image_url}"
         assert_equal [0, expected_output], [status.exitstatus, string]
       end
     end
