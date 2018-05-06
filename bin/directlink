@@ -1,5 +1,8 @@
 #!/usr/bin/env ruby -W0
 
+# "-W0" is against Fastimage's "warning: already initialized constant URI::DEFAULT_PARSER" on Ruby 2.0 and 2.1
+#       that ruins binstub tests
+
 Signal.trap :INT do
   abort "\n(interrupted by SIGINT)"
 end
