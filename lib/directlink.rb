@@ -193,6 +193,7 @@ def DirectLink link
     imgur = DirectLink.imgur(link).sort_by{ |u, w, h, t| - w * h }.map do |u, w, h, t|
       struct.new u, w, h, t
     end
+    # `DirectLink.imgur` return value is always an Array
     return imgur.size == 1 ? imgur.first : imgur
   end
 

@@ -25,14 +25,21 @@ loop do
     break
   end
 end
-abort "usage: directlink [--debug] [--json] <url1> <url2> <url3> ..." if [nil, "-h", "--help"].include? ARGV.first
+abort "usage: directlink [--debug] [--json] <link1> <link2> <link3> ..." if [nil, "-h", "--help"].include? ARGV.first
 
 begin
   if json
     require "json"
-    puts JSON.pretty_generate ARGV.map{ |link| DirectLink(link).to_h }
+    t = ARGV.map do |link|
+      t = DirectLink link
+      t.is_a?(Array) ? t.map(&:to_h) : t.to_h
+    end
+    puts JSON.pretty_generate t.size == 1 ? t.first : t
   else
-    puts ARGV.map{ |link| s = DirectLink ARGV.first; "#{s.url}\n#{s.type} #{s.width}x#{s.height}" }.join "\n\n"
+    puts( ARGV.map do |link|
+      t = DirectLink link
+      (t.is_a?(Array) ? t : [t]).map{ |s| "#{s.url}\n#{s.type} #{s.width}x#{s.height}" }.join("\n")
+    end.join "\n\n" )
   end
 rescue FastImage::UnknownImageType,
        FastImage::ImageFetchFailure,

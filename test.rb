@@ -199,7 +199,7 @@ describe DirectLink do
             m = DirectLink.method method
             DirectLink.stub method, ->link{ called = true } do
               DirectLink.method(method).call input
-              assert called, "DirectLink::#{method} was not called"
+              assert called, "DirectLink.#{method} was not called"
             end
           end
         end
@@ -283,9 +283,9 @@ describe DirectLink do
 
     describe "shows usage help if misused" do
       [
-        ["usage: directlink [--debug] [--json] <url1> <url2> <url3> ...\n", nil],
-        ["usage: directlink [--debug] [--json] <url1> <url2> <url3> ...\n", "--help"],
-        ["usage: directlink [--debug] [--json] <url1> <url2> <url3> ...\n", "-h"],
+        ["usage: directlink [--debug] [--json] <link1> <link2> <link3> ...\n", nil],
+        ["usage: directlink [--debug] [--json] <link1> <link2> <link3> ...\n", "--help"],
+        ["usage: directlink [--debug] [--json] <link1> <link2> <link3> ...\n", "-h"],
         ["DirectLink::ErrorBadLink: \"--\"\n", "--"],
         ["DirectLink::ErrorBadLink: \"-\"\n", "-"],
         ["DirectLink::ErrorBadLink: \"-\"\n", "- -"],
