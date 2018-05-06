@@ -168,19 +168,16 @@ module DirectLink
 end
 
 
-require "fastimage"   # if not here we can't catch FastImage exceptions in tests or anywhere else until it's too late
-                      # TODO: think about the same issue about other required gems
+require "fastimage"
+
 def DirectLink link
-  link = begin
+  begin
     URI link
-    link
   rescue URI::InvalidURIError
-    URI.escape link
+    link = URI.escape link
   end
 
-  struct = lambda do |**kwargs|
-    Module.const_get(__callee__).class_variable_get(:@@directlink).new **kwargs
-  end
+  struct = Module.const_get(__callee__).class_variable_get :@@directlink
 
 
   if %w{ lh3 googleusercontent com } == URI(link).host.split(?.).last(3) ||
@@ -188,25 +185,25 @@ def DirectLink link
     u = DirectLink.google link
     f = FastImage.new(u, raise_on_failure: true, http_header: {"User-Agent" => "Mozilla"})
     w, h = f.size
-    return struct.call url: u, width: w, height: h, type: f.type
+    return struct.new url: u, width: w, height: h, type: f.type
   end
 
   if %w{ imgur com } == URI(link).host.split(?.).last(2)
     imgur = DirectLink.imgur(link).sort_by{ |u, w, h, t| - w * h }.map do |u, w, h, t|
-      struct.call url: u, width: w, height: h, type: t
+      struct.new url: u, width: w, height: h, type: t
     end
     return imgur.size == 1 ? imgur.first : imgur
   end
 
   if %w{ 500px com } == URI(link).host.split(?.).last(2)
     w, h, u, t = DirectLink._500px(link)
-    return struct.call url: u, width: w, height: h, type: t
+    return struct.new url: u, width: w, height: h, type: t
   end
 
   if %w{ flickr com } == URI(link).host.split(?.).last(2)
     w, h, u = DirectLink.flickr(link)
     f = FastImage.new(u, raise_on_failure: true, http_header: {"User-Agent" => "Mozilla"})
-    return struct.call url: u, width: w, height: h, type: f.type
+    return struct.new url: u, width: w, height: h, type: f.type
   end
 
   if %w{ wikipedia org } == URI(link).host.split(?.).last(2) ||
@@ -214,11 +211,11 @@ def DirectLink link
     u = DirectLink.wiki link
     f = FastImage.new(u, raise_on_failure: true, http_header: {"User-Agent" => "Mozilla"})
     w, h = f.size
-    return struct.call url: u, width: w, height: h, type: f.type
+    return struct.new url: u, width: w, height: h, type: f.type
   end
 
   f = FastImage.new(link, raise_on_failure: true, http_header: {"User-Agent" => "Mozilla"})
   w, h = f.size
-  struct.call url: link, width: w, height: h, type: f.type
+  struct.new url: link, width: w, height: h, type: f.type
 
 end
