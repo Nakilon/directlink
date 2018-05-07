@@ -274,9 +274,9 @@ describe DirectLink do
       [
         ["http://www.aeronautica.difesa.it/organizzazione/REPARTI/divolo/PublishingImages/6%C2%B0%20Stormo/2013-decollo%20al%20tramonto%20REX%201280.jpg", ["http://www.aeronautica.difesa.it/organizzazione/REPARTI/divolo/PublishingImages/6%C2%B0%20Stormo/2013-decollo%20al%20tramonto%20REX%201280.jpg", 1280, 853, :jpeg]],
         ["http://example.com", FastImage::UnknownImageType, "FastImage::UnknownImageType"],        # we explicitly expect this useless `e.message ` to be sure we know how FastImage behaves
-        ["http://minus.com/lkP3hgRJd9npi", SocketError, /nodename nor servname provided, or not known|No address associated with hostname/, 0],    # Mac|Linux
+        ["http://minus.com/lkP3hgRJd9npi", SocketError, /nodename nor servname provided, or not known|No address associated with hostname/, 0],
         ["https://i.redd.it/si758zk7r5xz.jpg", NetHTTPUtils::Error, "HTTP error #404 "],
-        ["http://www.cutehalloweencostumeideas.org/wp-content/uploads/2017/10/Niagara-Falls_04.jpg", SocketError, /nodename nor servname provided, or not known|No address associated with hostname/, 0],
+        ["http://www.cutehalloweencostumeideas.org/wp-content/uploads/2017/10/Niagara-Falls_04.jpg", SocketError, /nodename nor servname provided, or not known|Name or service not known/, 0],
       ].each_with_index do |(input, expectation, message_string_or_regex, max_redirect_resolving_retry_delay), i|
         it "##{i + 1}" do
           if expectation.is_a? Class
