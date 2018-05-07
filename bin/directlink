@@ -9,22 +9,40 @@ end
 
 
 
-require "directlink"
-DirectLink.silent = true
 
-# TODO: use OptionParser
-debug = json = nil
+# TODO: use OptionParser?
+debug = json = github = nil
 loop do
   case ARGV.first
   when "--debug"
     debug = ARGV.shift
-    DirectLink.silent = false
   when "--json"
     json = ARGV.shift
+  when "--github"
+    github = ARGV.shift
   else
     break
   end
 end
+if github
+  require "tmpdir"
+  require "nethttputils"
+  begin
+    dir = Dir.mktmpdir "directlink"
+    src = File.join dir, "directlink.rb"
+    puts "downloaded directlink.rb from GitHub (#{
+      File.write src, NetHTTPUtils.request_data("https://github.com/nakilon/directlink/blob/master/lib/directlink.rb", form: {raw: true})
+    } bytes)"
+    require_relative src
+  ensure
+    # puts "deleting #{dir}"
+    # require "fileutils"
+    # FileUtils.rm_rf dir
+  end
+else
+  require "directlink"
+end
+DirectLink.silent = !debug
 abort "usage: directlink [--debug] [--json] <link1> <link2> <link3> ..." if [nil, "-h", "--help"].include? ARGV.first
 
 begin

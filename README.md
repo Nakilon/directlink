@@ -77,6 +77,10 @@ $ directlink --json https://imgur.com/a/oacI3gl https://avatars1.githubuserconte
   }
 ]
 ```
+Downloads master:HEAD version of `lib/directlink.rb` from GitHub and uses it once instead of installed one (this is easier than installing gem from repo):
+```
+$ directlink --github <url>
+```
 
 ### As library
 
