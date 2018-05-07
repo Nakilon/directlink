@@ -1,12 +1,13 @@
 Gem::Specification.new do |spec|
   spec.name         = "directlink"
-  spec.version      = "0.0.1.1"
+  spec.version      = "0.0.1.2"
   spec.summary      = "converts any kind of image hyperlink to direct link, type of image and its resolution"
 
   spec.author       = "Victor Maslov aka Nakilon"
   spec.email        = "nakilon@gmail.com"
   spec.license      = "MIT"
   spec.homepage     = "https://github.com/nakilon/directlink"
+  spec.metadata     = {"source_code_uri" => "https://github.com/nakilon/directlink"}
 
   spec.add_dependency "nethttputils", "~>0.2.2.0"
   spec.add_dependency "fastimage", "~>2.1.3"

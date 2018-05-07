@@ -304,17 +304,24 @@ describe DirectLink do
 
     describe "shows usage help if misused" do
       [
-        ["usage: directlink [--debug] [--json] <link1> <link2> <link3> ...\n", nil],
-        ["usage: directlink [--debug] [--json] <link1> <link2> <link3> ...\n", "--help"],
-        ["usage: directlink [--debug] [--json] <link1> <link2> <link3> ...\n", "-h"],
+        [/\Ausage: directlink \[--debug\] \[--json\] <link1> <link2> <link3> \.\.\.\ndirectlink version \d\.\d\.\d\.\d \(https:\/\/github\.com\/nakilon\/directlink\)\n\z/, nil],
+        [/\Ausage: directlink \[--debug\] \[--json\] <link1> <link2> <link3> \.\.\.\ndirectlink version \d\.\d\.\d\.\d \(https:\/\/github\.com\/nakilon\/directlink\)\n\z/, "-h"],
+        [/\Ausage: directlink \[--debug\] \[--json\] <link1> <link2> <link3> \.\.\.\ndirectlink version \d\.\d\.\d\.\d \(https:\/\/github\.com\/nakilon\/directlink\)\n\z/, "--help"],
+        [/\Ausage: directlink \[--debug\] \[--json\] <link1> <link2> <link3> \.\.\.\ndirectlink version \d\.\d\.\d\.\d \(https:\/\/github\.com\/nakilon\/directlink\)\n\z/, "-v"],
+        [/\Ausage: directlink \[--debug\] \[--json\] <link1> <link2> <link3> \.\.\.\ndirectlink version \d\.\d\.\d\.\d \(https:\/\/github\.com\/nakilon\/directlink\)\n\z/, "--version"],
         ["DirectLink::ErrorBadLink: \"--\"\n", "--"],
         ["DirectLink::ErrorBadLink: \"-\"\n", "-"],
         ["DirectLink::ErrorBadLink: \"-\"\n", "- -"],
         ["DirectLink::ErrorBadLink: \"asd\"\n", "asd"],
-      ].each_with_index do |(expected_output, param), i|
+      ].each_with_index do |(expectation, param), i|
         it "##{i + 1}" do
-          string, status = Open3.capture2e "ruby -Ilib bin/directlink #{param}"
-          assert_equal [1, expected_output], [status.exitstatus, string]
+          string, status = Open3.capture2e "bundle exec ruby bin/directlink #{param}"
+          if expectation.is_a? String
+            assert_equal expectation, string
+          else
+            assert_match expectation, string
+          end
+          assert_equal 1, status.exitstatus
         end
       end
     end
@@ -332,7 +339,7 @@ describe DirectLink do
         [1, "https://imgur.com/a/badlinkpattern", "NetHTTPUtils::Error: HTTP error #404 "],
       ].each_with_index do |(expected_exit_code, link, expected_output, unset), i|
         it "##{i + 1}" do
-          string, status = Open3.capture2e "export #{File.read("api_tokens_for_travis.sh").gsub(/\n?export/, ?\s).strip}#{unset} && ruby -Ilib bin/directlink #{link}"
+          string, status = Open3.capture2e "export #{File.read("api_tokens_for_travis.sh").gsub(/\n?export/, ?\s).strip}#{unset} && bundle exec ruby bin/directlink #{link}"
           assert_equal [expected_exit_code, "#{expected_output}\n"], [status.exitstatus, string], "for #{link}"
         end
       end
@@ -375,7 +382,7 @@ describe DirectLink do
         '.gsub(/^ {8}/, ""), "json"],
     ].each do |expected_output, param|
       it "#{param || "default"} succeeds" do
-        string, status = Open3.capture2e "export #{File.read("api_tokens_for_travis.sh").gsub(/\n?export/, ?\s).strip} && ruby -Ilib bin/directlink#{" --#{param}" if param} #{valid_imgur_image_url1} #{valid_imgur_image_url2}"
+        string, status = Open3.capture2e "export #{File.read("api_tokens_for_travis.sh").gsub(/\n?export/, ?\s).strip} && bundle exec ruby bin/directlink#{" --#{param}" if param} #{valid_imgur_image_url1} #{valid_imgur_image_url2}"
         assert_equal [0, expected_output], [status.exitstatus, string]
       end
     end

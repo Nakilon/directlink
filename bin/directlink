@@ -31,7 +31,7 @@ if github
     dir = Dir.mktmpdir "directlink"
     src = File.join dir, "directlink.rb"
     puts "downloaded directlink.rb from GitHub (#{
-      File.write src, NetHTTPUtils.request_data("https://github.com/nakilon/directlink/blob/master/lib/directlink.rb", form: {raw: true})
+      File.write src, NetHTTPUtils.request_data("https://raw.githubusercontent.com/nakilon/directlink/master/lib/directlink.rb", form: {raw: true})
     } bytes)"
     require_relative src
   ensure
@@ -43,7 +43,13 @@ else
   require "directlink"
 end
 DirectLink.silent = !debug
-abort "usage: directlink [--debug] [--json] <link1> <link2> <link3> ..." if [nil, "-h", "--help"].include? ARGV.first
+abort "usage: directlink [--debug] [--json] <link1> <link2> <link3> ...\n#{
+        if github
+          "impossible to tell version for sure from raw.githubusercontent.com"
+        else
+          "directlink version #{Gem.loaded_specs["directlink"].version} (#{Gem.loaded_specs["directlink"].metadata["source_code_uri"]})"
+        end
+      }" if [nil, "-h", "--help", "-v", "--version"].include? ARGV.first
 
 begin
   if json
