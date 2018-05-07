@@ -273,17 +273,21 @@ describe DirectLink do
     describe "some other tests" do
       [
         ["http://www.aeronautica.difesa.it/organizzazione/REPARTI/divolo/PublishingImages/6%C2%B0%20Stormo/2013-decollo%20al%20tramonto%20REX%201280.jpg", ["http://www.aeronautica.difesa.it/organizzazione/REPARTI/divolo/PublishingImages/6%C2%B0%20Stormo/2013-decollo%20al%20tramonto%20REX%201280.jpg", 1280, 853, :jpeg]],
-        ["http://example.com", FastImage::UnknownImageType, "FastImage::UnknownImageType"],                                                                             # we explicitly expect this useless `e.message ` to be sure we know how FastImage behaves
-        ["http://minus.com/lkP3hgRJd9npi", SocketError, "Failed to open TCP connection to minus.com:80 (getaddrinfo: nodename nor servname provided, or not known) to http://minus.com/lkP3hgRJd9npi", 0],
+        ["http://example.com", FastImage::UnknownImageType, "FastImage::UnknownImageType"],        # we explicitly expect this useless `e.message ` to be sure we know how FastImage behaves
+        ["http://minus.com/lkP3hgRJd9npi", SocketError, /nodename nor servname provided, or not known|No address associated with hostname/, 0],    # Mac|Linux
         ["https://i.redd.it/si758zk7r5xz.jpg", NetHTTPUtils::Error, "HTTP error #404 "],
-        ["http://www.cutehalloweencostumeideas.org/wp-content/uploads/2017/10/Niagara-Falls_04.jpg", SocketError, "Failed to open TCP connection to www.cutehalloweencostumeideas.org:80 (getaddrinfo: nodename nor servname provided, or not known) to http://www.cutehalloweencostumeideas.org/wp-content/uploads/2017/10/Niagara-Falls_04.jpg", 0],  # we explicitly expect this useless `e.message ` to be sure we know how FastImage behaves
-      ].each_with_index do |(input, expectation, message, max_redirect_resolving_retry_delay), i|
+        ["http://www.cutehalloweencostumeideas.org/wp-content/uploads/2017/10/Niagara-Falls_04.jpg", SocketError, /nodename nor servname provided, or not known|No address associated with hostname/, 0],
+      ].each_with_index do |(input, expectation, message_string_or_regex, max_redirect_resolving_retry_delay), i|
         it "##{i + 1}" do
           if expectation.is_a? Class
             e = assert_raises expectation, "for #{input}" do
               DirectLink input, max_redirect_resolving_retry_delay
             end
-            assert_match message, e.message, "for #{input}"
+            if message_string_or_regex.is_a? String
+              assert_equal message_string_or_regex, e.message, "for #{input}"
+            else
+              assert_match message_string_or_regex, e.message, "for #{input}"
+            end
           else
             u, w, h, t = expectation
             result = DirectLink input, max_redirect_resolving_retry_delay
