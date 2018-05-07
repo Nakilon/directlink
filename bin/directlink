@@ -36,15 +36,17 @@ begin
     end
     puts JSON.pretty_generate t.size == 1 ? t.first : t
   else
-    puts( ARGV.map do |link|
+    ARGV.each do |link|
       t = DirectLink link
-      (t.is_a?(Array) ? t : [t]).map{ |s| "#{s.url}\n#{s.type} #{s.width}x#{s.height}" }.join("\n")
-    end.join "\n\n" )
+      puts "<= #{link}"
+      (t.is_a?(Array) ? t : [t]).each{ |s| puts "=> #{s.url}\n   #{s.type} #{s.width}x#{s.height}" }
+    end
   end
-rescue FastImage::UnknownImageType,
+rescue NetHTTPUtils::Error,
+       FastImage::UnknownImageType,
        FastImage::ImageFetchFailure,
        DirectLink::ErrorMissingEnvVar,
-       DirectLink::ErrorAssert,
+       # DirectLink::ErrorAssert,
        DirectLink::ErrorNotFound,
        DirectLink::ErrorBadLink => e
   puts e.backtrace if debug

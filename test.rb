@@ -3,6 +3,9 @@ STDOUT.sync = true
 require "minitest/autorun"
 require "minitest/mock"
 
+# TODO: I'm not sure it's ok that after we started using NetHTTPUtils for redirect resolving
+#       we don't raise `FastImage::ImageFetchFailure` anymore in any test
+
 require_relative "lib/directlink"
 DirectLink.silent = true
 describe DirectLink do
@@ -104,6 +107,7 @@ describe DirectLink do
         ["https://imgur.com/3eThW", "https://i.imgur.com/3eThW.jpg", 2560, 1600, "image/jpeg"],
         ["https://i.imgur.com/RGO6i.mp4", "https://i.imgur.com/RGO6i.gif", 339, 397, "image/gif"],
         ["https://imgur.com/a/oacI3gl", 2, "https://i.imgur.com/9j4KdkJ.png", "https://i.imgur.com/QpOBvRY.png"],
+        ["https://i.imgur.com/QpOBvRY.png", "https://i.imgur.com/QpOBvRY.png", 460, 460, "image/png"],
         # some other tests not sure we need them
         ["http://i.imgur.com/7xcxxkR.gifv", "http://i.imgur.com/7xcxxkRh.gif"],
         ["http://imgur.com/HQHBBBD", "https://i.imgur.com/HQHBBBD.jpg", 1024, 768, "image/jpeg"],
@@ -191,6 +195,7 @@ describe DirectLink do
         https://i.imgur.com/3eThW
         https://m.imgur.com/3eThW
         https://www.imgur.com/3eThW
+        https://goo.gl/ySqUb5
       },
       _500px: %w{
         https://500px.com/photo/112134597/milky-way-by-tom-hall
@@ -243,7 +248,7 @@ describe DirectLink do
       [
         [:google, "//lh3.googleusercontent.com/proxy/DZtTi5KL7PqiBwJc8weNGLk_Wi2UTaQH0AC_h2kuURiu0AbwyI2ywOk2XgdAjL7ceg=w530-h354-n"],
         [:imgur, "http://imgur.com/HQHBBBD"],
-        [:flickr, "https://www.flickr.com/photos/tomas-/17220613278/"],
+        [:flickr, "https://www.flickr.com/photos/44133687@N00/17380073505/"],
         [:_500px, "https://500px.com/photo/112134597/milky-way-by-tom-hall"],
         [:wiki, "http://commons.wikimedia.org/wiki/File:Eduard_Bohlen_anagoria.jpg"],
       ].each do |method, link|
@@ -256,8 +261,8 @@ describe DirectLink do
           assert_equal "\"test\" -- if you think this link is valid, please report the issue", e.message
         end
       end
-      it "raises FastImage::ImageFetchFailure on Net::HTTP failure" do
-        assert_raises FastImage::ImageFetchFailure do
+      it "raises SocketError from the redirect resolving stage" do
+        assert_raises SocketError do
           NetHTTPUtils.stub :get_response, ->*{ raise SocketError.new } do
             DirectLink "http://example.com/404"
           end
@@ -268,21 +273,21 @@ describe DirectLink do
     describe "some other tests" do
       [
         ["http://www.aeronautica.difesa.it/organizzazione/REPARTI/divolo/PublishingImages/6%C2%B0%20Stormo/2013-decollo%20al%20tramonto%20REX%201280.jpg", ["http://www.aeronautica.difesa.it/organizzazione/REPARTI/divolo/PublishingImages/6%C2%B0%20Stormo/2013-decollo%20al%20tramonto%20REX%201280.jpg", 1280, 853, :jpeg]],
-        ["http://example.com", FastImage::UnknownImageType],              # was URL2Dimensions::ErrorUnknown
-        ["http://minus.com/lkP3hgRJd9npi", FastImage::ImageFetchFailure], # was URL2Dimensions::Error404
-        ["https://i.redd.it/si758zk7r5xz.jpg", FastImage::ImageFetchFailure],                                                       # was URL2Dimensions::Error404
-        ["http://www.cutehalloweencostumeideas.org/wp-content/uploads/2017/10/Niagara-Falls_04.jpg", FastImage::ImageFetchFailure], # was URL2Dimensions::Error404
-      ].each_with_index do |(input, expectation), i|
+        ["http://example.com", FastImage::UnknownImageType, "FastImage::UnknownImageType"],                                                                             # we explicitly expect this useless `e.message ` to be sure we know how FastImage behaves
+        ["http://minus.com/lkP3hgRJd9npi", SocketError, "Failed to open TCP connection to minus.com:80 (getaddrinfo: nodename nor servname provided, or not known) to http://minus.com/lkP3hgRJd9npi", 0],
+        ["https://i.redd.it/si758zk7r5xz.jpg", NetHTTPUtils::Error, "HTTP error #404 "],
+        ["http://www.cutehalloweencostumeideas.org/wp-content/uploads/2017/10/Niagara-Falls_04.jpg", SocketError, "Failed to open TCP connection to www.cutehalloweencostumeideas.org:80 (getaddrinfo: nodename nor servname provided, or not known) to http://www.cutehalloweencostumeideas.org/wp-content/uploads/2017/10/Niagara-Falls_04.jpg", 0],  # we explicitly expect this useless `e.message ` to be sure we know how FastImage behaves
+      ].each_with_index do |(input, expectation, message, max_redirect_resolving_retry_delay), i|
         it "##{i + 1}" do
           if expectation.is_a? Class
-            assert_raises expectation do
-              DirectLink input
+            e = assert_raises expectation, "for #{input}" do
+              DirectLink input, max_redirect_resolving_retry_delay
             end
+            assert_match message, e.message, "for #{input}"
           else
             u, w, h, t = expectation
-            result = DirectLink input
-            assert_equal DirectLink.class_variable_get(:@@directlink).new(u, w, h, t),
-                         result, "#{input} :: #{result.inspect} != #{expectation.inspect}"
+            result = DirectLink input, max_redirect_resolving_retry_delay
+            assert_equal DirectLink.class_variable_get(:@@directlink).new(u, w, h, t), result, "for #{input}"
           end
         end
       end
@@ -316,35 +321,37 @@ describe DirectLink do
     describe "fails" do
       [
         [1, "http://example.com/", "FastImage::UnknownImageType"],      # TODO: is it possible to obtain it from `.cause`?
-        [1, "http://example.com/404", "FastImage::ImageFetchFailure"],
+        [1, "http://example.com/404", "NetHTTPUtils::Error: HTTP error #404 "],
         [1, "http://imgur.com/HQHBBBD", "DirectLink::ErrorMissingEnvVar: define IMGUR_CLIENT_ID env var", " && unset IMGUR_CLIENT_ID"],  # TODO: make similar test for ./lib
         # by design it should be impossible to write a test for DirectLink::ErrorAssert
-        [1, "https://flic.kr/p/DirectLinkErrorNotFound", "DirectLink::ErrorNotFound: \"https://flic.kr/p/DirectLinkErrorNotFound\""],
-        [1, "https://imgur.com/a/badlinkpattern", "DirectLink::ErrorBadLink: \"https://imgur.com/a/badlinkpattern\" -- if you think this link is valid, please report the issue"],
+        [1, "https://flic.kr/p/DirectLinkErrorNotFound", "NetHTTPUtils::Error: HTTP error #404 "],
+        [1, "https://imgur.com/a/badlinkpattern", "NetHTTPUtils::Error: HTTP error #404 "],
       ].each_with_index do |(expected_exit_code, link, expected_output, unset), i|
         it "##{i + 1}" do
           string, status = Open3.capture2e "export #{File.read("api_tokens_for_travis.sh").gsub(/\n?export/, ?\s).strip}#{unset} && ruby -Ilib bin/directlink #{link}"
-          assert_equal [expected_exit_code, "#{expected_output}\n"], [status.exitstatus, string]
+          assert_equal [expected_exit_code, "#{expected_output}\n"], [status.exitstatus, string], "for #{link}"
         end
       end
     end
 
-    valid_imgur_image_urls = "https://avatars1.githubusercontent.com/u/2870363?100 https://imgur.com/a/oacI3gl"
+    valid_imgur_image_url1 = "https://goo.gl/ySqUb5"
+    valid_imgur_image_url2 = "https://imgur.com/a/oacI3gl"
     [
-      ['https://avatars1.githubusercontent.com/u/2870363?100
-        jpeg 460x460
-        
-        https://i.imgur.com/QpOBvRY.png
-        image/png 460x460
-        https://i.imgur.com/9j4KdkJ.png
-        image/png 100x100
-        '.gsub(/^ {8}/, "")],
+      ["<= #{valid_imgur_image_url1}
+        => https://i.imgur.com/QpOBvRY.png
+           image/png 460x460
+        <= #{valid_imgur_image_url2}
+        => https://i.imgur.com/QpOBvRY.png
+           image/png 460x460
+        => https://i.imgur.com/9j4KdkJ.png
+           image/png 100x100
+        ".gsub(/^ {8}/, "")],
       ['[
           {
-            "url": "https://avatars1.githubusercontent.com/u/2870363?100",
+            "url": "https://i.imgur.com/QpOBvRY.png",
             "width": 460,
             "height": 460,
-            "type": "jpeg"
+            "type": "image/png"
           },
           [
             {
@@ -364,7 +371,7 @@ describe DirectLink do
         '.gsub(/^ {8}/, ""), "json"],
     ].each do |expected_output, param|
       it "#{param || "default"} succeeds" do
-        string, status = Open3.capture2e "export #{File.read("api_tokens_for_travis.sh").gsub(/\n?export/, ?\s).strip} && ruby -Ilib bin/directlink#{" --#{param}" if param} #{valid_imgur_image_urls}"
+        string, status = Open3.capture2e "export #{File.read("api_tokens_for_travis.sh").gsub(/\n?export/, ?\s).strip} && ruby -Ilib bin/directlink#{" --#{param}" if param} #{valid_imgur_image_url1} #{valid_imgur_image_url2}"
         assert_equal [0, expected_output], [status.exitstatus, string]
       end
     end

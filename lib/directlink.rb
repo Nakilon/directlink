@@ -49,6 +49,7 @@ module DirectLink
 
   require "json"
   require "nethttputils"
+  NetHTTPUtils.logger.level = Logger::FATAL
 
   def self.imgur link
     raise ErrorMissingEnvVar.new "define IMGUR_CLIENT_ID env var" unless ENV["IMGUR_CLIENT_ID"]
@@ -85,7 +86,7 @@ module DirectLink
         # one day single-video item should hit this but somehow it didn't yet
         raise ErrorAssert.new "unknown data format #{data.inspect} for #{link}"
       end
-    when /\Ahttps?:\/\/(?:(?:i|m|www)\.)?imgur\.com\/([a-zA-Z0-9]{7})(?:\.(?:gifv|jpg))?\z/,
+    when /\Ahttps?:\/\/(?:(?:i|m|www)\.)?imgur\.com\/([a-zA-Z0-9]{7})(?:\.(?:gifv|jpg|png))?\z/,
          /\Ahttps?:\/\/(?:(?:i|m|www)\.)?imgur\.com\/([a-zA-Z0-9]{5})\.mp4\z/,
          /\Ahttps?:\/\/imgur\.com\/([a-zA-Z0-9]{5}(?:[a-zA-Z0-9]{2})?)\z/,
          /\Ahttps?:\/\/imgur\.com\/([a-zA-Z0-9]{7})(?:\?\S+)?\z/,
@@ -162,7 +163,7 @@ end
 
 require "fastimage"
 
-def DirectLink link
+def DirectLink link, max_redirect_resolving_retry_delay = nil
   begin
     URI link
   rescue URI::InvalidURIError
@@ -172,7 +173,6 @@ def DirectLink link
 
   struct = Module.const_get(__callee__).class_variable_get :@@directlink
 
-
   if %w{ lh3 googleusercontent com } == URI(link).host.split(?.).last(3) ||
      %w{ bp blogspot com } == URI(link).host.split(?.).last(3)
     u = DirectLink.google link
@@ -180,6 +180,21 @@ def DirectLink link
     w, h = f.size
     return struct.new u, w, h, f.type
   end
+
+  # to test that we won't hang for too long if someone like aeronautica.difesa.it will be silent for some reason:
+  #   $ bundle console
+  #   > NetHTTPUtils.logger.level = Logger::DEBUG
+  #   > NetHTTPUtils.request_data "http://www.aeronautica.difesa.it/organizzazione/REPARTI/divolo/PublishingImages/6%C2%B0%20Stormo/2013-decollo%20al%20tramonto%20REX%201280.jpg",
+  #                               max_read_retry_delay: 5, timeout: 5
+  r = NetHTTPUtils.get_response link, header: {"User-Agent" => "Mozilla"}, **(max_redirect_resolving_retry_delay ? {
+    max_timeout_retry_delay: max_redirect_resolving_retry_delay,
+    max_sslerror_retry_delay: max_redirect_resolving_retry_delay,
+    max_read_retry_delay: max_redirect_resolving_retry_delay,
+    max_econnrefused_retry_delay: max_redirect_resolving_retry_delay,
+    max_socketerror_retry_delay: max_redirect_resolving_retry_delay,
+  } : {})
+  raise NetHTTPUtils::Error.new "", r.code.to_i unless "200" == r.code
+  link = r.uri.to_s
 
   if %w{ imgur com } == URI(link).host.split(?.).last(2) ||
      %w{ i imgur com } == URI(link).host.split(?.).last(3) ||
@@ -197,8 +212,7 @@ def DirectLink link
     return struct.new u, w, h, t
   end
 
-  if %w{ www flickr com } == URI(link).host.split(?.).last(3) ||
-     %w{ flic kr } == URI(link).host.split(?.).last(2)
+  if %w{ www flickr com } == URI(link).host.split(?.).last(3)
     w, h, u = DirectLink.flickr(link)
     f = FastImage.new(u, raise_on_failure: true, http_header: {"User-Agent" => "Mozilla"})
     return struct.new u, w, h, f.type
