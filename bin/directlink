@@ -43,7 +43,7 @@ else
   require "directlink"
 end
 DirectLink.silent = !debug
-abort "usage: directlink [--debug] [--json] <link1> <link2> <link3> ...\n#{
+abort "usage: directlink [--debug] [--json] [--github] <link1> <link2> <link3> ...\n#{
         if github
           "impossible to tell version for sure from raw.githubusercontent.com"
         else

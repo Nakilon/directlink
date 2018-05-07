@@ -34,6 +34,7 @@ module DirectLink
 
   def self.google src, width = 0
     case src
+    # Google Plus post image
     when /\A(https:\/\/lh3\.googleusercontent\.com\/-[a-zA-Z0-9_-]{11}\/W[n-r][a-zA-Z0-9_-]{8}I\/AAAAAAAA[bA-V][a-zA-Z0-9]{2}\/[a-zA-Z0-9_-]{32}[gwAQ]CJoC\/)w[1-4]\d\d-h(318|353|727)-n(\/[^\/]+)\z/,
          /\A(https:\/\/lh3\.googleusercontent\.com\/-[a-zA-Z0-9_-]{11}\/W[a-zA-Z0-9_-]{9}I\/AAAAAAA[a-zA-Z0-9_-]{4}\/[a-zA-Z0-9_-]{33}(?:CJoC|CL0B(?:GAs)?)\/)w530(?:-d)?-h[2-9]\d\d-n(\/[^\/]+)\z/
       "#{$1}s#{width}#{$2}"
@@ -42,6 +43,15 @@ module DirectLink
     when /\A(\/\/lh3\.googleusercontent\.com\/-[a-zA-Z0-9-]{11}\/W[a-zA-Z0-9_-]{9}I\/AAAAAAA[AC][a-zA-Z0-9]{3}\/[a-zA-Z0-9_-]{32}[gw]CJoC\/)w530-h3\d\d-p(\/[^\/]+)\z/,
          /\A(\/\/[14]\.bp\.blogspot\.com\/-[a-zA-Z0-9_-]{11}\/W[np][a-zA-Z0-9_-]{8}I\/AAAAAAAA[DE][a-zA-Z0-9_-]{2}\/[a-zA-Z0-9_-]{33}C(?:Lc|Kg)BGAs\/)w530-h278-p(\/[^\/]+)\z/
       "https:#{$1}s#{width}#{$2}"
+    # Google Plus userpic
+    when /\A(https:\/\/lh3\.googleusercontent\.com\/-[a-zA-Z0-9-]{11}\/AAAAAAAAAAI\/AAAAAAAA[a-zA-Z0-9]{3}\/[a-zA-Z0-9_-]{11}\/)s\d\d-p(?:-k)?-rw-no(\/photo\.jpg)\z/
+      "#{$1}s#{width}#{$2}"
+    # Hangout userpic
+    when /\A(https:\/\/lh5\.googleusercontent\.com\/-[a-zA-Z]{11}\/AAAAAAAAAAI\/AAAAAAAAAAA\/[a-zA-Z0-9]{11}\/)s64-c-k(\/photo\.jpg)\z/,
+         /\A(https:\/\/lh[35]\.googleusercontent\.com\/-[a-zA-Z0-9]{11}\/AAAAAAAAAAI\/AAAAAAAA[a-zA-Z0-9]{3}\/[a-zA-Z0-9-]{11}\/)s\d\d-c-k-no(\/photo\.jpg)\z/,
+         /\A(https:\/\/lh3\.googleusercontent\.com\/-[a-zA-Z0-9]{11}\/AAAAAAAAAAI\/AAAAAAAAAAA\/[a-zA-Z0-9]{34}\/)s64-c-mo(\/photo\.jpg)\z/,
+         /\A(https:\/\/lh6\.googleusercontent\.com\/-[a-zA-Z0-9]{11}\/AAAAAAAAAAI\/AAAAAAAAAAA\/[a-zA-Z0-9_]{34}\/)s46-c-k-no-mo(\/photo\.jpg)\z/
+      "#{$1}s#{width}#{$2}"
     else
       raise ErrorBadLink.new src
     end

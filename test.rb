@@ -43,9 +43,31 @@ describe DirectLink do
          783 https://lh3.googleusercontent.com/-SqAvt_F__bg/Wq0huHcX2NI/AAAAAAAAVj0/XfnwCU7JwhUh0Knw8rcXA-bhpKYkI4hdwCJoC/w358-h318-n/IMG_20180317_120218-01-01.jpeg
          830 https://lh3.googleusercontent.com/-VB3YlLVL_tQ/Wo21yTbKl_I/AAAAAAAAApU/3DURmsYBklcv0kif2ZRjhoLG4mTHYf8OwCJoC/w254-h318-n/180218_00001.jpg
         1002 https://lh3.googleusercontent.com/-d8FkfLWq-_4/WpQXzEfFgBI/AAAAAAAADww/J32xKSAYUkgIc3pyrZnNmRec6kjdnJBHgCJoC/w239-h318-n/gplus-485739203.jpg
-      ".scan(/(\S+) (\S+)/).each do |i, url|
-        it "##{i}" do
-          assert_kind_of String, DirectLink.google(url)
+      ".scan(/(\S+) (\S+)/).each do |i, link|
+        it "Google Plus post image ##{i}" do
+          DirectLink.google link
+        end
+      end
+      %w{
+        0 https://lh3.googleusercontent.com/-okfI8E6JAgg/AAAAAAAAAAI/AAAAAAAAZa0/FEv9H8woCBg/s30-p-rw-no/photo.jpg
+        7 https://lh3.googleusercontent.com/-okfI8E6JAgg/AAAAAAAAAAI/AAAAAAAAZa0/FEv9H8woCBg/s75-p-rw-no/photo.jpg
+        _ https://lh3.googleusercontent.com/-bhgxgLsFYWI/AAAAAAAAAAI/AAAAAAAA4MI/_KuKE-Goa7E/s35-p-k-rw-no/photo.jpg
+        - https://lh3.googleusercontent.com/-tl9-AdHhGiY/AAAAAAAAAAI/AAAAAAAA8uY/vVeZX8SbTXI/s35-p-k-rw-no/photo.jpg
+        4 https://lh3.googleusercontent.com/-Rb833O10RB4/AAAAAAAAAAI/AAAAAAAAEJc/DawCLQGnaSA/s45-p-k-rw-no/photo.jpg
+      }.each_slice 2 do |i, link|
+        it "Google Plus userpic #{i}" do
+          DirectLink.google link
+        end
+      end
+      %w{
+              - https://lh3.googleusercontent.com/-10bBuroWuoU/AAAAAAAAAAI/AAAAAAAAl90/ed314-fNMGg/s20-c-k-no/photo.jpg
+           just https://lh5.googleusercontent.com/-RT6j6oYpZzU/AAAAAAAAAAI/AAAAAAAAAO4/WISrqFs1vT8/s46-c-k-no/photo.jpg
+          no-no https://lh5.googleusercontent.com/-XdUIqdMkCWA/AAAAAAAAAAI/AAAAAAAAAAA/4252rscbv5M/s64-c-k/photo.jpg
+        no-k-no https://lh3.googleusercontent.com/-okfI8E6JAgg/AAAAAAAAAAI/AAAAAAAAAAA/AIcfdXD1lA9yGoSbsihWmGfnl6Z3Rn43WA/s64-c-mo/photo.jpg
+              _ https://lh6.googleusercontent.com/-BQEbGrPRFk4/AAAAAAAAAAI/AAAAAAAAAAA/AIcfdXDBweE5VzGGy4zMraO_pqiLuFN3yQ/s46-c-k-no-mo/photo.jpg
+      }.each_slice 2 do |i, link|
+        it "Hangout userpic #{i}" do
+          DirectLink.google link
         end
       end
     end
@@ -185,9 +207,7 @@ describe DirectLink do
     {
       google: %w{
         https://lh3.googleusercontent.com/-NVJgqmI_2Is/WqMM2OMYg-I/AAAAAAAALrk/5-p3JL3iZt0Ho9dOf_p3gpddzqwr3Wp0ACJoC/w424-h318-n/001
-        https://lh3.googleusercontent.com/-2JzV0ErXvv8/Wsdr-m5Q_aI/AAAAAAAA_-I/Lw_e6qEMPUck4yW9yWhkC-nBNd5em8c3QCJoC/w530-h795-n/888052_800n.jpg
         //lh3.googleusercontent.com/proxy/DZtTi5KL7PqiBwJc8weNGLk_Wi2UTaQH0AC_h2kuURiu0AbwyI2ywOk2XgdAjL7ceg=w530-h354-n
-        //lh3.googleusercontent.com/-h1siEcRFqJ8/Wiv1iDQhNVI/AAAAAAAAQV4/9gGepSmYkDMLyVTG_1EBCMmj-UhmclXWwCJoC/w530-h353-p/001
         //1.bp.blogspot.com/-rYk_u-qROQc/WngolJ8M0LI/AAAAAAAAD-w/woivnaIVzasBPG5C2T1t-VrWKRd_U6lMgCLcBGAs/w530-h278-p/i-469.jpg
       },
       imgur: %w{
@@ -304,11 +324,11 @@ describe DirectLink do
 
     describe "shows usage help if misused" do
       [
-        [/\Ausage: directlink \[--debug\] \[--json\] <link1> <link2> <link3> \.\.\.\ndirectlink version \d\.\d\.\d\.\d \(https:\/\/github\.com\/nakilon\/directlink\)\n\z/, nil],
-        [/\Ausage: directlink \[--debug\] \[--json\] <link1> <link2> <link3> \.\.\.\ndirectlink version \d\.\d\.\d\.\d \(https:\/\/github\.com\/nakilon\/directlink\)\n\z/, "-h"],
-        [/\Ausage: directlink \[--debug\] \[--json\] <link1> <link2> <link3> \.\.\.\ndirectlink version \d\.\d\.\d\.\d \(https:\/\/github\.com\/nakilon\/directlink\)\n\z/, "--help"],
-        [/\Ausage: directlink \[--debug\] \[--json\] <link1> <link2> <link3> \.\.\.\ndirectlink version \d\.\d\.\d\.\d \(https:\/\/github\.com\/nakilon\/directlink\)\n\z/, "-v"],
-        [/\Ausage: directlink \[--debug\] \[--json\] <link1> <link2> <link3> \.\.\.\ndirectlink version \d\.\d\.\d\.\d \(https:\/\/github\.com\/nakilon\/directlink\)\n\z/, "--version"],
+        [/\Ausage: directlink \[--debug\] \[--json\] \[--github\] <link1> <link2> <link3> \.\.\.\ndirectlink version \d\.\d\.\d\.\d \(https:\/\/github\.com\/nakilon\/directlink\)\n\z/, nil],
+        [/\Ausage: directlink \[--debug\] \[--json\] \[--github\] <link1> <link2> <link3> \.\.\.\ndirectlink version \d\.\d\.\d\.\d \(https:\/\/github\.com\/nakilon\/directlink\)\n\z/, "-h"],
+        [/\Ausage: directlink \[--debug\] \[--json\] \[--github\] <link1> <link2> <link3> \.\.\.\ndirectlink version \d\.\d\.\d\.\d \(https:\/\/github\.com\/nakilon\/directlink\)\n\z/, "--help"],
+        [/\Ausage: directlink \[--debug\] \[--json\] \[--github\] <link1> <link2> <link3> \.\.\.\ndirectlink version \d\.\d\.\d\.\d \(https:\/\/github\.com\/nakilon\/directlink\)\n\z/, "-v"],
+        [/\Ausage: directlink \[--debug\] \[--json\] \[--github\] <link1> <link2> <link3> \.\.\.\ndirectlink version \d\.\d\.\d\.\d \(https:\/\/github\.com\/nakilon\/directlink\)\n\z/, "--version"],
         ["DirectLink::ErrorBadLink: \"--\"\n", "--"],
         ["DirectLink::ErrorBadLink: \"-\"\n", "-"],
         ["DirectLink::ErrorBadLink: \"-\"\n", "- -"],
