@@ -1,9 +1,9 @@
 [![Build Status](https://travis-ci.org/Nakilon/directlink.png?)](https://travis-ci.org/Nakilon/directlink)  
 ![Gem Version](https://badge.fury.io/rb/directlink.png?)
 
-## Usage:
+## Usage
 
-### Binary
+### As binary
 
 ```
 $ gem install directlink
@@ -78,7 +78,7 @@ $ directlink --json https://imgur.com/a/oacI3gl https://avatars1.githubuserconte
 ]
 ```
 
-### Library
+### As library
 
 ```
 irb> require "directlink"
@@ -114,16 +114,16 @@ To silent the logger that `DirectLink.imgur` uses:
 DirectLink.silent = true
 ```
 
-#### Retries
+#### about slow retries
 
-Some network exceptions like `SocketError` may be not permanent so `NetHTTPUtils` (that resolves redirect at the beginning of `DirectLink()` call) by default retries exponentially increasing retry delay until it gets to 3600sec, but such exceptions can have permanent reasons like dead web domain. To see it (may also want to pass `-v` if running minitest tests of DirectLink):
+Some network exceptions like `SocketError` may be not permanent (local network issues) so `NetHTTPUtils` (that resolves redirect at the beginning of `DirectLink()` call) by default retries exponentially increasing retry delay until it gets to 3600sec, but such exceptions can have permanent for reasons like canceled web domain. To see it:
 ```ruby
-NetHTTPUtils.logger.level = Logger::INFO
+NetHTTPUtils.logger.level = Logger::WARN
 ```
 ```
 W 180507 102210 : NetHTTPUtils : retrying in 10 seconds because of SocketError 'Failed to open TCP connection to minus.com:80 (getaddrinfo: nodename nor servname provided, or not known)' at: http://minus.com/
 ```
-To make `DirectLink()` respond faster set an optional argument that specifies the max retry delay to any numeric value. Here we get the exception immediately:
+To make `DirectLink()` respond faster pass an optional argument that specifies the max retry delay as any numeric value. Here we get the exception immediately:
 ```ruby
 DirectLink "http://minus.com/", 0
 ```
@@ -133,10 +133,8 @@ SocketError: Failed to open TCP connection to minus.com:80 (getaddrinfo: nodenam
 
 ## Notes:
 
-* methods inside `DirectLink` by design return different sets of properties -- DirectLink unites them
-* this gem is a 2 or 3 libraries united so don't expect tests to be full and consistent
+* `module DirectLink` public methods return different sets of properties -- `DirectLink()` unites them
 * the `DirectLink::ErrorAssert` should never happen and you might report it if it does
 * style: `@@` and lambdas are used to keep things private
 * style: all exceptions should be classified as `DirectLink::Error*` or `FastImage::*`
-* ~~don't pass raw user input to `NetHTTPUtils` -- contribute to gem FastImage and expect it to raise~~  
-  alright, we now use NetHTTPUtils to resolve redirects and not doubt in link validity in some cases
+* this gem is a 2 or 3 libraries united so don't expect tests to be full and consistent
