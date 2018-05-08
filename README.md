@@ -1,22 +1,23 @@
 [![Build Status](https://travis-ci.org/Nakilon/directlink.png?)](https://travis-ci.org/Nakilon/directlink)  
 ![Gem Version](https://badge.fury.io/rb/directlink.png?)
 
+# gem directlink
+
+This tool can convert a thumbnail URL to a high resolution image URL for several popular image hostings. Also it tells the resulting resolution and the image type (format). I wanted such automation often so finally I've decided to make a gem with a binary.
+
 ## Usage
 
-### As binary
+### As a binary
 
 ```
 $ gem install directlink
+```
+```
 $ directlink
-usage: directlink [--debug] [--json] <link1> <link2> <link3> ...
+usage: directlink [--debug] [--json] [--github] <link1> <link2> <link3> ...
 ```
-When known image hosting that has handy API is recognized, the API will be used and you'll have to create app there and provide env vars:
-```
-$ export IMGUR_CLIENT_ID=0f99cd781...
-$ export FLICKR_API_KEY=dc2bfd348b...
-$ export _500PX_CONSUMER_KEY=ESkHT...
-```
-Converts `<img src=` attribute value from any Google web service to its high resolution version:
+Converts `<img src=` attribute value from any (current regexes are very strict and are going to fail -- it is a [defensive programming](https://en.wikipedia.org/wiki/Defensive_programming) practice
+) Google web service to its high resolution version:
 ```
 $ directlink //4.bp.blogspot.com/-5kP8ndL0kuM/Wpt82UCqvmI/AAAAAAAAEjI/ZbbZWs0-kgwRXEJ9JEGioR0bm6U8MOkvQCKgBGAs/w530-h278-p/IMG_20171223_093922.jpg
 <= //4.bp.blogspot.com/-5kP8ndL0kuM/Wpt82UCqvmI/AAAAAAAAEjI/ZbbZWs0-kgwRXEJ9JEGioR0bm6U8MOkvQCKgBGAs/w530-h278-p/IMG_20171223_093922.jpg
@@ -79,10 +80,16 @@ $ directlink --json https://imgur.com/a/oacI3gl https://avatars1.githubuserconte
 ```
 Downloads master:HEAD version of `lib/directlink.rb` from GitHub and uses it once instead of installed one (this is easier than installing gem from repo):
 ```
-$ directlink --github <url>
+$ directlink --github https://imgur.com/a/oacI3gl
+```
+When known image hosting that has handy API is recognized, the API will be used and you'll have to create app there and provide env vars:
+```
+$ export IMGUR_CLIENT_ID=0f99cd781...
+$ export FLICKR_API_KEY=dc2bfd348b...
+$ export _500PX_CONSUMER_KEY=ESkHT...
 ```
 
-### As library
+### As a library
 
 ```
 irb> require "directlink"
@@ -99,16 +106,8 @@ irb> pp DirectLink "https://imgur.com/a/oacI3gl"
   width=100,
   height=100,
   type="image/png">]
-
-irb> pp DirectLink "//4.bp.blogspot.com/-5kP8ndL0kuM/Wpt82UCqvmI/AAAAAAAAEjI/ZbbZWs0-kgwRXEJ9JEGioR0bm6U8MOkvQCKgBGAs/w530-h278-p/IMG_20171223_093922.jpg"
-#<struct
- url=
-  "https://4.bp.blogspot.com/-5kP8ndL0kuM/Wpt82UCqvmI/AAAAAAAAEjI/ZbbZWs0-kgwRXEJ9JEGioR0bm6U8MOkvQCKgBGAs/s0/IMG_20171223_093922.jpg",
- width=4160,
- height=3120,
- type=:jpeg>
 ```
-Google can serve image in arbitrary resolution so `DirectLink.google` has optional argument to specify the width:
+Google can serve image in arbitrary resolution so `DirectLink.google` has optional argument to specify the desired width:
 ```
 irb> DirectLink.google "//4.bp.blogspot.com/-5kP8ndL0kuM/Wpt82UCqvmI/AAAAAAAAEjI/ZbbZWs0-kgwRXEJ9JEGioR0bm6U8MOkvQCKgBGAs/w530-h278-p/IMG_20171223_093922.jpg", 100
 => "https://4.bp.blogspot.com/-5kP8ndL0kuM/Wpt82UCqvmI/AAAAAAAAEjI/ZbbZWs0-kgwRXEJ9JEGioR0bm6U8MOkvQCKgBGAs/s100/IMG_20171223_093922.jpg"
@@ -120,7 +119,7 @@ DirectLink.silent = true
 
 #### about slow retries
 
-Some network exceptions like `SocketError` may be not permanent (local network issues) so `NetHTTPUtils` (that resolves redirect at the beginning of `DirectLink()` call) by default retries exponentially increasing retry delay until it gets to 3600sec, but such exceptions can have permanent for reasons like canceled web domain. To see it:
+Some network exceptions like `SocketError` may be not permanent (local network issues) so `NetHTTPUtils` (that resolves redirect at the beginning of `DirectLink()` call) by default retries exponentially increasing retry delay until it gets to 3600sec, but such exceptions can have permanent reasons like a canceled web domain. To see it:
 ```ruby
 NetHTTPUtils.logger.level = Logger::WARN
 ```
@@ -139,6 +138,7 @@ SocketError: Failed to open TCP connection to minus.com:80 (getaddrinfo: nodenam
 
 * `module DirectLink` public methods return different sets of properties -- `DirectLink()` unites them
 * the `DirectLink::ErrorAssert` should never happen and you might report it if it does
-* style: `@@` and lambdas are used to keep things private
 * style: all exceptions should be classified as `DirectLink::Error*` or `FastImage::*`
-* this gem is a 2 or 3 libraries united so don't expect tests to be full and consistent
+* style: `@@` and lambdas are used to keep things private
+* resolution of 500px.com photo is that you get via Pro membership, not that image by URL really has
+* this gem is a 2 or 3 libraries merged so don't expect tests to be full and consistent
