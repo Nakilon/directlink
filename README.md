@@ -3,7 +3,7 @@
 
 # gem directlink
 
-This tool can convert a thumbnail URL to a high resolution image URL for several popular image hostings. Also it tells the resulting resolution and the image type (format). I wanted such automation often so finally I've decided to make a gem with a binary.
+This tool converts any sort of image hyperlink (a thumbnail URL, a link to an album, etc.) to a high resolution one. Also it tells the resulting resolution and the image type (format). I wanted such automation often so I made a gem with a binary.
 
 ## Usage
 
@@ -16,8 +16,7 @@ $ gem install directlink
 $ directlink
 usage: directlink [--debug] [--json] [--github] <link1> <link2> <link3> ...
 ```
-Converts `<img src=` attribute value from any (current regexes are very strict and are going to fail -- it is a [defensive programming](https://en.wikipedia.org/wiki/Defensive_programming) practice
-) Google web service to its high resolution version:
+Converts `<img src=` attribute value from any Google web service (current Google regexes are very strict and may often fail -- it is a [defensive programming](https://en.wikipedia.org/wiki/Defensive_programming) practice -- report me your links!) to the largest available:
 ```
 $ directlink //4.bp.blogspot.com/-5kP8ndL0kuM/Wpt82UCqvmI/AAAAAAAAEjI/ZbbZWs0-kgwRXEJ9JEGioR0bm6U8MOkvQCKgBGAs/w530-h278-p/IMG_20171223_093922.jpg
 <= //4.bp.blogspot.com/-5kP8ndL0kuM/Wpt82UCqvmI/AAAAAAAAEjI/ZbbZWs0-kgwRXEJ9JEGioR0bm6U8MOkvQCKgBGAs/w530-h278-p/IMG_20171223_093922.jpg
@@ -82,7 +81,7 @@ Downloads master:HEAD version of `lib/directlink.rb` from GitHub and uses it onc
 ```
 $ directlink --github https://imgur.com/a/oacI3gl
 ```
-When known image hosting that has handy API is recognized, the API will be used and you'll have to create app there and provide env vars:
+When an image hosting with known API is recognized, the API will be used and you'll have to create app there and provide env vars:
 ```
 $ export IMGUR_CLIENT_ID=0f99cd781...
 $ export FLICKR_API_KEY=dc2bfd348b...
@@ -107,7 +106,7 @@ irb> pp DirectLink "https://imgur.com/a/oacI3gl"
   height=100,
   type="image/png">]
 ```
-Google can serve image in arbitrary resolution so `DirectLink.google` has optional argument to specify the desired width:
+Google can serve image in arbitrary resolution so `DirectLink.google` has an optional argument to specify the desired width:
 ```
 irb> DirectLink.google "//4.bp.blogspot.com/-5kP8ndL0kuM/Wpt82UCqvmI/AAAAAAAAEjI/ZbbZWs0-kgwRXEJ9JEGioR0bm6U8MOkvQCKgBGAs/w530-h278-p/IMG_20171223_093922.jpg", 100
 => "https://4.bp.blogspot.com/-5kP8ndL0kuM/Wpt82UCqvmI/AAAAAAAAEjI/ZbbZWs0-kgwRXEJ9JEGioR0bm6U8MOkvQCKgBGAs/s100/IMG_20171223_093922.jpg"
@@ -138,7 +137,6 @@ SocketError: Failed to open TCP connection to minus.com:80 (getaddrinfo: nodenam
 
 * `module DirectLink` public methods return different sets of properties -- `DirectLink()` unites them
 * the `DirectLink::ErrorAssert` should never happen and you might report it if it does
-* style: all exceptions should be classified as `DirectLink::Error*` or `FastImage::*`
 * style: `@@` and lambdas are used to keep things private
-* resolution of 500px.com photo is that you get via Pro membership, not that image by URL really has
+* resolution of 500px.com photo is that you get via Pro membership, not that URL really provides
 * this gem is a 2 or 3 libraries merged so don't expect tests to be full and consistent
