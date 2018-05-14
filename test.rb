@@ -49,6 +49,13 @@ describe DirectLink do
         end
       end
       %w{
+        //lh3.googleusercontent.com/proxy/S-Z1P92Dd_u0DjYrz5Tb7j0mbZsGjPVffx9lHPQZCqqCFr6vAigCPOG0fEYKU6d-wIvwYr2WriAfh97KjBr9Bq1RKgyHzHq2fpAotTnJYOLd3x_tF2chsGBVuAewE7qp2QDtCYyomyn3dGjZ6cKUnYIC8w=s110-p-k
+      }.each_with_index do |link, i|
+        it "posted_website_preview_##{i + 1}" do
+          DirectLink.google link
+        end
+      end
+      %w{
         0 https://lh3.googleusercontent.com/-okfI8E6JAgg/AAAAAAAAAAI/AAAAAAAAZa0/FEv9H8woCBg/s30-p-rw-no/photo.jpg
         7 https://lh3.googleusercontent.com/-okfI8E6JAgg/AAAAAAAAAAI/AAAAAAAAZa0/FEv9H8woCBg/s75-p-rw-no/photo.jpg
         _ https://lh3.googleusercontent.com/-bhgxgLsFYWI/AAAAAAAAAAI/AAAAAAAA4MI/_KuKE-Goa7E/s35-p-k-rw-no/photo.jpg
