@@ -36,13 +36,26 @@ module DirectLink
     case src
     # Google Plus post image
     when /\A(https:\/\/lh3\.googleusercontent\.com\/-[a-zA-Z0-9_-]{11}\/W[n-r][a-zA-Z0-9_-]{8}I\/AAAAAAAA[bA-V][a-zA-Z0-9]{2}\/[a-zA-Z0-9_-]{32}[gwAQ]CJoC\/)w[1-4]\d\d-h(318|353|727)-n(\/[^\/]+)\z/,
-         /\A(https:\/\/lh3\.googleusercontent\.com\/-[a-zA-Z0-9_-]{11}\/W[a-zA-Z0-9_-]{9}I\/AAAAAAA[a-zA-Z0-9_-]{4}\/[a-zA-Z0-9_-]{33}(?:CJoC|CL0B(?:GAs)?)\/)w530(?:-d)?-h[2-9]\d\d-n(\/[^\/]+)\z/
+         /\A(https:\/\/lh3\.googleusercontent\.com\/-[a-zA-Z]{11}\/W[a-zA-Z0-9]{8}II\/AAAAAAAACkQ\/[a-zA-Z0-9_]{28}AXNkwCJoC\/)w239-h318-n(\/[^\/]+)\z/,
+         /\A(https:\/\/lh3\.googleusercontent\.com\/-[a-zA-Z0-9_-]{11}\/W[a-zA-Z0-9_-]{9}I\/AAAAAAA[a-zA-Z0-9_-]{4}\/[a-zA-Z0-9_-]{33}(?:CJoC|CL0B(?:GAs)?)\/)w530(?:-d)?-h[2-9]\d\d-n(\/[^\/]+)\z/,
+         /\A(https:\/\/lh3\.googleusercontent\.com\/-[a-zA-Z0-9_-]{11}\/W[a-zA-Z0-9_-]{9}I\/AAAAAAAA[a-zA-Z0-9]{3}\/[a-zA-Z0-9_-]{32}[gwAQ]CJoC\/)w424-h318-n(\/[^\/]+)\z/,
+         /\A(https:\/\/lh3\.googleusercontent\.com\/-[a-zA-Z0-9_-]{11}\/W[a-zA-Z0-9]{9}I\/AAAAAAAA[ABI][a-zA-Z][a-zA-Z0-9]\/[a-zA-Z0-9_-]{32}[gwAQ]CJoC\/)w265-h353-n(\/[^\/]+)\z/,
+         /\A(https:\/\/lh3\.googleusercontent\.com\/-[a-zA-Z0-9]{11}\/W[a-zA-Z]{8}[DMV_]I\/AAAAAAAA[a-zA-Z]{3}\/[a-zA-Z0-9_]{32}[wQ]CJoC\/)w239-h318-n(\/[^\/]+)\z/,
+         /\A(https:\/\/lh3\.googleusercontent\.com\/-[a-zA-Z0-9]{11}\/Wu[a-zA-Z]{7}HI\/AAAAAAAABAI\/[a-zA-Z0-9]{32}QCJoC\/)w398-h318-n(\/[^\/]+)\z/,
+         /\A(https:\/\/lh3\.googleusercontent\.com\/-[a-zA-Z0-9-]{11}\/Wv[a-zA-Z0-9]{7}PI\/AAAAAAAAC60\/[a-zA-Z0-9-]{32}QCJoC\/)w408-h318-n(\/[^\/]+)\z/,
+         /\A(https:\/\/lh3\.googleusercontent\.com\/-[a-zA-Z0-9]{11}\/Wv[a-zA-Z0-9]{7}_I\/AAAAAAAAA20\/[a-zA-Z0-9]{32}QCJoC\/)w212-h318-n(\/[^\/]+)\z/,
+         /\A(https:\/\/lh3\.googleusercontent\.com\/-[a-zA-Z0-9-]{11}\/Wv[a-zA-Z_]{7}AI\/AAAAAAAACkQ\/[a-zA-Z0-9]{32}gCJoC\/)w318-h318-n(\/[^\/]+)\z/,
+         /\A(https:\/\/lh3\.googleusercontent\.com\/-[a-zA-Z0-9]{11}\/Wt[a-zA-Z]{7}mI\/AAAAAAAAmBQ\/[a-zA-Z0-9]{32}QCJoC\/)w530-h150-n(\/[^\/]+)\z/
       "#{$1}s#{width}#{$2}"
     when /\A(\/\/lh3\.googleusercontent\.com\/proxy\/[a-zA-Z0-9_-]{66,523}=)(?:w(?:464|504|530)-h[2-7]\d\d-[np]|s530-p|s110-p-k)\z/
       "https:#{$1}s#{width}"
-    when /\A(\/\/lh3\.googleusercontent\.com\/-[a-zA-Z0-9-]{11}\/W[a-zA-Z0-9_-]{9}I\/AAAAAAA[AC][a-zA-Z0-9]{3}\/[a-zA-Z0-9_-]{32}[gw]CJoC\/)w530-h3\d\d-p(\/[^\/]+)\z/,
+    when /\A(\/\/lh3\.googleusercontent\.com\/cOh2Nsv7EGo0QbuoKxoKZVZO_NcBzufuvPtzirMJfPmAzCzMtnEncfA7zGIDTJfkc1YZFX2MhgKnjA=)w530-h398-p\z/
+      "https:#{$1}s#{width}"
+    when /\A(\/\/lh3\.googleusercontent\.com\/-[a-zA-Z0-9-]{11}\/W[a-zA-Z0-9_-]{9}I\/AAAAAAA[AC][a-zA-Z0-9]{3}\/[a-zA-Z0-9_-]{32}[gwA]CJoC\/)w530-h3\d\d-p(\/[^\/]+)\z/,
          /\A(\/\/[14]\.bp\.blogspot\.com\/-[a-zA-Z0-9_-]{11}\/W[np][a-zA-Z0-9_-]{8}I\/AAAAAAAA[DE][a-zA-Z0-9_-]{2}\/[a-zA-Z0-9_-]{33}C(?:Lc|Kg)BGAs\/)w530-h278-p(\/[^\/]+)\z/
       "https:#{$1}s#{width}#{$2}"
+    when /\A(https:\/\/lh3\.googleusercontent\.com\/-dUQsDY2vWuE\/AAAAAAAAAAI\/AAAAAAAAAAQ\/wVFZagieszU\/)w530-h176-n(\/photo\.jpg)\z/
+      "#{$1}s#{width}#{$2}"
     # Google Plus userpic
     when /\A(https:\/\/lh3\.googleusercontent\.com\/-[a-zA-Z0-9-]{11}\/AAAAAAAAAAI\/AAAAAAAA[a-zA-Z0-9]{3}\/[a-zA-Z0-9_-]{11}\/)s\d\d-p(?:-k)?-rw-no(\/photo\.jpg)\z/
       "#{$1}s#{width}#{$2}"

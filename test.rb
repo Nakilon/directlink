@@ -43,8 +43,26 @@ describe DirectLink do
          783 https://lh3.googleusercontent.com/-SqAvt_F__bg/Wq0huHcX2NI/AAAAAAAAVj0/XfnwCU7JwhUh0Knw8rcXA-bhpKYkI4hdwCJoC/w358-h318-n/IMG_20180317_120218-01-01.jpeg
          830 https://lh3.googleusercontent.com/-VB3YlLVL_tQ/Wo21yTbKl_I/AAAAAAAAApU/3DURmsYBklcv0kif2ZRjhoLG4mTHYf8OwCJoC/w254-h318-n/180218_00001.jpg
         1002 https://lh3.googleusercontent.com/-d8FkfLWq-_4/WpQXzEfFgBI/AAAAAAAADww/J32xKSAYUkgIc3pyrZnNmRec6kjdnJBHgCJoC/w239-h318-n/gplus-485739203.jpg
-      ".scan(/(\S+) (\S+)/).each do |i, link|
-        it "Google Plus post image ##{i}" do
+      ".scan(/(\S+) (\S+)/).each do |i, link|   # some pre-May-2018 urls dump from a community
+        it "Google Plus community post image ##{i}" do
+          DirectLink.google link
+        end
+      end
+      %w{
+        https://lh3.googleusercontent.com/-dUQsDY2vWuE/AAAAAAAAAAI/AAAAAAAAAAQ/wVFZagieszU/w530-h176-n/photo.jpg
+        //lh3.googleusercontent.com/cOh2Nsv7EGo0QbuoKxoKZVZO_NcBzufuvPtzirMJfPmAzCzMtnEncfA7zGIDTJfkc1YZFX2MhgKnjA=w530-h398-p
+        //lh3.googleusercontent.com/-0Vt5HFpPTVQ/Wnh02Jb4SFI/AAAAAAAAbCU/MtusII6-FcgxuHQWofAaWF01IBUVykMyACJoC/w530-h351-p/DSC_3804%2B-%2B%25D0%25BA%25D0%25BE%25D0%25BF%25D0%25B8%25D1%258F.JPG
+        https://lh3.googleusercontent.com/-u3yxaS-b85c/WvOtHJn-DxI/AAAAAAAAAKg/A_PoO64o0VkX1erPKebiO7Xcs5Iy3idbACJoC/w424-h318-n/IMG_20180510_082023.jpg
+        https://lh3.googleusercontent.com/-K2XODEFntJY/Wvl8HLwfF_I/AAAAAAAAA20/mqOtMCFuBkkvtv7jdpVkJv2XSXlOLoXVQCJoC/w212-h318-n/DPP_0006.JPG
+        https://lh3.googleusercontent.com/-702a8U4EIiw/WuxqzXHQCHI/AAAAAAAABAI/rA0R2UsbxoswvH6nSePnwa5VHG2f5kNOQCJoC/w398-h318-n/Fox-Desktop-1024x1280.jpg
+        https://lh3.googleusercontent.com/-YQFXT62-1OA/WvMUBWXI0PI/AAAAAAAAC60/gdtkQz9YI0knYkFB8VjC2CpKOD6-Zs6hQCJoC/w408-h318-n/%25D0%25BF%25D0%25BE%25D1%2581.jpg
+        https://lh3.googleusercontent.com/--P4MRZpGk-A/WveQe_YKbAI/AAAAAAAACkQ/eTz2maXvw7A0iKoPjfuwEgfTiZS3a3HSgCJoC/w318-h318-n/gplus1165736192.jpg
+        https://lh3.googleusercontent.com/-CH2N9uhwMOg/WtOxVJ1DNxI/AAAAAAAAMGs/pJf8awKJcyMFlx2g89p9_QjqlyQDmYMmACJoC/w424-h318-n/DSC03178.JPG
+        https://lh3.googleusercontent.com/-NGME5H7fY1o/WtaUJCaDGmI/AAAAAAAAmBQ/jZhatiBmHPEiAAABcY2DoJ6KuzVBvqGxQCJoC/w530-h150-n/%25D0%25A1%25D0%25BD%25D0%25B8%25D0%25BC%25D0%25BE%25D0%25BA%2B%25D1%258D%25D0%25BA%25D1%2580%25D0%25B0%25D0%25BD%25D0%25B0%2B2018-04-18%2B%25D0%25B2%2B3.32.42.png
+        https://lh3.googleusercontent.com/-40QwR_c58sw/WsLyS3a8uhI/AAAAAAAAAas/ojaQoF1-ZFIboOS6c5kLs7bOl_TAOU6oACJoC/w424-h318-n/271091.jpg
+        https://lh3.googleusercontent.com/-XhWuVCyNBjY/WvOtHOyaj_I/AAAAAAAAAKo/gOAn__a75NwYSgaBaEBGeCTAFI9MyjqlwCJoC/w239-h318-n/IMG_20180510_081956.jpg
+      }.each_with_index do |link, i|
+        it "another Google Plus community post image ##{i + 1}" do
           DirectLink.google link
         end
       end
