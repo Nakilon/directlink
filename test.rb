@@ -61,8 +61,20 @@ describe DirectLink do
         https://lh3.googleusercontent.com/-NGME5H7fY1o/WtaUJCaDGmI/AAAAAAAAmBQ/jZhatiBmHPEiAAABcY2DoJ6KuzVBvqGxQCJoC/w530-h150-n/%25D0%25A1%25D0%25BD%25D0%25B8%25D0%25BC%25D0%25BE%25D0%25BA%2B%25D1%258D%25D0%25BA%25D1%2580%25D0%25B0%25D0%25BD%25D0%25B0%2B2018-04-18%2B%25D0%25B2%2B3.32.42.png
         https://lh3.googleusercontent.com/-40QwR_c58sw/WsLyS3a8uhI/AAAAAAAAAas/ojaQoF1-ZFIboOS6c5kLs7bOl_TAOU6oACJoC/w424-h318-n/271091.jpg
         https://lh3.googleusercontent.com/-XhWuVCyNBjY/WvOtHOyaj_I/AAAAAAAAAKo/gOAn__a75NwYSgaBaEBGeCTAFI9MyjqlwCJoC/w239-h318-n/IMG_20180510_081956.jpg
-      }.each_with_index do |link, i|
+      }.each_with_index do |link, i|  # March contenstants
         it "another Google Plus community post image ##{i + 1}" do
+          DirectLink.google link
+        end
+      end
+      %w{
+        https://lh3.googleusercontent.com/-f37xWyiyP8U/WvmxOxCd-0I/AAAAAAAACpw/3A2tRj02oY40MzJqZBJyWGImoSer0lwMgCJoC/s0/140809%2B029.jpg
+        https://lh3.googleusercontent.com/-1s_eiQB4x2k/WvXQEx59z2I/AAAAAAAAcI0/DvKYzWw3g6UNelqAQdOwrdtYdSEqKgkxwCJoC/s0/001
+        https://lh3.googleusercontent.com/-1Rcbffs4iRI/WvaSsRCrxJI/AAAAAAAAcJs/e-N9tmjaTCIxEBE_jXwFjiYPyZXFwh4owCJoC/s0/001
+        https://lh3.googleusercontent.com/-VXUjuSl-dZY/WvK340_E9uI/AAAAAAAAVlg/HqKf1LgUcPUJNrLxHebCMuHhpDRq36_bQCJoC/s0/gplus248254159.jpg
+        https://lh3.googleusercontent.com/-NlZRwcX_Lj8/WvQTijeAfJI/AAAAAAABNyo/jgoDgbZdTvsnLOGmmYlXMr2jL66ieZV4QCJoC/s0/67u8iii.png
+        https://lh3.googleusercontent.com/-8baBz80pf8Y/Wu8KG5lyGhI/AAAAAAACSyU/s3hasZzObK0VlntA1EBj-WBrTRagzRnLQCJoC/s0/%25D0%2592%25D0%25B5%25D1%2581%25D0%25B5%25D0%25BD%25D0%25BD%25D0%25B8%25D0%25B5%2B%25D0%25BA%25D1%2580%25D0%25B0%25D1%2581%25D0%25B0%25D0%25B2%25D1%2586%25D1%258B.JPG
+      }.each_with_index do |link, i|  # gpluscomm_105636351696833883213_86400
+        it "already high res image ##{i + 1}" do
           DirectLink.google link
         end
       end
