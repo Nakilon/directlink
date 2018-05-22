@@ -75,7 +75,6 @@ module DirectLink
 
   require "json"
   require "nethttputils"
-  NetHTTPUtils.logger.level = Logger::FATAL
 
   def self.imgur link
     raise ErrorMissingEnvVar.new "define IMGUR_CLIENT_ID env var" unless ENV["IMGUR_CLIENT_ID"]
