@@ -9,7 +9,7 @@ Gem::Specification.new do |spec|
   spec.homepage     = "https://github.com/nakilon/directlink"
   spec.metadata     = {"source_code_uri" => "https://github.com/nakilon/directlink"}
 
-  spec.add_dependency "nethttputils", "~>0.2.3.0"
+  spec.add_dependency "nethttputils", "~>0.2.4.0"
   spec.add_dependency "fastimage", "~>2.1.3"
   spec.add_development_dependency "minitest"
 
