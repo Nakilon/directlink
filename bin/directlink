@@ -42,6 +42,7 @@ if github
 else
   require "directlink"
 end
+# TODO --timeout=
 DirectLink.silent = !debug
 abort "usage: directlink [--debug] [--json] [--github] <link1> <link2> <link3> ...\n#{
         if github
@@ -67,6 +68,7 @@ begin
     end
   end
 rescue NetHTTPUtils::Error,
+       SocketError,
        FastImage::UnknownImageType,
        FastImage::ImageFetchFailure,
        DirectLink::ErrorMissingEnvVar,

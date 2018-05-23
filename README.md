@@ -115,6 +115,7 @@ To silent the logger that `DirectLink.imgur` uses:
 ```ruby
 DirectLink.silent = true
 ```
+You also may look into [`bin/directlink`](bin/directlink) for usage example.
 
 #### about slow retries
 
