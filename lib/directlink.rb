@@ -169,6 +169,7 @@ module DirectLink
     end.max_by{ |w, h, u| w * h }
   end
 
+  require "cgi"
   def self.wiki link
     raise ErrorBadLink.new link unless %r{\Ahttps?://([a-z]{2}\.wikipedia|commons.wikimedia)\.org/wiki(/[^/]+)*/(?<id>File:.+)} =~ link
     t = JSON.load json = NetHTTPUtils.request_data( "https://commons.wikimedia.org/w/api.php", form: {
@@ -176,7 +177,7 @@ module DirectLink
       action: "query",
       prop: "imageinfo",
       iiprop: "url",
-      titles: id,
+      titles: CGI.unescape(id),
     } )
     imageinfo = t["query"]["pages"].values.first["imageinfo"]
     raise ErrorAssert.new "unexpected format of API response about #{link}: #{json}" unless imageinfo
