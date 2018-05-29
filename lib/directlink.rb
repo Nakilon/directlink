@@ -46,7 +46,8 @@ module DirectLink
          /\A(https:\/\/lh3\.googleusercontent\.com\/-[a-zA-Z0-9]{11}\/Wv[a-zA-Z0-9]{7}_I\/AAAAAAAAA20\/[a-zA-Z0-9]{32}QCJoC\/)w212-h318-n(\/[^\/]+)\z/,
          /\A(https:\/\/lh3\.googleusercontent\.com\/-[a-zA-Z0-9-]{11}\/Wv[a-zA-Z_]{7}AI\/AAAAAAAACkQ\/[a-zA-Z0-9]{32}gCJoC\/)w318-h318-n(\/[^\/]+)\z/,
          /\A(https:\/\/lh3\.googleusercontent\.com\/-[a-zA-Z0-9]{11}\/Wt[a-zA-Z]{7}mI\/AAAAAAAAmBQ\/[a-zA-Z0-9]{32}QCJoC\/)w530-h150-n(\/[^\/]+)\z/,
-         /\A(https:\/\/lh3\.googleusercontent\.com\/-[a-zA-Z0-9]{11}\/W[a-zA-Z0-9]{9}I\/AAAAAAAA[A-Z]{3}\/[a-zA-Z0-9_]{32}wCJoC\/)w346-h195-n-k-no(\/[^\/.]+\.gif)\z/
+         /\A(https:\/\/lh3\.googleusercontent\.com\/-[a-zA-Z0-9]{11}\/W[a-zA-Z0-9]{9}I\/AAAAAAAA[A-Z]{3}\/[a-zA-Z0-9_]{32}wCJoC\/)w346-h195-n-k-no(\/[^\/.]+\.gif)\z/,
+         /\A(https:\/\/lh3\.googleusercontent\.com\/-[a-zA-Z0-9_]{11}\/W[a-zA-Z0-9]{9}I\/AAAAAAAA[A-Z0-9]{3}\/[a-zA-Z0-9_]{32}gCJoC\/)w486-h864-n(\/[^\/]+)\z/
       "#{$1}s#{width}#{$2}"
     when /\A(\/\/lh3\.googleusercontent\.com\/proxy\/[a-zA-Z0-9_-]{66,523}=)(?:w(?:464|504|530)-h[2-7]\d\d-[np]|s530-p|s110-p-k)\z/
       "https:#{$1}s#{width}"

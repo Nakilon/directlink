@@ -61,6 +61,7 @@ describe DirectLink do
         https://lh3.googleusercontent.com/-NGME5H7fY1o/WtaUJCaDGmI/AAAAAAAAmBQ/jZhatiBmHPEiAAABcY2DoJ6KuzVBvqGxQCJoC/w530-h150-n/%25D0%25A1%25D0%25BD%25D0%25B8%25D0%25BC%25D0%25BE%25D0%25BA%2B%25D1%258D%25D0%25BA%25D1%2580%25D0%25B0%25D0%25BD%25D0%25B0%2B2018-04-18%2B%25D0%25B2%2B3.32.42.png
         https://lh3.googleusercontent.com/-40QwR_c58sw/WsLyS3a8uhI/AAAAAAAAAas/ojaQoF1-ZFIboOS6c5kLs7bOl_TAOU6oACJoC/w424-h318-n/271091.jpg
         https://lh3.googleusercontent.com/-XhWuVCyNBjY/WvOtHOyaj_I/AAAAAAAAAKo/gOAn__a75NwYSgaBaEBGeCTAFI9MyjqlwCJoC/w239-h318-n/IMG_20180510_081956.jpg
+        https://lh3.googleusercontent.com/-R19p_rDI8mY/Wwma1oEvD6I/AAAAAAAAEX8/tQc4JOq58REEWlukw2jDCTUjH3ejGZI8gCJoC/w486-h864-n/gplus1392977354.jpg
       }.each_with_index do |link, i|  # March contenstants
         it "another Google Plus community post image ##{i + 1}" do
           DirectLink.google link
