@@ -45,7 +45,7 @@ describe DirectLink do
         1002 https://lh3.googleusercontent.com/-d8FkfLWq-_4/WpQXzEfFgBI/AAAAAAAADww/J32xKSAYUkgIc3pyrZnNmRec6kjdnJBHgCJoC/w239-h318-n/gplus-485739203.jpg
       ".scan(/(\S+) (\S+)/).each do |i, link|   # some pre-May-2018 urls dump from a community
         it "Google Plus community post image ##{i}" do
-          DirectLink.google link
+          assert DirectLink.google link
         end
       end
       %w{
@@ -63,8 +63,23 @@ describe DirectLink do
         https://lh3.googleusercontent.com/-XhWuVCyNBjY/WvOtHOyaj_I/AAAAAAAAAKo/gOAn__a75NwYSgaBaEBGeCTAFI9MyjqlwCJoC/w239-h318-n/IMG_20180510_081956.jpg
         https://lh3.googleusercontent.com/-R19p_rDI8mY/Wwma1oEvD6I/AAAAAAAAEX8/tQc4JOq58REEWlukw2jDCTUjH3ejGZI8gCJoC/w486-h864-n/gplus1392977354.jpg
       }.each_with_index do |link, i|  # March contenstants
-        it "another Google Plus community post image ##{i + 1}" do
-          DirectLink.google link
+        it "another (March) Google Plus community post image ##{i + 1}" do
+          assert DirectLink.google link
+        end
+      end
+      %w{
+        https://lh3.googleusercontent.com/-mFRn677_gic/WwUz3_Www7I/AAAAAAAABio/MNYvB57tBvIl6Bxp0GsKHvg0hSyHyVWhwCJoC/w265-h353-n/IMG_20180522_210620_317.jpg
+        https://lh3.googleusercontent.com/-6iAmBl21QVc/Wu4Khtduz-I/AAAAAAAAA_A/lvpwTuatrtkhL31co1n9xa7kwKEVwc6IwCJoC/w301-h318-n/gplus662578195.jpg
+        https://lh3.googleusercontent.com/-NnKGFBtNG2Q/Wvt9mUDC1QI/AAAAAAAANEw/2uWvIzQmG-Y3CGHuB8-UU114z4Zr8lkLQCJoC/w530-h175-n/PANO_20180516_025747.jpg
+        https://lh3.googleusercontent.com/-Q7WO7uK6_Ew/WwvJcNQ39BI/AAAAAAAABvI/xb1bdwuEZGM2SmbwamwiMmZKFOW44bhPgCJoC/w239-h318-n/DSC03627.JPG
+        https://lh3.googleusercontent.com/-Uxa1I3V7WWI/Wu4Khq0IkaI/AAAAAAAAA_A/Dxs9JYJ6f6sv_7jNWMdNl3eo2jh9nYqDwCJoC/w296-h318-n/gplus-328480287.jpg
+        https://lh3.googleusercontent.com/-xp3mV2iqjyo/Wu4Khr5ZKhI/AAAAAAAAA_A/725HNeKw2hYtuddakPreAkaucQR6HOYGgCJoC/w424-h318-n/20180317_085037.jpg
+        https://lh3.googleusercontent.com/-oyYSEl5GABY/Wu4Khov2uGI/AAAAAAAAA_A/xFVaLt1emxUtOvys7Mw8QZIF2599lNV6ACJoC/w424-h318-n/20180317_085508.jpg
+        https://lh3.googleusercontent.com/-69MIjxFjtXg/Wu4KhkZD9nI/AAAAAAAAA_A/lBHtrho7HBQgkZNztMTdR3o1RSu47OnigCJoC/w239-h318-n/gplus1795981938.jpg
+        https://lh3.googleusercontent.com/-RW-U7dkkT88/Wu4Khs76OSI/AAAAAAAAA_A/2rsXBfNM4Isi3YBNWlgLnPgQpVN72dXiQCJoC/w318-h318-n/gplus-379421668.jpg
+      }.each_with_index do |link, i|  # April contenstants
+        it "another (April) Google Plus community post image ##{i + 1}" do
+          assert DirectLink.google link
         end
       end
       %w{
@@ -77,14 +92,14 @@ describe DirectLink do
         https://lh3.googleusercontent.com/-5USmSTZHWWI/WMi3q1GdgiI/AAAAAAAAQIA/lu9FTcUL6xMw4wdoW_I148Vm1BtF5mImwCJoC/w346-h195-n-k-no/Good%2BJob.gif
       }.each_with_index do |link, i|  # gpluscomm_105636351696833883213_86400
         it "already high res image ##{i + 1}" do
-          DirectLink.google link
+          assert DirectLink.google link
         end
       end
       %w{
         //lh3.googleusercontent.com/proxy/S-Z1P92Dd_u0DjYrz5Tb7j0mbZsGjPVffx9lHPQZCqqCFr6vAigCPOG0fEYKU6d-wIvwYr2WriAfh97KjBr9Bq1RKgyHzHq2fpAotTnJYOLd3x_tF2chsGBVuAewE7qp2QDtCYyomyn3dGjZ6cKUnYIC8w=s110-p-k
       }.each_with_index do |link, i|
         it "posted_website_preview_##{i + 1}" do
-          DirectLink.google link
+          assert DirectLink.google link
         end
       end
       %w{
@@ -95,7 +110,7 @@ describe DirectLink do
         4 https://lh3.googleusercontent.com/-Rb833O10RB4/AAAAAAAAAAI/AAAAAAAAEJc/DawCLQGnaSA/s45-p-k-rw-no/photo.jpg
       }.each_slice 2 do |i, link|
         it "Google Plus userpic #{i}" do
-          DirectLink.google link
+          assert DirectLink.google link
         end
       end
       %w{
@@ -106,7 +121,7 @@ describe DirectLink do
               _ https://lh6.googleusercontent.com/-BQEbGrPRFk4/AAAAAAAAAAI/AAAAAAAAAAA/AIcfdXDBweE5VzGGy4zMraO_pqiLuFN3yQ/s46-c-k-no-mo/photo.jpg
       }.each_slice 2 do |i, link|
         it "Hangout userpic #{i}" do
-          DirectLink.google link
+          assert DirectLink.google link
         end
       end
     end
@@ -121,6 +136,12 @@ describe DirectLink do
           assert_raises DirectLink::ErrorBadLink do
             DirectLink.imgur url
           end
+        end
+      end
+
+      it "ErrorNotFound" do
+        assert_raises DirectLink::ErrorNotFound do
+          DirectLink.imgur "https://imgur.com/a/wPi63mj"
         end
       end
 

@@ -36,16 +36,18 @@ module DirectLink
     case src
     # Google Plus post image
     when /\A(https:\/\/lh3\.googleusercontent\.com\/-[a-zA-Z0-9_-]{11}\/W[n-r][a-zA-Z0-9_-]{8}I\/AAAAAAAA[bA-V][a-zA-Z0-9]{2}\/[a-zA-Z0-9_-]{32}[gwAQ]CJoC\/)w[1-4]\d\d-h(318|353|727)-n(\/[^\/]+)\z/,
-         /\A(https:\/\/lh3\.googleusercontent\.com\/-[a-zA-Z]{11}\/W[a-zA-Z0-9]{8}II\/AAAAAAAACkQ\/[a-zA-Z0-9_]{28}AXNkwCJoC\/)w239-h318-n(\/[^\/]+)\z/,
-         /\A(https:\/\/lh3\.googleusercontent\.com\/-[a-zA-Z0-9_-]{11}\/W[a-zA-Z0-9_-]{9}I\/AAAAAAA[a-zA-Z0-9_-]{4}\/[a-zA-Z0-9_-]{33}(?:CJoC|CL0B(?:GAs)?)\/)w530(?:-d)?-h[2-9]\d\d-n(\/[^\/]+)\z/,
-         /\A(https:\/\/lh3\.googleusercontent\.com\/-[a-zA-Z0-9_-]{11}\/W[a-zA-Z0-9_-]{9}I\/AAAAAAAA[a-zA-Z0-9]{3}\/[a-zA-Z0-9_-]{32}[gwAQ]CJoC\/)w424-h318-n(\/[^\/]+)\z/,
-         /\A(https:\/\/lh3\.googleusercontent\.com\/-[a-zA-Z0-9_-]{11}\/W[a-zA-Z0-9]{9}I\/AAAAAAAA[ABI][a-zA-Z][a-zA-Z0-9]\/[a-zA-Z0-9_-]{32}[gwAQ]CJoC\/)w265-h353-n(\/[^\/]+)\z/,
-         /\A(https:\/\/lh3\.googleusercontent\.com\/-[a-zA-Z0-9]{11}\/W[a-zA-Z]{8}[DMV_]I\/AAAAAAAA[a-zA-Z]{3}\/[a-zA-Z0-9_]{32}[wQ]CJoC\/)w239-h318-n(\/[^\/]+)\z/,
-         /\A(https:\/\/lh3\.googleusercontent\.com\/-[a-zA-Z0-9]{11}\/Wu[a-zA-Z]{7}HI\/AAAAAAAABAI\/[a-zA-Z0-9]{32}QCJoC\/)w398-h318-n(\/[^\/]+)\z/,
-         /\A(https:\/\/lh3\.googleusercontent\.com\/-[a-zA-Z0-9-]{11}\/Wv[a-zA-Z0-9]{7}PI\/AAAAAAAAC60\/[a-zA-Z0-9-]{32}QCJoC\/)w408-h318-n(\/[^\/]+)\z/,
+         /\A(https:\/\/lh3\.googleusercontent\.com\/-[a-zA-Z0-9_]{11}\/W[a-zA-Z0-9_]{9}I\/AAAAAAAA[a-zA-Z_]{3}\/[a-zA-Z0-9_]{32}[gwQ]CJoC\/)w239-h318-n(\/[^\/]+)\z/,
          /\A(https:\/\/lh3\.googleusercontent\.com\/-[a-zA-Z0-9]{11}\/Wv[a-zA-Z0-9]{7}_I\/AAAAAAAAA20\/[a-zA-Z0-9]{32}QCJoC\/)w212-h318-n(\/[^\/]+)\z/,
+         /\A(https:\/\/lh3\.googleusercontent\.com\/-[a-zA-Z0-9]{11}\/W[a-zA-Z0-9]{9}I\/AAAAAAAAA_A\/[a-zA-Z0-9_]{32}wCJoC\/)w296-h318-n(\/[^\/]+)\z/,
+         /\A(https:\/\/lh3\.googleusercontent\.com\/-[a-zA-Z0-9]{11}\/Wu[a-zA-Z]{7}HI\/AAAAAAAABAI\/[a-zA-Z0-9]{32}QCJoC\/)w398-h318-n(\/[^\/]+)\z/,
          /\A(https:\/\/lh3\.googleusercontent\.com\/-[a-zA-Z0-9-]{11}\/Wv[a-zA-Z_]{7}AI\/AAAAAAAACkQ\/[a-zA-Z0-9]{32}gCJoC\/)w318-h318-n(\/[^\/]+)\z/,
-         /\A(https:\/\/lh3\.googleusercontent\.com\/-[a-zA-Z0-9]{11}\/Wt[a-zA-Z]{7}mI\/AAAAAAAAmBQ\/[a-zA-Z0-9]{32}QCJoC\/)w530-h150-n(\/[^\/]+)\z/,
+         /\A(https:\/\/lh3\.googleusercontent\.com\/-[a-zA-Z0-9-]{11}\/W[a-zA-Z0-9]{9}I\/AAAAAAAAA_A\/[a-zA-Z0-9]{32}QCJoC\/)w318-h318-n(\/[^\/]+)\z/,
+         /\A(https:\/\/lh3\.googleusercontent\.com\/-[a-zA-Z0-9]{11}\/W[a-zA-Z0-9-]{9}I\/AAAAAAAAA_A\/[a-zA-Z0-9]{32}wCJoC\/)w301-h318-n(\/[^\/]+)\z/,
+         /\A(https:\/\/lh3\.googleusercontent\.com\/-[a-zA-Z0-9_-]{11}\/W[a-zA-Z0-9_-]{9}I\/AAAAAAAA[a-zA-Z0-9_]{3}\/[a-zA-Z0-9_-]{32}[gwAQ]CJoC\/)w424-h318-n(\/[^\/]+)\z/,
+         /\A(https:\/\/lh3\.googleusercontent\.com\/-[a-zA-Z0-9-]{11}\/Wv[a-zA-Z0-9]{7}PI\/AAAAAAAAC60\/[a-zA-Z0-9-]{32}QCJoC\/)w408-h318-n(\/[^\/]+)\z/,
+         /\A(https:\/\/lh3\.googleusercontent\.com\/-[a-zA-Z0-9_-]{11}\/W[a-zA-Z0-9_-]{9}I\/AAAAAAA[a-zA-Z0-9_-]{4}\/[a-zA-Z0-9_-]{33}(?:CJoC|CL0B(?:GAs)?)\/)w530(?:-d)?-h[1-9]\d\d-n(\/[^\/]+)\z/,
+         /\A(https:\/\/lh3\.googleusercontent\.com\/-[a-zA-Z0-9]{11}\/W[a-zA-Z0-9]{9}I\/AAAAAAAA[a-zA-Z]{3}\/[a-zA-Z0-9-]{32}QCJoC\/)w530-h175-n(\/[^\/]+)\z/,
+         /\A(https:\/\/lh3\.googleusercontent\.com\/-[a-zA-Z0-9_-]{11}\/W[a-zA-Z0-9_]{9}I\/AAAAAAAA[ABI][a-zA-Z][a-zA-Z0-9]\/[a-zA-Z0-9_-]{32}[gwAQ]CJoC\/)w265-h353-n(\/[^\/]+)\z/,
          /\A(https:\/\/lh3\.googleusercontent\.com\/-[a-zA-Z0-9]{11}\/W[a-zA-Z0-9]{9}I\/AAAAAAAA[A-Z]{3}\/[a-zA-Z0-9_]{32}wCJoC\/)w346-h195-n-k-no(\/[^\/.]+\.gif)\z/,
          /\A(https:\/\/lh3\.googleusercontent\.com\/-[a-zA-Z0-9_]{11}\/W[a-zA-Z0-9]{9}I\/AAAAAAAA[A-Z0-9]{3}\/[a-zA-Z0-9_]{32}gCJoC\/)w486-h864-n(\/[^\/]+)\z/
       "#{$1}s#{width}#{$2}"
@@ -104,8 +106,10 @@ module DirectLink
       if data["error"]
         raise ErrorAssert.new "unexpected error #{data.inspect} for #{link}"
       elsif data["images"]
+        raise ErrorNotFound.new link.inspect if data["images"].empty?
         data["images"]
       elsif data["type"] && data["type"].start_with?("image/")
+        # TODO check if this branch is possible at all
         [ data ]
       # elsif data["comment"]
       #   fi["https://imgur.com/" + data["image_id"]]
