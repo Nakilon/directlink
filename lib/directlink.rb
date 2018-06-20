@@ -80,27 +80,27 @@ module DirectLink
   require "json"
   require "nethttputils"
 
-  def self.imgur link
+  # TODO make the timeout handling respect the way the Directlink method works with timeouts
+  def self.imgur link, timeout = 1000
     raise ErrorMissingEnvVar.new "define IMGUR_CLIENT_ID env var" unless ENV["IMGUR_CLIENT_ID"]
 
     case link
     when /\Ahttps?:\/\/(?:(?:i|m|www)\.)?imgur\.com\/(a|gallery)\/([a-zA-Z0-9]{5}(?:[a-zA-Z0-9]{2})?)\z/,
          /\Ahttps?:\/\/imgur\.com\/(gallery)\/([a-zA-Z0-9]{5}(?:[a-zA-Z0-9]{2})?)\/new\z/
-      timeout = 1
+      t = 1
       json = begin
         NetHTTPUtils.request_data "https://api.imgur.com/3/#{
           $1 == "gallery" ? "gallery" : "album"
         }/#{$2}/0.json", header: { Authorization: "Client-ID #{ENV["IMGUR_CLIENT_ID"]}" }
       rescue NetHTTPUtils::Error => e
-        case e.code
-        when 500
-          logger.error "retrying in #{timeout} seconds because of Imgur HTTP ERROR 500"
-          sleep timeout
-          timeout *= 2
+        if 500 == e.code && t < timeout
+          logger.error "retrying in #{t} seconds because of Imgur HTTP ERROR 500"
+          sleep t
+          t *= 2
           retry
-        when 404 ; raise ErrorNotFound.new link.inspect
-        else ; raise ErrorAssert.new "unexpected http error for #{link}"
         end
+        raise ErrorNotFound.new link.inspect if 404 == e.code
+        raise ErrorAssert.new "unexpected http error for #{link}"
       end
       data = JSON.load(json)["data"]
       if data["error"]
@@ -122,10 +122,17 @@ module DirectLink
          /\Ahttps?:\/\/imgur\.com\/([a-zA-Z0-9]{5}(?:[a-zA-Z0-9]{2})?)\z/,
          /\Ahttps?:\/\/imgur\.com\/([a-zA-Z0-9]{7})(?:\?\S+)?\z/,
          /\Ahttps?:\/\/imgur\.com\/r\/[0-9_a-z]+\/([a-zA-Z0-9]{7})\z/
+      t = 1
       json = begin
         NetHTTPUtils.request_data "https://api.imgur.com/3/image/#{$1}/0.json", header: { Authorization: "Client-ID #{ENV["IMGUR_CLIENT_ID"]}" }
       rescue NetHTTPUtils::Error => e
         raise ErrorNotFound.new link.inspect if e.code == 404
+        if e.code == 400 && t < timeout
+          logger.error "retrying in #{t} seconds because of Imgur HTTP ERROR 400"
+          sleep t
+          t *= 2
+          retry
+        end
         raise ErrorAssert.new "unexpected http error for #{link}"
       end
       [ JSON.load(json)["data"] ]
@@ -142,8 +149,8 @@ module DirectLink
   end
 
   def self._500px link
-    raise ErrorNotFound.new link    # 500px.com has deprecated their API
     raise ErrorBadLink.new link unless %r{\Ahttps://500px\.com/photo/(?<id>[^/]+)/[^/]+\z} =~ link
+    raise ErrorNotFound.new link    # 500px.com has deprecated their API
     raise ErrorMissingEnvVar.new "define _500PX_CONSUMER_KEY env var !!! WARNING: the 500px.com deprecates their API in summer of 2018 !!!" unless ENV["_500PX_CONSUMER_KEY"]
     JSON.load( NetHTTPUtils.request_data "https://api.500px.com/v1/photos/#{id}", form: {
       image_size: 2048,

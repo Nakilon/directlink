@@ -140,9 +140,10 @@ describe DirectLink do
       end
 
       it "ErrorNotFound when album is empty" do
-        assert_raises DirectLink::ErrorNotFound do
+        e = assert_raises DirectLink::ErrorNotFound do
           DirectLink.imgur "https://imgur.com/a/wPi63mj"
         end
+        assert_nil e.cause if Exception.instance_methods.include? :cause  # Ruby 2.1
       end
 
       valid_imgur_image_url = "https://i.imgur.com/BLCesav.jpg"
@@ -150,20 +151,33 @@ describe DirectLink do
         assert_equal [["https://i.imgur.com/BLCesav.jpg", 1000, 1500, "image/jpeg"]],
                      DirectLink.imgur(valid_imgur_image_url)
       end
+      it 400 do
+        e = assert_raises DirectLink::ErrorAssert do
+          NetHTTPUtils.stub :request_data, ->*{ raise NetHTTPUtils::Error.new "", 400 } do
+            DirectLink.imgur valid_imgur_image_url, 4   # do not remove `4` or test may hang
+          end
+        end
+        assert_equal 400, e.cause.code if Exception.instance_methods.include? :cause  # Ruby 2.1
+      end
+      it "does not 400 after a successfull retry" do
+        f = false
+        m = NetHTTPUtils.method :request_data
+        NetHTTPUtils.stub :request_data, lambda{ |*args|
+          f ^= true
+          raise NetHTTPUtils::Error.new "", 400 if f
+          m.call *args
+        } do
+          assert_equal [["https://i.imgur.com/BLCesav.jpg", 1000, 1500, "image/jpeg"]],
+            DirectLink.imgur(valid_imgur_image_url, 4)   # do not remove `4` or test may hang
+        end
+      end
       it 404 do
-        assert_raises DirectLink::ErrorNotFound do
+        e = assert_raises DirectLink::ErrorNotFound do
           NetHTTPUtils.stub :request_data, ->*{ raise NetHTTPUtils::Error.new "", 404 } do
             DirectLink.imgur valid_imgur_image_url
           end
         end
-      end
-      it 400 do
-        e = assert_raises DirectLink::ErrorAssert do
-          NetHTTPUtils.stub :request_data, ->*{ raise NetHTTPUtils::Error.new "", 400 } do
-            DirectLink.imgur valid_imgur_image_url
-          end
-        end
-        assert_equal 400, e.cause.code if Exception.instance_methods.include? :cause  # Ruby 2.1
+        assert_equal 404, e.cause.code if Exception.instance_methods.include? :cause  # Ruby 2.1
       end
 
       [ # TODO: move these end line comments to test names; and do the same in other tests
