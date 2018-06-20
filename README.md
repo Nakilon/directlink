@@ -85,7 +85,6 @@ When an image hosting with known API is recognized, the API will be used and you
 ```
 $ export IMGUR_CLIENT_ID=0f99cd781...
 $ export FLICKR_API_KEY=dc2bfd348b...
-$ export _500PX_CONSUMER_KEY=ESkHT...
 ```
 
 ### As a library
@@ -139,5 +138,4 @@ SocketError: Failed to open TCP connection to minus.com:80 (getaddrinfo: nodenam
 * `module DirectLink` public methods return different sets of properties -- `DirectLink()` unites them
 * the `DirectLink::ErrorAssert` should never happen and you might report it if it does
 * style: `@@` and lambdas are used to keep things private
-* resolution of 500px.com photo is that you get via Pro membership, not that URL really provides
 * this gem is a 2 or 3 libraries merged so don't expect tests to be full and consistent

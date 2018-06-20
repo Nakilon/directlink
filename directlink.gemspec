@@ -1,6 +1,6 @@
 Gem::Specification.new do |spec|
   spec.name         = "directlink"
-  spec.version      = "0.0.2.0"
+  spec.version      = "0.0.2.1"
   spec.summary      = "converts any kind of image hyperlink to direct link, type of image and its resolution"
 
   spec.author       = "Victor Maslov aka Nakilon"

@@ -139,7 +139,7 @@ describe DirectLink do
         end
       end
 
-      it "ErrorNotFound" do
+      it "ErrorNotFound when album is empty" do
         assert_raises DirectLink::ErrorNotFound do
           DirectLink.imgur "https://imgur.com/a/wPi63mj"
         end
@@ -228,7 +228,7 @@ describe DirectLink do
 
     [
       [ :_500px, [
-        ["https://500px.com/photo/112134597/milky-way-by-tom-hall", [4928, 2888, "https://drscdn.500px.org/photo/112134597/m%3D2048_k%3D1_a%3D1/v2?client_application_id=48351&webp=true&sig=6b9f6ac5aed6d051aa66911555657ef57262e7d998f406e40f50e6f61515808f", "jpeg"]],
+        ["https://500px.com/photo/112134597/milky-way-by-tom-hall", DirectLink::ErrorNotFound],
       ] ],
       [ :flickr, [
         ["https://www.flickr.com/photos/tomas-/17220613278/", DirectLink::ErrorNotFound],

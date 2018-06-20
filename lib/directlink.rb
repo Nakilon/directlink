@@ -142,6 +142,7 @@ module DirectLink
   end
 
   def self._500px link
+    raise ErrorNotFound.new link    # 500px.com has deprecated their API
     raise ErrorBadLink.new link unless %r{\Ahttps://500px\.com/photo/(?<id>[^/]+)/[^/]+\z} =~ link
     raise ErrorMissingEnvVar.new "define _500PX_CONSUMER_KEY env var !!! WARNING: the 500px.com deprecates their API in summer of 2018 !!!" unless ENV["_500PX_CONSUMER_KEY"]
     JSON.load( NetHTTPUtils.request_data "https://api.500px.com/v1/photos/#{id}", form: {
