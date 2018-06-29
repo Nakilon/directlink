@@ -61,7 +61,8 @@ module DirectLink
     when /\A(https:\/\/lh3\.googleusercontent\.com\/-dUQsDY2vWuE\/AAAAAAAAAAI\/AAAAAAAAAAQ\/wVFZagieszU\/)w530-h176-n(\/photo\.jpg)\z/
       "#{$1}s#{width}#{$2}"
     # high res Google Plus post image
-    when /\Ahttps:\/\/lh3\.googleusercontent\.com\/-[a-zA-Z0-9_-]{11}\/W[a-zA-Z0-9_-]{9}I\/AAAAAAA[ABC][a-zA-Z0-9]{3}\/[a-zA-Z0-9_-]{33}CJoC\/s0\/[^\/]+\z/
+    when /\Ahttps:\/\/lh3\.googleusercontent\.com\/-[a-zA-Z0-9_-]{11}\/W[a-zA-Z0-9_-]{9}I\/AAAAAAA[ABC][a-zA-Z0-9]{3}\/[a-zA-Z0-9_-]{33}CJoC\/s0\/[^\/]+\z/,
+         /\Ahttps:\/\/lh3\.googleusercontent\.com\/-[a-zA-Z0-9]{11}\/W[a-zA-Z0-9]{9}I\/AAAAAAAA[a-zA-Z_]{3}\/[a-zA-Z0-9]{32}gCJoC\/s0\/[^\/]+\z/
       src
     # Google Plus userpic
     when /\A(https:\/\/lh3\.googleusercontent\.com\/-[a-zA-Z0-9-]{11}\/AAAAAAAAAAI\/AAAAAAAA[a-zA-Z0-9]{3}\/[a-zA-Z0-9_-]{11}\/)s\d\d-p(?:-k)?-rw-no(\/photo\.jpg)\z/

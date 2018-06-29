@@ -89,9 +89,16 @@ describe DirectLink do
         https://lh3.googleusercontent.com/-VXUjuSl-dZY/WvK340_E9uI/AAAAAAAAVlg/HqKf1LgUcPUJNrLxHebCMuHhpDRq36_bQCJoC/s0/gplus248254159.jpg
         https://lh3.googleusercontent.com/-NlZRwcX_Lj8/WvQTijeAfJI/AAAAAAABNyo/jgoDgbZdTvsnLOGmmYlXMr2jL66ieZV4QCJoC/s0/67u8iii.png
         https://lh3.googleusercontent.com/-8baBz80pf8Y/Wu8KG5lyGhI/AAAAAAACSyU/s3hasZzObK0VlntA1EBj-WBrTRagzRnLQCJoC/s0/%25D0%2592%25D0%25B5%25D1%2581%25D0%25B5%25D0%25BD%25D0%25BD%25D0%25B8%25D0%25B5%2B%25D0%25BA%25D1%2580%25D0%25B0%25D1%2581%25D0%25B0%25D0%25B2%25D1%2586%25D1%258B.JPG
-        https://lh3.googleusercontent.com/-5USmSTZHWWI/WMi3q1GdgiI/AAAAAAAAQIA/lu9FTcUL6xMw4wdoW_I148Vm1BtF5mImwCJoC/w346-h195-n-k-no/Good%2BJob.gif
-      }.each_with_index do |link, i|  # gpluscomm_105636351696833883213_86400
+      }.each_with_index do |link, i|
         it "already high res image ##{i + 1}" do
+          assert DirectLink.google link
+        end
+      end
+      %w{
+        https://lh3.googleusercontent.com/-5USmSTZHWWI/WMi3q1GdgiI/AAAAAAAAQIA/lu9FTcUL6xMw4wdoW_I148Vm1BtF5mImwCJoC/w346-h195-n-k-no/Good%2BJob.gif
+        https://lh3.googleusercontent.com/-G8eSL3Xx2Kc/WxWt9M6LptI/AAAAAAAAB_c/KNF9RBxjL04Reb3fBtwYLI2AlnLwJ9w7gCJoC/s0/20180602212016_IMG_0244.JPG
+      }.each_with_index do |link, i|
+        it "gpluscomm_105636351696833883213_86400 ##{i + 1}" do
           assert DirectLink.google link
         end
       end

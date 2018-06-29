@@ -20,5 +20,5 @@ Gem::Specification.new do |spec|
   spec.files        = `git ls-files -z`.split(?\0) - spec.test_files
 
   spec.requirements << "you may need to create apps and provide their API tokens:"
-  spec.requirements << "IMGUR_CLIENT_ID, FLICKR_API_KEY, _500PX_CONSUMER_KEY"
+  spec.requirements << "IMGUR_CLIENT_ID, FLICKR_API_KEY"
 end
