@@ -114,9 +114,9 @@ To silent the logger that `DirectLink.imgur` uses:
 ```ruby
 DirectLink.silent = true
 ```
-You also may look into [`bin/directlink`](bin/directlink) for usage example.
+You also may look into [`bin/directlink`](bin/directlink) for usage example and the list of all possible exceptions.
 
-#### about slow retries
+#### about long retries
 
 Some network exceptions like `SocketError` may be not permanent (local network issues) so `NetHTTPUtils` (that resolves redirect at the beginning of `DirectLink()` call) by default retries exponentially increasing retry delay until it gets to 3600sec, but such exceptions can have permanent reasons like a canceled web domain. To see it:
 ```ruby
@@ -139,3 +139,4 @@ SocketError: Failed to open TCP connection to minus.com:80 (getaddrinfo: nodenam
 * the `DirectLink::ErrorAssert` should never happen and you might report it if it does
 * style: `@@` and lambdas are used to keep things private
 * this gem is a 2 or 3 libraries merged so don't expect tests to be full and consistent
+* since 500px.com closed their API in June 2018 the gem uses potentially unreliable undocumented methods
