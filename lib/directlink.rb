@@ -151,12 +151,9 @@ module DirectLink
 
   def self._500px link
     raise ErrorBadLink.new link unless %r{\Ahttps://500px\.com/photo/(?<id>[^/]+)/[^/]+\z} =~ link
-    raise ErrorNotFound.new link    # 500px.com has deprecated their API
-    raise ErrorMissingEnvVar.new "define _500PX_CONSUMER_KEY env var !!! WARNING: the 500px.com deprecates their API in summer of 2018 !!!" unless ENV["_500PX_CONSUMER_KEY"]
-    JSON.load( NetHTTPUtils.request_data "https://api.500px.com/v1/photos/#{id}", form: {
-      image_size: 2048,
-      consumer_key: ENV["_500PX_CONSUMER_KEY"],
-    } )["photo"].values_at "width", "height", "image_url", "image_format"  # could also get "camera" and "taken_at"
+    w, h = JSON.load(NetHTTPUtils.request_data "https://api.500px.com/v1/photos", form: {ids: id})["photos"].values.first.values_at("width", "height")
+    u, f = JSON.load(NetHTTPUtils.request_data "https://api.500px.com/v1/photos", form: {"image_size[]" => w, "ids" => id})["photos"].values.first["images"].first.values_at("url", "format")
+    [w, h, u, f]
   end
 
   def self.flickr link
@@ -270,5 +267,4 @@ def DirectLink link, max_redirect_resolving_retry_delay = nil
   f = FastImage.new(link, raise_on_failure: true, http_header: {"User-Agent" => "Mozilla"})
   w, h = f.size
   struct.new link, w, h, f.type
-
 end

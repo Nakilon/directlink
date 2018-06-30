@@ -249,7 +249,7 @@ describe DirectLink do
 
     [
       [ :_500px, [
-        ["https://500px.com/photo/112134597/milky-way-by-tom-hall", DirectLink::ErrorNotFound],
+        ["https://500px.com/photo/264092015/morning-rider-by-tiger-seo", [1200, 800, "https://drscdn.500px.org/photo/264092015/m%3D1200/v2?webp=true&sig=49c6f8346ba8453ccb17208d4653b9e11bc3e1bb8c21c161047e2842716f3649", "jpeg"]],
       ] ],
       [ :flickr, [
         ["https://www.flickr.com/photos/tomas-/17220613278/", DirectLink::ErrorNotFound],
