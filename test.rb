@@ -98,6 +98,7 @@ describe DirectLink do
         https://lh3.googleusercontent.com/-5USmSTZHWWI/WMi3q1GdgiI/AAAAAAAAQIA/lu9FTcUL6xMw4wdoW_I148Vm1BtF5mImwCJoC/w346-h195-n-k-no/Good%2BJob.gif
         https://lh3.googleusercontent.com/-G8eSL3Xx2Kc/WxWt9M6LptI/AAAAAAAAB_c/KNF9RBxjL04Reb3fBtwYLI2AlnLwJ9w7gCJoC/s0/20180602212016_IMG_0244.JPG
         https://lh3.googleusercontent.com/-aUVoiLNsmAg/WzcsUU2xfNI/AAAAAAAAODw/DOBual6E1rkVLHh3SKZSzbpNQzdEoZPOQCJoC/w530-h883-n-k-no/gplus-1797734754.mp4
+        //lh3.googleusercontent.com/proxy/hOIoIpMEmoVDSP40VRzM92Zw2AeLvEEhxfyKHCOxiNVPyiGvZik5rMvl3jYISLgDJla6mhZuk8pFEYJhX5BU2wy_dw=w530-h822-p
       }.each_with_index do |link, i|
         it "gpluscomm_105636351696833883213_86400 ##{i + 1}" do
           assert DirectLink.google link

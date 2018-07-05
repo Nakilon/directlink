@@ -51,7 +51,7 @@ module DirectLink
          /\A(https:\/\/lh3\.googleusercontent\.com\/-[a-zA-Z0-9]{11}\/W[a-zA-Z0-9]{9}I\/AAAAAAAA[A-Z]{3}\/[a-zA-Z0-9_]{32}wCJoC\/)w346-h195-n-k-no(\/[^\/.]+\.gif)\z/,
          /\A(https:\/\/lh3\.googleusercontent\.com\/-[a-zA-Z0-9_]{11}\/W[a-zA-Z0-9]{9}I\/AAAAAAAA[A-Z0-9]{3}\/[a-zA-Z0-9_]{32}gCJoC\/)w486-h864-n(\/[^\/]+)\z/
       "#{$1}s#{width}#{$2}"
-    when /\A(\/\/lh3\.googleusercontent\.com\/proxy\/[a-zA-Z0-9_-]{66,523}=)(?:w(?:464|504|530)-h[2-7]\d\d-[np]|s530-p|s110-p-k)\z/
+    when /\A(\/\/lh3\.googleusercontent\.com\/proxy\/[a-zA-Z0-9_-]{66,523}=)(?:w(?:464|504|530)-h\d\d\d-[np]|s530-p|s110-p-k)\z/
       "https:#{$1}s#{width}"
     when /\A(\/\/lh3\.googleusercontent\.com\/cOh2Nsv7EGo0QbuoKxoKZVZO_NcBzufuvPtzirMJfPmAzCzMtnEncfA7zGIDTJfkc1YZFX2MhgKnjA=)w530-h398-p\z/
       "https:#{$1}s#{width}"
