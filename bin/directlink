@@ -57,13 +57,13 @@ begin
   if json
     require "json"
     t = ARGV.map do |link|
-      t = DirectLink link
+      t = DirectLink link, 30
       t.is_a?(Array) ? t.map(&:to_h) : t.to_h
     end
     puts JSON.pretty_generate t.size == 1 ? t.first : t
   else
     ARGV.each do |link|
-      t = DirectLink link
+      t = DirectLink link, 30
       puts "<= #{link}"
       (t.is_a?(Array) ? t : [t]).each{ |s| puts "=> #{s.url}\n   #{s.type} #{s.width}x#{s.height}" }
     end
@@ -77,6 +77,7 @@ rescue NetHTTPUtils::Error,
        DirectLink::ErrorNotFound,
        DirectLink::ErrorBadLink => e
   puts e.backtrace if debug
+  cause = e.cause if e.cause
   c = e.class.to_s
-  abort c == e.to_s ? c : "#{c}: #{e}"
+  abort "#{c}#{": #{e}" if c != e.to_s}#{": #{cause}" if cause}"
 end

@@ -227,7 +227,7 @@ def DirectLink link, max_redirect_resolving_retry_delay = nil
   #   > NetHTTPUtils.logger.level = Logger::DEBUG
   #   > NetHTTPUtils.request_data "http://www.aeronautica.difesa.it/organizzazione/REPARTI/divolo/PublishingImages/6%C2%B0%20Stormo/2013-decollo%20al%20tramonto%20REX%201280.jpg",
   #                               max_read_retry_delay: 5, timeout: 5
-  r = NetHTTPUtils.get_response link, header: {"User-Agent" => "Mozilla"}, **(max_redirect_resolving_retry_delay ? {
+  r = NetHTTPUtils.get_response link, header: {"User-Agent" => "Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/66.0.3359.139 Safari/537.36"}, **(max_redirect_resolving_retry_delay ? {
     max_timeout_retry_delay: max_redirect_resolving_retry_delay,
     max_sslerror_retry_delay: max_redirect_resolving_retry_delay,
     max_read_retry_delay: max_redirect_resolving_retry_delay,
@@ -267,7 +267,7 @@ def DirectLink link, max_redirect_resolving_retry_delay = nil
     return struct.new u, w, h, f.type
   end
 
-  f = FastImage.new(link, raise_on_failure: true, http_header: {"User-Agent" => "Mozilla"})
+  f = FastImage.new(link, raise_on_failure: true, http_header: {"User-Agent" => "Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/66.0.3359.139 Safari/537.36"})
   w, h = f.size
   struct.new link, w, h, f.type
 end
