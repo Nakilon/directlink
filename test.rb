@@ -435,12 +435,13 @@ describe DirectLink do
 
     describe "fails" do
       [
-        [1, "http://example.com/", "FastImage::UnknownImageType: FastImage::UnknownImageType"],
+        [1, "http://example.com/", "FastImage::UnknownImageType"],
         [1, "http://example.com/404", "NetHTTPUtils::Error: HTTP error #404 "],
         [1, "http://imgur.com/HQHBBBD", "DirectLink::ErrorMissingEnvVar: define IMGUR_CLIENT_ID env var", " && unset IMGUR_CLIENT_ID"],  # TODO: make similar test for ./lib
         # by design it should be impossible to write a test for DirectLink::ErrorAssert
         [1, "https://flic.kr/p/DirectLinkErrorNotFound", "NetHTTPUtils::Error: HTTP error #404 "],
         [1, "https://imgur.com/a/badlinkpattern", "NetHTTPUtils::Error: HTTP error #404 "],
+        # TODO: a test that it appends the `exception.cause`
       ].each_with_index do |(expected_exit_code, link, expected_output, unset), i|
         it "##{i + 1}" do
           string, status = Open3.capture2e "export #{File.read("api_tokens_for_travis.sh").gsub(/\n?export/, ?\s).strip}#{unset} && bundle exec ruby bin/directlink #{link}"

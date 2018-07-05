@@ -79,5 +79,5 @@ rescue NetHTTPUtils::Error,
   puts e.backtrace if debug
   cause = e.cause if e.cause if e.respond_to? :cause
   c = e.class.to_s
-  abort "#{c}#{": #{e}" if c != e.to_s}#{": #{cause}" if cause}"
+  abort "#{c}#{": #{e}" if c != e.to_s}#{": #{cause}" if cause && c != cause.to_s}"
 end
