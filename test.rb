@@ -434,7 +434,7 @@ describe DirectLink do
 
     describe "fails" do
       [
-        [1, "http://example.com/", "FastImage::UnknownImageType"],      # TODO: is it possible to obtain it from `.cause`?
+        [1, "http://example.com/", "FastImage::UnknownImageType: FastImage::UnknownImageType"],
         [1, "http://example.com/404", "NetHTTPUtils::Error: HTTP error #404 "],
         [1, "http://imgur.com/HQHBBBD", "DirectLink::ErrorMissingEnvVar: define IMGUR_CLIENT_ID env var", " && unset IMGUR_CLIENT_ID"],  # TODO: make similar test for ./lib
         # by design it should be impossible to write a test for DirectLink::ErrorAssert
