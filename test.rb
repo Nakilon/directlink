@@ -83,6 +83,22 @@ describe DirectLink do
         end
       end
       %w{
+        https://lh3.googleusercontent.com/-4pJI5zXoL_k/WvMUBQ6TXMI/AAAAAAAAC60/XRgJlEr5hbgKzYzOQkM8b4_fq2Yp5vNbACJoC/w239-h318-n/%25D0%25B7%25D0%25B0%25D1%2581.jpg
+        https://lh3.googleusercontent.com/-NNYx8cZYF4Y/Wvl8HH7crSI/AAAAAAAAA20/0vaXtOyqDL0DLx841Gj45ePol01OCOAewCJoC/w212-h318-n/DPP_0007.JPG
+        https://lh3.googleusercontent.com/-Y9zbAQDAoH8/WyCS3fapzjI/AAAAAAAAB5M/hKzS0cR0MEgnM-YJENsL7dX8Tbch5Z04wCJoC/w265-h353-n/DSC03805.JPG
+        https://lh3.googleusercontent.com/-cQ1lothweSI/WvMUBS4uAJI/AAAAAAAAC60/tE7aakvztZgTqvRMcrk2FbrauU8LLhGPgCJoC/w239-h318-n/11.jpg
+        https://lh3.googleusercontent.com/-Aiij3wT_v6g/WyCS3VJ-hVI/AAAAAAAAB5M/qeUFKiNXnwkJ-q2q2VoM2f9ukTqPOGhAACJoC/w265-h353-n/DSC03807.JPG
+        //2.bp.blogspot.com/-hBOcNikbjOk/WwlXLbeiF9I/AAAAAAAAKKE/zT7sAlaNYIc7lTxZMY1tyND0u3UH5DuKACLcBGAs/w530-h398-p/EdnjF3yEMM8.jpg
+        https://lh3.googleusercontent.com/-1_J-FT0LhUE/Wx9lWOEXUjI/AAAAAAAAB34/183rqDWZipkaSWyV6qF_Fm7_XQrtYiwdACJoC/w265-h353-n/DSC03800.JPG
+        https://lh3.googleusercontent.com/-I72-Vlk3Ym4/Wx9lWLfINqI/AAAAAAAAB34/EIOySV-4ny8xMECMSC4TvHV43qUn0HLLwCJoC/w265-h353-n/DSC03797.JPG
+        https://lh3.googleusercontent.com/-L-RnjWuqyuI/WxZnv-NRXWI/AAAAAAAARVw/Z3yVnOEDU7kDZ-WbRoLbEh8Tao1_DtQbACJoC/w179-h318-n/20160305_134926.jpg
+        //lh3.googleusercontent.com/-7iXdrlHFM6E/WtRMPtqimXI/AAAAAAAACIo/txJyaoEvnEQu7r2-35SgwFYCWHGmXDQ3QCJoC/w530-h353-p/IMG_3695.jpg
+      }.each_with_index do |link, i|  # May contenstants
+        it "another (May) Google Plus community post image ##{i + 1}" do
+          assert DirectLink.google link
+        end
+      end
+      %w{
         https://lh3.googleusercontent.com/-f37xWyiyP8U/WvmxOxCd-0I/AAAAAAAACpw/3A2tRj02oY40MzJqZBJyWGImoSer0lwMgCJoC/s0/140809%2B029.jpg
         https://lh3.googleusercontent.com/-1s_eiQB4x2k/WvXQEx59z2I/AAAAAAAAcI0/DvKYzWw3g6UNelqAQdOwrdtYdSEqKgkxwCJoC/s0/001
         https://lh3.googleusercontent.com/-1Rcbffs4iRI/WvaSsRCrxJI/AAAAAAAAcJs/e-N9tmjaTCIxEBE_jXwFjiYPyZXFwh4owCJoC/s0/001
