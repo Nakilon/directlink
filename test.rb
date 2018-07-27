@@ -115,6 +115,7 @@ describe DirectLink do
         https://lh3.googleusercontent.com/-G8eSL3Xx2Kc/WxWt9M6LptI/AAAAAAAAB_c/KNF9RBxjL04Reb3fBtwYLI2AlnLwJ9w7gCJoC/s0/20180602212016_IMG_0244.JPG
         https://lh3.googleusercontent.com/-aUVoiLNsmAg/WzcsUU2xfNI/AAAAAAAAODw/DOBual6E1rkVLHh3SKZSzbpNQzdEoZPOQCJoC/w530-h883-n-k-no/gplus-1797734754.mp4
         //lh3.googleusercontent.com/proxy/hOIoIpMEmoVDSP40VRzM92Zw2AeLvEEhxfyKHCOxiNVPyiGvZik5rMvl3jYISLgDJla6mhZuk8pFEYJhX5BU2wy_dw=w530-h822-p
+        https://lh3.googleusercontent.com/-GP3BA3zGR5A/W0IwuVXlfmI/AAAAAAADROs/SH8rRlBDYTsHZiHpM45S3zpEipu5hJ2PwCJoC/s0/%25D1%2582%25D0%25B0%25D0%25B4%25D0%25B6%25D0%25B8%25D0%25BA%25D1%2581%25D0%25BA%25D0%25BE%25D0%25B5%2B%25D1%2580%25D0%25B0%25D0%25B7%25D0%25BD%25D0%25BE%25D1%2582%25D1%2580%25D0%25B0%25D0%25B2%25D1%258C%25D0%25B5.png
       }.each_with_index do |link, i|
         it "gpluscomm_105636351696833883213_86400 ##{i + 1}" do
           assert DirectLink.google link
