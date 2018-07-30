@@ -131,8 +131,8 @@ module DirectLink
         NetHTTPUtils.request_data "https://api.imgur.com/3/image/#{$1}/0.json", header: { Authorization: "Client-ID #{ENV["IMGUR_CLIENT_ID"]}" }
       rescue NetHTTPUtils::Error => e
         raise ErrorNotFound.new link.inspect if e.code == 404
-        if e.code == 400 && t < timeout
-          logger.error "retrying in #{t} seconds because of Imgur HTTP ERROR 400"
+        if t < timeout && [400, 500].include?(e.code)
+          logger.error "retrying in #{t} seconds because of Imgur HTTP ERROR #{e.code}"
           sleep t
           t *= 2
           retry

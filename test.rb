@@ -177,15 +177,19 @@ describe DirectLink do
         assert_equal [["https://i.imgur.com/BLCesav.jpg", 1000, 1500, "image/jpeg"]],
                      DirectLink.imgur(valid_imgur_image_url)
       end
-      it 400 do
-        e = assert_raises DirectLink::ErrorAssert do
-          NetHTTPUtils.stub :request_data, ->*{ raise NetHTTPUtils::Error.new "", 400 } do
-            DirectLink.imgur valid_imgur_image_url, 4   # do not remove `4` or test may hang
+      [400, 500].each do |error_code|
+        it "retries two times on error #{error_code}" do
+          tries = 0
+          e = assert_raises DirectLink::ErrorAssert do
+            NetHTTPUtils.stub :request_data, ->*{ tries += 1; raise NetHTTPUtils::Error.new "", error_code } do
+              DirectLink.imgur valid_imgur_image_url, 4   # do not remove `4` or test may hang
+            end
           end
+          assert_equal error_code, e.cause.code if Exception.instance_methods.include? :cause  # Ruby 2.1
+          assert_equal 3, tries
         end
-        assert_equal 400, e.cause.code if Exception.instance_methods.include? :cause  # Ruby 2.1
       end
-      it "does not 400 after a successfull retry" do
+      it "does not throw 400 after a successfull retry" do
         f = false
         m = NetHTTPUtils.method :request_data
         NetHTTPUtils.stub :request_data, lambda{ |*args|
