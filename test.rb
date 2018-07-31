@@ -99,6 +99,15 @@ describe DirectLink do
         end
       end
       %w{
+        https://lh3.googleusercontent.com/-dWul1-dnMGE/W1npdlvSenI/AAAAAAAAAJI/jHPhVr5xS98xvFJDNgMgcxrRzPd6gOp9QCJoC/w208-h318-n/alg3_1520-2.jpg
+        https://lh3.googleusercontent.com/-t_ab__91ChA/VeLaObkUlgI/AAAAAAAAL4s/VjO6KK_lkRw/w530-h351-n/30.08.15%2B-%2B1
+        https://lh3.googleusercontent.com/-Ry3uDLjGG0E/W13DzrEntEI/AAAAAAAAAdY/7ldMJD-2JPsnuqYq7qtif_eVWhTd0EmnwCJoC/w480-h853-n/gplus-790559743.jpg
+      }.each_with_index do |link, i|  # June contenstants
+        it "another (June) Google Plus community post image ##{i + 1}" do
+          assert DirectLink.google link
+        end
+      end
+      %w{
         https://lh3.googleusercontent.com/-f37xWyiyP8U/WvmxOxCd-0I/AAAAAAAACpw/3A2tRj02oY40MzJqZBJyWGImoSer0lwMgCJoC/s0/140809%2B029.jpg
         https://lh3.googleusercontent.com/-1s_eiQB4x2k/WvXQEx59z2I/AAAAAAAAcI0/DvKYzWw3g6UNelqAQdOwrdtYdSEqKgkxwCJoC/s0/001
         https://lh3.googleusercontent.com/-1Rcbffs4iRI/WvaSsRCrxJI/AAAAAAAAcJs/e-N9tmjaTCIxEBE_jXwFjiYPyZXFwh4owCJoC/s0/001
