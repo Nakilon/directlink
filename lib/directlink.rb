@@ -51,7 +51,8 @@ module DirectLink
     when /\A(\/\/lh3\.googleusercontent\.com\/cOh2Nsv7EGo0QbuoKxoKZVZO_NcBzufuvPtzirMJfPmAzCzMtnEncfA7zGIDTJfkc1YZFX2MhgKnjA=)w530-h398-p\z/
       "https:#{$1}s#{width}"
     when /\A(\/\/lh3\.googleusercontent\.com\/-[a-zA-Z0-9-]{11}\/W[a-zA-Z0-9_-]{9}I\/AAAAAAA[AC][a-zA-Z0-9]{3}\/[a-zA-Z0-9_-]{32}[gwAQ]CJoC\/)w530-h3\d\d-p(\/[^\/]+)\z/,
-         /\A(\/\/[124]\.bp\.blogspot\.com\/-[a-zA-Z0-9_-]{11}\/W[npw][a-zA-Z0-9_-]{8}I\/AAAAAAAA[KDE][a-zA-Z0-9_-]{2}\/[a-zA-Z0-9_-]{33}C(?:Lc|Kg)BGAs\/)w530-h[23]\d\d-p(\/[^\/]+)\z/
+         /\A(\/\/[124]\.bp\.blogspot\.com\/-[a-zA-Z0-9_-]{11}\/W[npw][a-zA-Z0-9_-]{8}I\/AAAAAAAA[KDE][a-zA-Z0-9_-]{2}\/[a-zA-Z0-9_-]{33}C(?:Lc|Kg)BGAs\/)w530-h[23]\d\d-p(\/[^\/]+)\z/,
+         /\A(\/\/[2]\.bp\.blogspot\.com\/-[a-zA-Z-]{11}\/W[a-zA-Z0-9]{8}_I\/AAAAAAAAHDs\/[a-zA-Z0-9-]{33}CEwYBhgL\/)w530-h353-p(\/[^\/]+)\z/
       "https:#{$1}s#{width}#{$2}"
     when /\A(https:\/\/lh3\.googleusercontent\.com\/-dUQsDY2vWuE\/AAAAAAAAAAI\/AAAAAAAAAAQ\/wVFZagieszU\/)w530-h176-n(\/photo\.jpg)\z/,
          /\A(https:\/\/lh3\.googleusercontent\.com\/-t_ab__91ChA\/VeLaObkUlgI\/AAAAAAAAL4s\/VjO6KK_lkRw\/)w530-h351-n(\/[^\/]+)\z/

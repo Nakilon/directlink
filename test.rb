@@ -62,6 +62,7 @@ describe DirectLink do
         https://lh3.googleusercontent.com/-40QwR_c58sw/WsLyS3a8uhI/AAAAAAAAAas/ojaQoF1-ZFIboOS6c5kLs7bOl_TAOU6oACJoC/w424-h318-n/271091.jpg
         https://lh3.googleusercontent.com/-XhWuVCyNBjY/WvOtHOyaj_I/AAAAAAAAAKo/gOAn__a75NwYSgaBaEBGeCTAFI9MyjqlwCJoC/w239-h318-n/IMG_20180510_081956.jpg
         https://lh3.googleusercontent.com/-R19p_rDI8mY/Wwma1oEvD6I/AAAAAAAAEX8/tQc4JOq58REEWlukw2jDCTUjH3ejGZI8gCJoC/w486-h864-n/gplus1392977354.jpg
+        //2.bp.blogspot.com/-mOnRg-mkojA/W22m79XcT_I/AAAAAAAAHDs/C8yQaOA-ZeEAr3WBG--3wW8VZ5nWV0p7QCEwYBhgL/w530-h353-p/_MG_8809-Edit.jpg
       }.each_with_index do |link, i|  # March contenstants
         it "another (March) Google Plus community post image ##{i + 1}" do
           assert DirectLink.google link
