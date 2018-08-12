@@ -91,7 +91,7 @@ $ export FLICKR_API_KEY=dc2bfd348b...
 
 If the passed link is not the image link or a photo page of a known image hosting, the tool is still able to find the main images that the linked webpage contains (here it found three images in the markdown file):
 ```
-$ bundle exec bin/directlink https://github.com/Nakilon/dhash-vips
+$ directlink https://github.com/Nakilon/dhash-vips
 <= https://github.com/Nakilon/dhash-vips
 => https://camo.githubusercontent.com/852607c7f4b604fc3c83b782c4f6983cf488b0d4/68747470733a2f2f73746f726167652e676f6f676c65617069732e636f6d2f64686173682d766970732e6e616b696c6f6e2e70726f2f64686173685f69737375655f6578616d706c652e706e67
    png 592x366

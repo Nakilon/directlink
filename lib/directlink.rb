@@ -199,7 +199,6 @@ module DirectLink
     imageinfo.first["url"]
   end
 
-
   class_variable_set :@@directlink, Struct.new(:url, :width, :height, :type)
 end
 
@@ -305,7 +304,7 @@ def DirectLink link, max_redirect_resolving_retry_delay = nil, giveup = false
     end
     l[html].group_by(&:first).map{ |k, v| [k.join(?>), v.map(&:last)] }.tap do |result|
       next unless result.empty?
-      raise unless t = html.at_css "meta[@property='og:image']"
+      raise unless t = html.at_css("meta[@property='og:image']")
       return DirectLink t[:content], nil, true
     end.max_by{ |_, v| v.map{ |i| i.width * i.height }.inject(:+) / v.size }.last
   else
