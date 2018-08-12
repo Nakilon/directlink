@@ -408,7 +408,6 @@ describe DirectLink do
     describe "some other tests" do
       [
         ["http://www.aeronautica.difesa.it/organizzazione/REPARTI/divolo/PublishingImages/6%C2%B0%20Stormo/2013-decollo%20al%20tramonto%20REX%201280.jpg", ["http://www.aeronautica.difesa.it/organizzazione/REPARTI/divolo/PublishingImages/6%C2%B0%20Stormo/2013-decollo%20al%20tramonto%20REX%201280.jpg", 1280, 853, :jpeg]],
-        ["http://example.com", FastImage::UnknownImageType, "FastImage::UnknownImageType"],        # we explicitly expect this useless `e.message ` to be sure we know how FastImage behaves
         ["http://minus.com/lkP3hgRJd9npi", SocketError, /nodename nor servname provided, or not known|No address associated with hostname/, 0],
         ["https://i.redd.it/si758zk7r5xz.jpg", NetHTTPUtils::Error, "HTTP error #404 "],
         ["http://www.cutehalloweencostumeideas.org/wp-content/uploads/2017/10/Niagara-Falls_04.jpg", SocketError, /nodename nor servname provided, or not known|Name or service not known/, 0],
@@ -427,6 +426,26 @@ describe DirectLink do
             u, w, h, t = expectation
             result = DirectLink input, max_redirect_resolving_retry_delay
             assert_equal DirectLink.class_variable_get(:@@directlink).new(u, w, h, t), result, "for #{input}"
+          end
+        end
+      end
+    end
+
+    describe "giving up" do
+      [
+        ["http://example.com",                    FastImage::UnknownImageType],
+        ["https://github.com/Nakilon/dhash-vips", FastImage::UnknownImageType, true],
+        ["https://github.com/Nakilon/dhash-vips", 3],
+      ].each_with_index do |(input, expectation, giveup), i|
+        it "##{i + 1}" do
+          if expectation.is_a? Class
+            e = assert_raises expectation, "for #{input}" do
+              DirectLink input, nil, giveup
+            end
+            assert_equal expectation.to_s, e.message, "for #{input}"
+          else
+            result = DirectLink input, nil, giveup
+            assert_equal expectation, result.size, "for #{input} (giveup = #{giveup})"
           end
         end
       end

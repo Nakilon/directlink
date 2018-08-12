@@ -202,7 +202,7 @@ end
 
 require "fastimage"
 
-def DirectLink link, max_redirect_resolving_retry_delay = nil
+def DirectLink link, max_redirect_resolving_retry_delay = nil, giveup = false
   begin
     URI link
   rescue URI::InvalidURIError
@@ -211,14 +211,6 @@ def DirectLink link, max_redirect_resolving_retry_delay = nil
   raise DirectLink::ErrorBadLink.new link, true unless URI(link).host
 
   struct = Module.const_get(__callee__).class_variable_get :@@directlink
-
-  if %w{ lh3 googleusercontent com } == URI(link).host.split(?.).last(3) ||
-     %w{ bp blogspot com } == URI(link).host.split(?.).last(3)
-    u = DirectLink.google link
-    f = FastImage.new(u, raise_on_failure: true, http_header: {"User-Agent" => "Mozilla"})
-    w, h = f.size
-    return struct.new u, w, h, f.type
-  end
 
   # to test that we won't hang for too long if someone like aeronautica.difesa.it will be silent for some reason:
   #   $ bundle console
@@ -234,6 +226,17 @@ def DirectLink link, max_redirect_resolving_retry_delay = nil
   } : {})
   raise NetHTTPUtils::Error.new "", r.code.to_i unless "200" == r.code
   link = r.uri.to_s
+  # why do we resolve redirects before trying the known adapters?
+  #   because they can be hidden behind URL shorteners
+  #   also it can resolve NetHTTPUtils::Error(404) before trying the adapter
+
+  if %w{ lh3 googleusercontent com } == URI(link).host.split(?.).last(3) ||
+     %w{ bp blogspot com } == URI(link).host.split(?.).last(3)
+    u = DirectLink.google link
+    f = FastImage.new(u, raise_on_failure: true, http_header: {"User-Agent" => "Mozilla"})
+    w, h = f.size
+    return struct.new u, w, h, f.type
+  end
 
   if %w{ imgur com } == URI(link).host.split(?.).last(2) ||
      %w{ i imgur com } == URI(link).host.split(?.).last(3) ||
@@ -265,7 +268,31 @@ def DirectLink link, max_redirect_resolving_retry_delay = nil
     return struct.new u, w, h, f.type
   end
 
-  f = FastImage.new(link, raise_on_failure: true, http_header: {"User-Agent" => "Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/66.0.3359.139 Safari/537.36"})
-  w, h = f.size
-  struct.new link, w, h, f.type
+  begin
+    f = FastImage.new(link, raise_on_failure: true, http_header: {"User-Agent" => "Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/66.0.3359.139 Safari/537.36"})
+  rescue FastImage::UnknownImageType
+    raise if giveup
+    require "nokogiri"
+    html = Nokogiri::HTML NetHTTPUtils::request_data link
+    h = {}
+    l = lambda do |node, s = []|
+      node.element_children.flat_map do |child|
+        if "img" == child.node_name
+          begin
+            [[s, (h[child[:src]] = h[child[:src]] || DirectLink(child[:src], nil, true))]]
+          rescue => e
+            []
+          end
+        else
+          l[child, s + [child.node_name]]
+        end
+      end
+    end
+    l[html].group_by(&:first).map{ |k, v| [k.join(?>), v.map(&:last)] }.tap do |result|
+      raise if result.empty?
+    end.max_by{ |_, v| v.map{ |i| i.width * i.height }.inject(:+) / v.size }.last
+  else
+    w, h = f.size
+    struct.new link, w, h, f.type
+  end
 end
