@@ -12,22 +12,26 @@ module DirectLink
     puts str unless Module.nesting.first.silent
   end
 
-  class ErrorMissingEnvVar < RuntimeError ; end
   class ErrorAssert < RuntimeError
     def initialize msg
       super "#{msg} -- consider reporting this issue to GitHub"
     end
   end
-  @@LoggingError = Class.new RuntimeError do
+  logging_error = Class.new RuntimeError do
     def initialize msg
       Module.nesting.first.logger.error msg
       super msg
     end
   end
-  class ErrorNotFound < @@LoggingError ; end
-  class ErrorBadLink < @@LoggingError
+  class ErrorNotFound < logging_error ; end
+  class ErrorBadLink < logging_error
     def initialize link, sure = false
       super "#{link.inspect}#{" -- if you think this link is valid, please report the issue" unless sure}"
+    end
+  end
+  class ErrorMissingEnvVar < logging_error
+    def initialize msg
+      super "(warning, recommendation) #{msg}"
     end
   end
 
@@ -212,6 +216,14 @@ def DirectLink link, max_redirect_resolving_retry_delay = nil, giveup = false
 
   struct = Module.const_get(__callee__).class_variable_get :@@directlink
 
+  if %w{ lh3 googleusercontent com } == URI(link).host.split(?.).last(3) ||
+     %w{ bp blogspot com } == URI(link).host.split(?.).last(3)
+    u = DirectLink.google link
+    f = FastImage.new(u, raise_on_failure: true, http_header: {"User-Agent" => "Mozilla"})
+    w, h = f.size
+    return struct.new u, w, h, f.type
+  end
+
   # to test that we won't hang for too long if someone like aeronautica.difesa.it will be silent for some reason:
   #   $ bundle console
   #   > NetHTTPUtils.logger.level = Logger::DEBUG
@@ -230,6 +242,7 @@ def DirectLink link, max_redirect_resolving_retry_delay = nil, giveup = false
   #   because they can be hidden behind URL shorteners
   #   also it can resolve NetHTTPUtils::Error(404) before trying the adapter
 
+  # TODO: get rid of this copypasta, that is caused by that we want to pass urls without schema to this method
   if %w{ lh3 googleusercontent com } == URI(link).host.split(?.).last(3) ||
      %w{ bp blogspot com } == URI(link).host.split(?.).last(3)
     u = DirectLink.google link
@@ -238,27 +251,29 @@ def DirectLink link, max_redirect_resolving_retry_delay = nil, giveup = false
     return struct.new u, w, h, f.type
   end
 
-  if %w{ imgur com } == URI(link).host.split(?.).last(2) ||
-     %w{ i imgur com } == URI(link).host.split(?.).last(3) ||
-     %w{ m imgur com } == URI(link).host.split(?.).last(3) ||
-     %w{ www imgur com } == URI(link).host.split(?.).last(3)
+  begin
     imgur = DirectLink.imgur(link).sort_by{ |u, w, h, t| - w * h }.map do |u, w, h, t|
       struct.new u, w, h, t
     end
     # `DirectLink.imgur` return value is always an Array
     return imgur.size == 1 ? imgur.first : imgur
-  end
+  rescue DirectLink::ErrorMissingEnvVar
+  end if %w{ imgur com } == URI(link).host.split(?.).last(2) ||
+         %w{ i imgur com } == URI(link).host.split(?.).last(3) ||
+         %w{ m imgur com } == URI(link).host.split(?.).last(3) ||
+         %w{ www imgur com } == URI(link).host.split(?.).last(3)
 
   if %w{ 500px com } == URI(link).host.split(?.).last(2)
     w, h, u, t = DirectLink._500px(link)
     return struct.new u, w, h, t
   end
 
-  if %w{ www flickr com } == URI(link).host.split(?.).last(3)
+  begin
     w, h, u = DirectLink.flickr(link)
     f = FastImage.new(u, raise_on_failure: true, http_header: {"User-Agent" => "Mozilla"})
     return struct.new u, w, h, f.type
-  end
+  rescue DirectLink::ErrorMissingEnvVar
+  end if %w{ www flickr com } == URI(link).host.split(?.).last(3)
 
   if %w{ wikipedia org } == URI(link).host.split(?.).last(2) ||
      %w{ commons wikimedia org } == URI(link).host.split(?.).last(3)
@@ -289,7 +304,9 @@ def DirectLink link, max_redirect_resolving_retry_delay = nil, giveup = false
       end
     end
     l[html].group_by(&:first).map{ |k, v| [k.join(?>), v.map(&:last)] }.tap do |result|
-      raise if result.empty?
+      next unless result.empty?
+      raise unless t = html.at_css "meta[@property='og:image']"
+      return DirectLink t[:content], nil, true
     end.max_by{ |_, v| v.map{ |i| i.width * i.height }.inject(:+) / v.size }.last
   else
     w, h = f.size

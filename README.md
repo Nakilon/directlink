@@ -3,7 +3,7 @@
 
 # gem directlink
 
-This tool converts any sort of image hyperlink (a thumbnail URL, a link to an album, etc.) to a high resolution one. Also it tells the resulting resolution and the image type (format). I wanted such automation often so I made a gem with a binary.
+This tool obtains from any sort of hyperlink (a thumbnail URL, a link to a photo album, a news article, etc.) a directlink(s) to high resolution images at that page. Also it tells the resulting resolution and the image type (format). The gem also includes a binary so you can use it as a CLI.
 
 ## Usage
 
@@ -16,7 +16,7 @@ $ gem install directlink
 $ directlink
 usage: directlink [--debug] [--json] [--github] <link1> <link2> <link3> ...
 ```
-Converts `<img src=` attribute value from any Google web service (current Google regexes are very strict and may often fail -- it is a [defensive programming](https://en.wikipedia.org/wiki/Defensive_programming) practice -- report me your links!) to the largest available:
+Converts `<img src=` attribute value from any Google web service to the largest available:
 ```
 $ directlink //4.bp.blogspot.com/-5kP8ndL0kuM/Wpt82UCqvmI/AAAAAAAAEjI/ZbbZWs0-kgwRXEJ9JEGioR0bm6U8MOkvQCKgBGAs/w530-h278-p/IMG_20171223_093922.jpg
 <= //4.bp.blogspot.com/-5kP8ndL0kuM/Wpt82UCqvmI/AAAAAAAAEjI/ZbbZWs0-kgwRXEJ9JEGioR0bm6U8MOkvQCKgBGAs/w530-h278-p/IMG_20171223_093922.jpg
@@ -81,10 +81,24 @@ Downloads master:HEAD version of `lib/directlink.rb` from GitHub and uses it onc
 ```
 $ directlink --github https://imgur.com/a/oacI3gl
 ```
-When an image hosting with known API is recognized, the API will be used and you'll have to create app there and provide env vars:
+When an image hosting with known API is recognized, it will try to use the API tokens you've provided as env vars (otherwise it will go "don't give up" mode):
 ```
 $ export IMGUR_CLIENT_ID=0f99cd781...
 $ export FLICKR_API_KEY=dc2bfd348b...
+```
+
+#### the "don't give up mode"
+
+If the passed link is not the image link or a photo page of a known image hosting, the tool is still able to find the main images that the linked webpage contains (here it found three images in the markdown file):
+```
+$ bundle exec bin/directlink https://github.com/Nakilon/dhash-vips
+<= https://github.com/Nakilon/dhash-vips
+=> https://camo.githubusercontent.com/852607c7f4b604fc3c83b782c4f6983cf488b0d4/68747470733a2f2f73746f726167652e676f6f676c65617069732e636f6d2f64686173682d766970732e6e616b696c6f6e2e70726f2f64686173685f69737375655f6578616d706c652e706e67
+   png 592x366
+=> https://camo.githubusercontent.com/5e354666bac69e32d605dbd45351bfb7d808924b/68747470733a2f2f73746f726167652e676f6f676c65617069732e636f6d2f64686173682d766970732e6e616b696c6f6e2e70726f2f6964686173685f6578616d706c655f696e2e706e67
+   png 773x679
+=> https://camo.githubusercontent.com/5456cc20ae9b20c06792ddd19b533ae36404d8c1/68747470733a2f2f73746f726167652e676f6f676c65617069732e636f6d2f64686173682d766970732e6e616b696c6f6e2e70726f2f6964686173685f6578616d706c655f6f75742e706e67
+   png 1610x800
 ```
 
 ### As a library
@@ -110,7 +124,12 @@ Google can serve image in arbitrary resolution so `DirectLink.google` has an opt
 irb> DirectLink.google "//4.bp.blogspot.com/-5kP8ndL0kuM/Wpt82UCqvmI/AAAAAAAAEjI/ZbbZWs0-kgwRXEJ9JEGioR0bm6U8MOkvQCKgBGAs/w530-h278-p/IMG_20171223_093922.jpg", 100
 => "https://4.bp.blogspot.com/-5kP8ndL0kuM/Wpt82UCqvmI/AAAAAAAAEjI/ZbbZWs0-kgwRXEJ9JEGioR0bm6U8MOkvQCKgBGAs/s100/IMG_20171223_093922.jpg"
 ```
-To silent the logger that `DirectLink.imgur` uses:
+To give up if the passed link is not a known image hosting (otherwise it consumes time on analyzing all the images on the linked page):
+```
+irb> DirectLink 'https://github.com/Nakilon/dhash-vips', nil, true
+# raises FastImage::UnknownImageType
+```
+To silent the STDOUT logger that you may see sometimes:
 ```ruby
 DirectLink.silent = true
 ```
@@ -136,7 +155,7 @@ SocketError: Failed to open TCP connection to minus.com:80 (getaddrinfo: nodenam
 ## Notes:
 
 * `module DirectLink` public methods return different sets of properties -- `DirectLink()` unites them
-* the `DirectLink::ErrorAssert` should never happen and you might report it if it does
+* the `ErrorAssert` and `ErrorMissingEnvVar` should never be raised and you might report it if it does
 * style: `@@` and lambdas are used to keep things private
 * this gem is a 2 or 3 libraries merged so don't expect tests to be full and consistent
 * since 500px.com closed their API in June 2018 the gem uses potentially unreliable undocumented methods

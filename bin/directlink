@@ -72,7 +72,7 @@ rescue NetHTTPUtils::Error,
        SocketError,
        FastImage::UnknownImageType,
        FastImage::ImageFetchFailure,
-       DirectLink::ErrorMissingEnvVar,
+       # DirectLink::ErrorMissingEnvVar,
        # DirectLink::ErrorAssert,
        DirectLink::ErrorNotFound,
        DirectLink::ErrorBadLink => e

@@ -1,10 +1,14 @@
 STDOUT.sync = true
+require "pp"
 
 require "minitest/autorun"
 require "minitest/mock"
 
 # TODO: I'm not sure it's ok that after we started using NetHTTPUtils for redirect resolving
 #       we don't raise `FastImage::ImageFetchFailure` anymore in any test
+
+fail unless ENV.include? "IMGUR_CLIENT_ID"
+fail unless ENV.include? "FLICKR_API_KEY"
 
 require_relative "lib/directlink"
 DirectLink.silent = true
@@ -436,16 +440,29 @@ describe DirectLink do
         ["http://example.com",                    FastImage::UnknownImageType],
         ["https://github.com/Nakilon/dhash-vips", FastImage::UnknownImageType, true],
         ["https://github.com/Nakilon/dhash-vips", 3],
+        ["http://imgur.com/HQHBBBD",              FastImage::UnknownImageType, true],
+        ["http://imgur.com/HQHBBBD",              "https://i.imgur.com/HQHBBBD.jpg?fb"],
       ].each_with_index do |(input, expectation, giveup), i|
         it "##{i + 1}" do
-          if expectation.is_a? Class
-            e = assert_raises expectation, "for #{input}" do
-              DirectLink input, nil, giveup
+          t = ENV.delete "IMGUR_CLIENT_ID"
+          begin
+            case expectation
+            when Class
+              e = assert_raises expectation, "for #{input} (giveup = #{giveup})" do
+                DirectLink input, nil, giveup
+              end
+              assert_equal expectation.to_s, e.message, "for #{input} (giveup = #{giveup})"
+            when String
+              result = DirectLink input, nil, giveup
+              assert_equal expectation, result.url, "for #{input} (giveup = #{giveup})"
+            else
+              result = DirectLink input, nil, giveup
+              assert_equal expectation, result.size, ->{
+                "for #{input} (giveup = #{giveup}): #{result.map &:url}"
+              }
             end
-            assert_equal expectation.to_s, e.message, "for #{input}"
-          else
-            result = DirectLink input, nil, giveup
-            assert_equal expectation, result.size, "for #{input} (giveup = #{giveup})"
+          ensure
+            ENV["IMGUR_CLIENT_ID"] = t
           end
         end
       end
@@ -487,9 +504,13 @@ describe DirectLink do
       [
         [1, "http://example.com/", "FastImage::UnknownImageType"],
         [1, "http://example.com/404", "NetHTTPUtils::Error: HTTP error #404 "],
-        [1, "http://imgur.com/HQHBBBD", "DirectLink::ErrorMissingEnvVar: define IMGUR_CLIENT_ID env var", " && unset IMGUR_CLIENT_ID"],  # TODO: make similar test for ./lib
+
+        # TODO: a test when the giveup=false fails and reraises the DirectLink::ErrorMissingEnvVar
+        #       maybe put it to ./lib tests
+
         # by design it should be impossible to write a test for DirectLink::ErrorAssert
         [1, "https://flic.kr/p/DirectLinkErrorNotFound", "NetHTTPUtils::Error: HTTP error #404 "],
+
         [1, "https://imgur.com/a/badlinkpattern", "NetHTTPUtils::Error: HTTP error #404 "],
         # TODO: a test that it appends the `exception.cause`
       ].each_with_index do |(expected_exit_code, link, expected_output, unset), i|
