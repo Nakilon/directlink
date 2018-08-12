@@ -77,7 +77,7 @@ $ directlink --json https://imgur.com/a/oacI3gl https://avatars1.githubuserconte
   }
 ]
 ```
-Downloads master:HEAD version of `lib/directlink.rb` from GitHub and uses it once instead of installed one (this is easier than installing gem from repo):
+Downloads `master:HEAD` version of `lib/directlink.rb` from GitHub and uses it once instead of installed one:
 ```
 $ directlink --github https://imgur.com/a/oacI3gl
 ```
@@ -124,16 +124,16 @@ Google can serve image in arbitrary resolution so `DirectLink.google` has an opt
 irb> DirectLink.google "//4.bp.blogspot.com/-5kP8ndL0kuM/Wpt82UCqvmI/AAAAAAAAEjI/ZbbZWs0-kgwRXEJ9JEGioR0bm6U8MOkvQCKgBGAs/w530-h278-p/IMG_20171223_093922.jpg", 100
 => "https://4.bp.blogspot.com/-5kP8ndL0kuM/Wpt82UCqvmI/AAAAAAAAEjI/ZbbZWs0-kgwRXEJ9JEGioR0bm6U8MOkvQCKgBGAs/s100/IMG_20171223_093922.jpg"
 ```
-To give up if the passed link is not a known image hosting (otherwise it consumes time on analyzing all the images on the linked page):
+To disable the "don't give up" mode (otherwise it consumes time on analyzing all the images on the linked page):
 ```
-irb> DirectLink 'https://github.com/Nakilon/dhash-vips', nil, true
+irb> DirectLink "https://github.com/Nakilon/dhash-vips", nil, true
 # raises FastImage::UnknownImageType
 ```
 To silent the STDOUT logger that you may see sometimes:
 ```ruby
 DirectLink.silent = true
 ```
-You also may look into [`bin/directlink`](bin/directlink) for usage example and the list of all possible exceptions.
+You also may look into [`bin/directlink`](bin/directlink) as a library usage example and the list of all possible exceptions.
 
 #### about long retries
 
@@ -144,7 +144,7 @@ NetHTTPUtils.logger.level = Logger::WARN
 ```
 W 180507 102210 : NetHTTPUtils : retrying in 10 seconds because of SocketError 'Failed to open TCP connection to minus.com:80 (getaddrinfo: nodename nor servname provided, or not known)' at: http://minus.com/
 ```
-To make `DirectLink()` respond faster pass an optional argument that specifies the max retry delay as any numeric value. Here we get the exception immediately:
+To make `DirectLink()` respond faster pass an optional argument that specifies the max retry delay. Here we get the exception immediately:
 ```ruby
 DirectLink "http://minus.com/", 0
 ```
@@ -157,5 +157,5 @@ SocketError: Failed to open TCP connection to minus.com:80 (getaddrinfo: nodenam
 * `module DirectLink` public methods return different sets of properties -- `DirectLink()` unites them
 * the `ErrorAssert` and `ErrorMissingEnvVar` should never be raised and you might report it if it does
 * style: `@@` and lambdas are used to keep things private
-* this gem is a 2 or 3 libraries merged so don't expect tests to be full and consistent
-* since 500px.com closed their API in June 2018 the gem uses potentially unreliable undocumented methods
+* this gem is a historically 2 or 3 libraries merged -- this is why tests may look awkward
+* 500px.com has discontinued API in June 2018 -- the tool now uses undocumented methods
