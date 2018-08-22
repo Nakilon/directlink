@@ -311,11 +311,11 @@ describe DirectLink do
       ] ],
       [ :reddit, [
         ["https://www.reddit.com/r/cacography/comments/32tq0i/c/", [true, "http://i.imgur.com/vy6Ms4Z.jpg"]],
-        ["http://redd.it/32tq0i", [true, "http://i.imgur.com/vy6Ms4Z.jpg"]], # TODO maybe check that it calls #imgur recursively
-        ["https://i.redd.it/si758zk7r5xz.jpg", NetHTTPUtils::Error],
+        ["http://redd.it/32tq0i", [true, "http://i.imgur.com/vy6Ms4Z.jpg"]],                    # TODO maybe check that it calls #imgur recursively
+        ["https://i.redd.it/c8rk0kjywhy01.jpg", [true, "https://i.redd.it/c8rk0kjywhy01.jpg"]],
+        ["https://i.redd.it/si758zk7r5xz.jpg", [true, "https://i.redd.it/si758zk7r5xz.jpg"]],   # it is 404 but `.reddit` does not care -- it just returns the url
         ["https://reddit.com/123456", [true, "http://www.youtube.com/watch?v=b9upM4RbIeU&amp;feature=g-vrec"]],
         ["https://www.reddit.com/r/travel/988889", [true, "https://i.redd.it/3h5xls6ehrg11.jpg"]],
-        ["http://redd.it/32tq0i", [true, "http://i.imgur.com/vy6Ms4Z.jpg"]],
         ["http://redd.it/988889", [true, "https://i.redd.it/3h5xls6ehrg11.jpg"]],
       ] ],
     ].each do |method, tests|
@@ -383,9 +383,11 @@ describe DirectLink do
 
     describe "throws ErrorBadLink if method does not match the link" do
       %i{ google imgur flickr _500px wiki reddit }.each do |method|
-        it method do
-          assert_raises DirectLink::ErrorBadLink do
-            DirectLink.method(method).call ""
+        ["", "test", "http://example.com/"].each_with_index do |url, i|
+          it "#{method} ##{i + 1}" do
+            assert_raises DirectLink::ErrorBadLink do
+              DirectLink.method(method).call url
+            end
           end
         end
       end
@@ -470,9 +472,9 @@ describe DirectLink do
         ["http://imgur.com/HQHBBBD",              FastImage::UnknownImageType, true],
         ["http://imgur.com/HQHBBBD",              "https://i.imgur.com/HQHBBBD.jpg?fb"],  # .at_css("meta[@property='og:image']")
         ["http://redd.it/123456",                 FastImage::UnknownImageType, true],
-        ["http://redd.it/123456",                 123],
-        ["http://redd.it/997he7",                 123, true],
-        ["http://redd.it/997he7",                 123],
+        ["http://redd.it/123456",                 1],
+        ["http://redd.it/997he7",                 DirectLink::ErrorBadLink, true],
+        ["http://redd.it/997he7",                 1],   # currently only links are parsed
       ].each_with_index do |(input, expectation, giveup), i|
         it "##{i + 1} (#{URI(input).host})" do  # to match with minitest `-n` run flag
           ti = ENV.delete "IMGUR_CLIENT_ID"
@@ -483,12 +485,13 @@ describe DirectLink do
               e = assert_raises expectation, "for #{input} (giveup = #{giveup})" do
                 DirectLink input, nil, giveup
               end
-              assert_equal expectation.to_s, e.message, "for #{input} (giveup = #{giveup})"
+              assert_equal expectation.to_s, e.class.to_s, "for #{input} (giveup = #{giveup})"
             when String
               result = DirectLink input, nil, giveup
               assert_equal expectation, result.url, "for #{input} (giveup = #{giveup})"
             else
               result = DirectLink input, nil, giveup
+              result = [result] unless result.is_a? Array   # we can't do `Array(<Struct>)` because it splats by elements
               assert_equal expectation, result.size, ->{
                 "for #{input} (giveup = #{giveup}): #{result.map &:url}"
               }
@@ -594,6 +597,11 @@ describe DirectLink do
         string, status = Open3.capture2e "export #{File.read("api_tokens_for_travis.sh").gsub(/\n?export/, ?\s).strip} && bundle exec ruby bin/directlink#{" --#{param}" if param} #{valid_imgur_image_url1} #{valid_imgur_image_url2}"
         assert_equal [0, expected_output], [status.exitstatus, string]
       end
+    end
+
+    it "reddit_bot gem logger does not flood STDOUT" do
+      string, status = Open3.capture2e "bundle exec ruby bin/directlink http://redd.it/997he7"
+      assert_equal "<= http://redd.it/997he7\n=> https://i.imgur.com/QpOBvRY.png\n   image/png 460x460\n", string
     end
 
   end

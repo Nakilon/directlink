@@ -203,16 +203,29 @@ module DirectLink
     attr_accessor :reddit_bot
   end
   def self.reddit link
-    raise ErrorBadLink.new link unless id = URI(link).path[/\A(?:\/r\/[0-9a-zA-Z_]+(?:\/comments)?)?\/([0-9a-z]{5,6})(?:\/|\z)/, 1]
-    raise ErrorMissingEnvVar.new "define REDDIT_SECRETS env var" unless ENV["REDDIT_SECRETS"]
-    require "reddit_bot"
-    require "yaml"
-    reddit_bot ||= RedditBot::Bot.new YAML.load_file ENV["REDDIT_SECRETS"]
-    data = reddit_bot.json(:get, "/by_id/t3_#{id}")["data"]["children"].first["data"]
+    unless id = URI(link).path[/\A(?:\/r\/[0-9a-zA-Z_]+)?(?:\/comments)?\/([0-9a-z]{5,6})(?:\/|\z)/, 1]
+      raise DirectLink::ErrorBadLink.new link unless URI(link).host &&
+                                                     URI(link).host.split(?.) == %w{ i redd it } &&
+                                                     URI(link).path[/\A\/[a-z0-9]{12,13}\.(gif|jpg)\z/]
+      return [true, link]
+    end
+    if ENV["REDDIT_SECRETS"]
+      require "reddit_bot"
+      RedditBot.logger.level = Logger::FATAL
+      require "yaml"
+      reddit_bot ||= RedditBot::Bot.new YAML.load_file ENV["REDDIT_SECRETS"]
+      json = reddit_bot.json(:get, "/by_id/t3_#{id}")
+    else
+      raise ErrorMissingEnvVar.new "defining REDDIT_SECRETS env var is highly recommended" rescue nil
+      json = JSON.load NetHTTPUtils.request_data "#{link}.json", header: {"User-Agent" => "Mozilla"}
+      raise ErrorAssert.new "our knowledge about Reddit API seems to be outdated" unless json.size == 2
+      json = json.find{ |_| _["data"]["children"].first["kind"] == "t3" }
+    end
+    data = json["data"]["children"].first["data"]
     url = data["url"]
     return [true, url] unless data["is_self"]
     raise ErrorAssert.new "our knowledge about Reddit API seems to be outdated" if url != "https://www.reddit.com" + data["permalink"]
-    return [false, url]
+    return [false, data["selftext"]]
   end
 
   class_variable_set :@@directlink, Struct.new(:url, :width, :height, :type)
@@ -296,17 +309,19 @@ def DirectLink link, max_redirect_resolving_retry_delay = nil, giveup = false
 
   # TODO protect in two places from eternal recursion
 
-  if %w{ reddit com } == URI(link).host.split(?.).last(2)
+  begin
     s, u = DirectLink.reddit(link)
     if s
-      f = FastImage.new(u, raise_on_failure: true)
-      w, h = f.size
-      return struct.new u, w, h, f.type
+      return DirectLink u, max_redirect_resolving_retry_delay, giveup
     end
-    raise ErrorBadLink.new link if giveup
-    t = ->_{ _.type == :a ? _.attr["href"] : _.children.flat_map(&f) }
-    return t[Kramdown::Document.new(u).root].map &DirectLink
-  end
+    raise DirectLink::ErrorBadLink.new link if giveup   # TODO: print original url in such cases if there was a recursion
+    f = ->_{ _.type == :a ? _.attr["href"] : _.children.flat_map(&f) }
+    require "kramdown"
+    return f[Kramdown::Document.new(u).root].map{ |_| DirectLink _, max_redirect_resolving_retry_delay, giveup }
+  rescue DirectLink::ErrorMissingEnvVar
+  end if %w{ reddit com } == URI(link).host.split(?.).last(2) ||
+         %w{ redd it    } == URI(link).host.split(?.).last(2)
+
 
   begin
     f = FastImage.new(link, raise_on_failure: true, http_header: {"User-Agent" => "Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/66.0.3359.139 Safari/537.36"})
