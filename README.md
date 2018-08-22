@@ -100,6 +100,7 @@ $ directlink https://github.com/Nakilon/dhash-vips
 => https://camo.githubusercontent.com/5456cc20ae9b20c06792ddd19b533ae36404d8c1/68747470733a2f2f73746f726167652e676f6f676c65617069732e636f6d2f64686173682d766970732e6e616b696c6f6e2e70726f2f6964686173685f6578616d706c655f6f75742e706e67
    png 1610x800
 ```
+It can even find images in the Markdown body of a Reddit self post! (new feature, needs more testing)
 
 ### As a library
 
@@ -161,5 +162,5 @@ SocketError: Failed to open TCP connection to minus.com:80 (getaddrinfo: nodenam
 * 500px.com has discontinued API in June 2018 -- the tool now uses undocumented methods
 * `DirectLink()` can return an Array of Structs for 1) Imgur 2) Reddit unless `giveup = true` is set
 
-TODO: maybe make all these web service specific methods private and discourage to use them since they all return very different things and sometimes don't raise exceptions while the `DirectLink()` does
+TODO: maybe make all these web service specific methods private and discourage to use them since they all return very different things and sometimes don't raise exceptions while the `DirectLink()` does  
 TODO: what should `--json` print if exception was thrown?
