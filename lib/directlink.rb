@@ -281,7 +281,7 @@ def DirectLink link, max_redirect_resolving_retry_delay = nil, giveup = false
 
   begin
     w, h, u = DirectLink.flickr(link)
-    f = FastImage.new(u, raise_on_failure: true, http_header: {"User-Agent" => "Mozilla"})
+    f = FastImage.new(u, raise_on_failure: true) # , http_header: {"User-Agent" => "Mozilla"}
     return struct.new u, w, h, f.type
   rescue DirectLink::ErrorMissingEnvVar
   end if %w{ www flickr com } == URI(link).host.split(?.).last(3)
@@ -289,7 +289,7 @@ def DirectLink link, max_redirect_resolving_retry_delay = nil, giveup = false
   if %w{         wikipedia org } == URI(link).host.split(?.).last(2) ||
      %w{ commons wikimedia org } == URI(link).host.split(?.).last(3)
     u = DirectLink.wiki link
-    f = FastImage.new(u, raise_on_failure: true, http_header: {"User-Agent" => "Mozilla"})
+    f = FastImage.new(u, raise_on_failure: true) # , http_header: {"User-Agent" => "Mozilla"}
     w, h = f.size
     return struct.new u, w, h, f.type
   end
