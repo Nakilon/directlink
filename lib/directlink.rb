@@ -273,9 +273,9 @@ def DirectLink link, max_redirect_resolving_retry_delay = nil, giveup = false
     # `DirectLink.imgur` return value is always an Array
     return imgur.size == 1 ? imgur.first : imgur
   rescue DirectLink::ErrorMissingEnvVar
-  end if %w{ imgur com } == URI(link).host.split(?.).last(2) ||
-         %w{ i imgur com } == URI(link).host.split(?.).last(3) ||
-         %w{ m imgur com } == URI(link).host.split(?.).last(3) ||
+  end if %w{     imgur com } == URI(link).host.split(?.).last(2) ||
+         %w{   i imgur com } == URI(link).host.split(?.).last(3) ||
+         %w{   m imgur com } == URI(link).host.split(?.).last(3) ||
          %w{ www imgur com } == URI(link).host.split(?.).last(3)
 
   if %w{ 500px com } == URI(link).host.split(?.).last(2)
@@ -290,7 +290,7 @@ def DirectLink link, max_redirect_resolving_retry_delay = nil, giveup = false
   rescue DirectLink::ErrorMissingEnvVar
   end if %w{ www flickr com } == URI(link).host.split(?.).last(3)
 
-  if %w{ wikipedia org } == URI(link).host.split(?.).last(2) ||
+  if %w{         wikipedia org } == URI(link).host.split(?.).last(2) ||
      %w{ commons wikimedia org } == URI(link).host.split(?.).last(3)
     u = DirectLink.wiki link
     f = FastImage.new(u, raise_on_failure: true, http_header: {"User-Agent" => "Mozilla"})
@@ -317,7 +317,7 @@ def DirectLink link, max_redirect_resolving_retry_delay = nil, giveup = false
   rescue FastImage::UnknownImageType
     raise if giveup
     require "nokogiri"
-    html = Nokogiri::HTML NetHTTPUtils::request_data link
+    html = Nokogiri::HTML NetHTTPUtils::request_data link, header: {"User-Agent" => "Mozilla"}
     h = {}
     l = lambda do |node, s = []|
       node.element_children.flat_map do |child|

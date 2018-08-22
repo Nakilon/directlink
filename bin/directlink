@@ -68,8 +68,9 @@ begin
       (t.is_a?(Array) ? t : [t]).each{ |s| puts "=> #{s.url}\n   #{s.type} #{s.width}x#{s.height}" }
     end
   end
-rescue NetHTTPUtils::Error,
-       SocketError,
+rescue SocketError,
+       Net::OpenTimeout,
+       NetHTTPUtils::Error,
        FastImage::UnknownImageType,
        FastImage::ImageFetchFailure,
        # DirectLink::ErrorMissingEnvVar,

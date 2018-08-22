@@ -286,7 +286,7 @@ describe DirectLink do
     end
 
     # TODO we need tests that check we really get dimensions from `DirectLink()` method called on wiki and reddit links
-    #      and maaaaybe move some tests from here to the context about give_up
+    #      and maaaaybe move some tests from here to the context about giveup
     [
       [ :_500px, [
         ["https://500px.com/photo/264092015/morning-rider-by-tiger-seo", [1200, 800, "https://drscdn.500px.org/photo/264092015/m%3D1200/v2?webp=true&sig=49c6f8346ba8453ccb17208d4653b9e11bc3e1bb8c21c161047e2842716f3649", "jpeg"]],
@@ -323,7 +323,7 @@ describe DirectLink do
         tests.each_with_index do |(input, expectation), i|
           it "#{method} ##{i + 1}" do
             if expectation.is_a? Class
-              assert_raises expectation do
+              assert_raises expectation, input do
                 DirectLink.method(method).call input
               end
             else
@@ -396,14 +396,29 @@ describe DirectLink do
   describe "DirectLink()" do
 
     it "throws ErrorBadLink if link is invalid" do
-      e = assert_raises DirectLink::ErrorBadLink do
-        DirectLink "test"
-      end
-      assert_equal "test".inspect, e.message
+      assert_equal "test".inspect, (
+        assert_raises DirectLink::ErrorBadLink do
+          DirectLink "test"
+        end
+      ).message
     end
 
     describe "does not shadow the internal exception" do
-      [
+      it "raises SocketError from the redirect resolving stage" do
+        assert_raises SocketError do
+          NetHTTPUtils.stub :get_response, ->*{ raise SocketError.new } do
+            DirectLink "http://example.com/404"
+          end
+        end
+      end
+      it "raises Net::OpenTimeout -- server side issues can happen (not related to User Agent)" do
+        assert_raises Net::OpenTimeout do
+          NetHTTPUtils.stub :get_response, ->*{ raise Net::OpenTimeout.new } do
+            DirectLink "http://example.com/404"
+          end
+        end
+      end
+      [ # TODO this URLs may be reused from tests that check that this method calls internal method
         [:google, "//lh3.googleusercontent.com/proxy/DZtTi5KL7PqiBwJc8weNGLk_Wi2UTaQH0AC_h2kuURiu0AbwyI2ywOk2XgdAjL7ceg=w530-h354-n"],
         [:imgur, "http://imgur.com/HQHBBBD"],
         [:flickr, "https://www.flickr.com/photos/44133687@N00/17380073505/"],
@@ -412,19 +427,12 @@ describe DirectLink do
         [:reddit, "https://www.reddit.com/123456"],
       ].each do |method, link|
         it "can otherwise raise DirectLink::ErrorBadLink #{method}" do
-          e = assert_raises DirectLink::ErrorBadLink do
+          e = assert_raises(DirectLink::ErrorBadLink, link) do
             DirectLink.stub method, ->*{ raise DirectLink::ErrorBadLink.new "test" } do
               DirectLink link
             end
           end
           assert_equal "\"test\" -- if you think this link is valid, please report the issue", e.message
-        end
-      end
-      it "raises SocketError from the redirect resolving stage" do
-        assert_raises SocketError do
-          NetHTTPUtils.stub :get_response, ->*{ raise SocketError.new } do
-            DirectLink "http://example.com/404"
-          end
         end
       end
     end
@@ -466,7 +474,7 @@ describe DirectLink do
         ["http://redd.it/997he7",                 123, true],
         ["http://redd.it/997he7",                 123],
       ].each_with_index do |(input, expectation, giveup), i|
-        it "##{i + 1}" do
+        it "##{i + 1} (#{URI(input).host})" do  # to match with minitest `-n` run flag
           ti = ENV.delete "IMGUR_CLIENT_ID"
           tr = ENV.delete "REDDIT_SECRETS"
           begin
