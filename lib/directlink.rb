@@ -231,13 +231,16 @@ def DirectLink link, max_redirect_resolving_retry_delay = nil, giveup = false
 
   struct = Module.const_get(__callee__).class_variable_get :@@directlink
 
-  if %w{ lh3 googleusercontent com } == URI(link).host.split(?.).last(3) ||
-     %w{ bp blogspot com } == URI(link).host.split(?.).last(3)
-    u = DirectLink.google link
-    f = FastImage.new(u, raise_on_failure: true, http_header: {"User-Agent" => "Mozilla"})
-    w, h = f.size
-    return struct.new u, w, h, f.type
+  google_without_schema_crutch = lambda do
+    if %w{ lh3 googleusercontent com } == URI(link).host.split(?.).last(3) ||
+       %w{ bp blogspot com } == URI(link).host.split(?.).last(3)
+      u = DirectLink.google link
+      f = FastImage.new(u, raise_on_failure: true, http_header: {"User-Agent" => "Mozilla"})
+      w, h = f.size
+      struct.new u, w, h, f.type
+    end
   end
+  t = google_without_schema_crutch[] and return t
 
   # to test that we won't hang for too long if someone like aeronautica.difesa.it will be silent for some reason:
   #   $ bundle console
@@ -257,14 +260,7 @@ def DirectLink link, max_redirect_resolving_retry_delay = nil, giveup = false
   #   because they can be hidden behind URL shorteners
   #   also it can resolve NetHTTPUtils::Error(404) before trying the adapter
 
-  # TODO: get rid of this copypasta, that is caused by that we want to pass urls without schema to this method
-  if %w{ lh3 googleusercontent com } == URI(link).host.split(?.).last(3) ||
-     %w{ bp blogspot com } == URI(link).host.split(?.).last(3)
-    u = DirectLink.google link
-    f = FastImage.new(u, raise_on_failure: true, http_header: {"User-Agent" => "Mozilla"})
-    w, h = f.size
-    return struct.new u, w, h, f.type
-  end
+  t = google_without_schema_crutch[] and return t
 
   begin
     imgur = DirectLink.imgur(link).sort_by{ |u, w, h, t| - w * h }.map do |u, w, h, t|
