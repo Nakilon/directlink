@@ -159,3 +159,6 @@ SocketError: Failed to open TCP connection to minus.com:80 (getaddrinfo: nodenam
 * style: `@@` and lambdas are used to keep things private
 * this gem is a historically 2 or 3 libraries merged -- this is why tests may look awkward
 * 500px.com has discontinued API in June 2018 -- the tool now uses undocumented methods
+* `DirectLink()` can return an Array of Structs for 1) Imgur 2) Reddit unless `giveup = true` is set
+
+TODO: maybe make all these web service specific methods private and discourage to use them since they all return very different things and sometimes don't raise exceptions while the `DirectLink()` does

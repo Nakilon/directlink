@@ -9,12 +9,13 @@ require "minitest/mock"
 
 fail unless ENV.include? "IMGUR_CLIENT_ID"
 fail unless ENV.include? "FLICKR_API_KEY"
+fail unless ENV.include? "REDDIT_SECRETS"
 
 require_relative "lib/directlink"
 DirectLink.silent = true
 describe DirectLink do
 
-  describe "methods" do
+  describe "./lib" do
 
     describe "google" do
       "
@@ -284,6 +285,8 @@ describe DirectLink do
       end
     end
 
+    # TODO we need tests that check we really get dimensions from `DirectLink()` method called on wiki and reddit links
+    #      and maaaaybe move some tests from here to the context about give_up
     [
       [ :_500px, [
         ["https://500px.com/photo/264092015/morning-rider-by-tiger-seo", [1200, 800, "https://drscdn.500px.org/photo/264092015/m%3D1200/v2?webp=true&sig=49c6f8346ba8453ccb17208d4653b9e11bc3e1bb8c21c161047e2842716f3649", "jpeg"]],
@@ -306,10 +309,19 @@ describe DirectLink do
         ["http://commons.wikimedia.org/wiki/File:Eduard_Bohlen_anagoria.jpg", "https://upload.wikimedia.org/wikipedia/commons/0/0d/Eduard_Bohlen_anagoria.jpg"],
         ["https://en.wikipedia.org/wiki/Spanish_Civil_War#/media/File:Alfonso_XIIIdeEspa%C3%B1a.jpg", "https://upload.wikimedia.org/wikipedia/commons/f/fb/Alfonso_XIIIdeEspa%C3%B1a.jpg"],   # escaped input URI
       ] ],
+      [ :reddit, [
+        ["https://www.reddit.com/r/cacography/comments/32tq0i/c/", [true, "http://i.imgur.com/vy6Ms4Z.jpg"]],
+        ["http://redd.it/32tq0i", [true, "http://i.imgur.com/vy6Ms4Z.jpg"]], # TODO maybe check that it calls #imgur recursively
+        ["https://i.redd.it/si758zk7r5xz.jpg", NetHTTPUtils::Error],
+        ["https://reddit.com/123456", [true, "http://www.youtube.com/watch?v=b9upM4RbIeU&amp;feature=g-vrec"]],
+        ["https://www.reddit.com/r/travel/988889", [true, "https://i.redd.it/3h5xls6ehrg11.jpg"]],
+        ["http://redd.it/32tq0i", [true, "http://i.imgur.com/vy6Ms4Z.jpg"]],
+        ["http://redd.it/988889", [true, "https://i.redd.it/3h5xls6ehrg11.jpg"]],
+      ] ],
     ].each do |method, tests|
       describe method do
         tests.each_with_index do |(input, expectation), i|
-          it "##{i + 1}" do
+          it "#{method} ##{i + 1}" do
             if expectation.is_a? Class
               assert_raises expectation do
                 DirectLink.method(method).call input
@@ -347,6 +359,13 @@ describe DirectLink do
         https://en.wikipedia.org/wiki/Third_Party_System#/media/File:United_States_presidential_election_results,_1876-1892.svg
         http://commons.wikimedia.org/wiki/File:Eduard_Bohlen_anagoria.jpg
       },
+      reddit: %w{
+        https://www.reddit.com/r/cacography/comments/32tq0i/c/
+        https://i.redd.it/si758zk7r5xz.jpg
+        http://redd.it/32tq0i
+        https://reddit.com/123456
+        https://www.reddit.com/r/travel/988889
+      },
     }.each do |method, tests|
       describe "DirectLink() calls #{method}" do
         tests.each_with_index do |input, i|
@@ -363,7 +382,7 @@ describe DirectLink do
     end
 
     describe "throws ErrorBadLink if method does not match the link" do
-      %i{ google imgur flickr _500px wiki }.each do |method|
+      %i{ google imgur flickr _500px wiki reddit }.each do |method|
         it method do
           assert_raises DirectLink::ErrorBadLink do
             DirectLink.method(method).call ""
@@ -390,8 +409,9 @@ describe DirectLink do
         [:flickr, "https://www.flickr.com/photos/44133687@N00/17380073505/"],
         [:_500px, "https://500px.com/photo/112134597/milky-way-by-tom-hall"],
         [:wiki, "http://commons.wikimedia.org/wiki/File:Eduard_Bohlen_anagoria.jpg"],
+        [:reddit, "https://www.reddit.com/123456"],
       ].each do |method, link|
-        it method do
+        it "can otherwise raise DirectLink::ErrorBadLink #{method}" do
           e = assert_raises DirectLink::ErrorBadLink do
             DirectLink.stub method, ->*{ raise DirectLink::ErrorBadLink.new "test" } do
               DirectLink link
@@ -409,11 +429,10 @@ describe DirectLink do
       end
     end
 
-    describe "some other tests" do
+    describe "other domains tests" do
       [
         ["http://www.aeronautica.difesa.it/organizzazione/REPARTI/divolo/PublishingImages/6%C2%B0%20Stormo/2013-decollo%20al%20tramonto%20REX%201280.jpg", ["http://www.aeronautica.difesa.it/organizzazione/REPARTI/divolo/PublishingImages/6%C2%B0%20Stormo/2013-decollo%20al%20tramonto%20REX%201280.jpg", 1280, 853, :jpeg]],
         ["http://minus.com/lkP3hgRJd9npi", SocketError, /nodename nor servname provided, or not known|No address associated with hostname/, 0],
-        ["https://i.redd.it/si758zk7r5xz.jpg", NetHTTPUtils::Error, "HTTP error #404 "],
         ["http://www.cutehalloweencostumeideas.org/wp-content/uploads/2017/10/Niagara-Falls_04.jpg", SocketError, /nodename nor servname provided, or not known|Name or service not known/, 0],
       ].each_with_index do |(input, expectation, message_string_or_regex, max_redirect_resolving_retry_delay), i|
         it "##{i + 1}" do
@@ -441,10 +460,15 @@ describe DirectLink do
         ["https://github.com/Nakilon/dhash-vips", FastImage::UnknownImageType, true],
         ["https://github.com/Nakilon/dhash-vips", 3],
         ["http://imgur.com/HQHBBBD",              FastImage::UnknownImageType, true],
-        ["http://imgur.com/HQHBBBD",              "https://i.imgur.com/HQHBBBD.jpg?fb"],
+        ["http://imgur.com/HQHBBBD",              "https://i.imgur.com/HQHBBBD.jpg?fb"],  # .at_css("meta[@property='og:image']")
+        ["http://redd.it/123456",                 FastImage::UnknownImageType, true],
+        ["http://redd.it/123456",                 123],
+        ["http://redd.it/997he7",                 123, true],
+        ["http://redd.it/997he7",                 123],
       ].each_with_index do |(input, expectation, giveup), i|
         it "##{i + 1}" do
-          t = ENV.delete "IMGUR_CLIENT_ID"
+          ti = ENV.delete "IMGUR_CLIENT_ID"
+          tr = ENV.delete "REDDIT_SECRETS"
           begin
             case expectation
             when Class
@@ -462,7 +486,8 @@ describe DirectLink do
               }
             end
           ensure
-            ENV["IMGUR_CLIENT_ID"] = t
+            ENV["IMGUR_CLIENT_ID"] = ti
+            ENV["REDDIT_SECRETS"] = tr
           end
         end
       end
@@ -513,7 +538,7 @@ describe DirectLink do
 
         [1, "https://imgur.com/a/badlinkpattern", "NetHTTPUtils::Error: HTTP error #404 "],
         # TODO: a test that it appends the `exception.cause`
-      ].each_with_index do |(expected_exit_code, link, expected_output, unset), i|
+      ].each_with_index do |(expected_exit_code, link, expected_output, unset), i| # TODO: unset is not used anymore or I have to go sleep?
         it "##{i + 1}" do
           string, status = Open3.capture2e "export #{File.read("api_tokens_for_travis.sh").gsub(/\n?export/, ?\s).strip}#{unset} && bundle exec ruby bin/directlink #{link}"
           assert_equal [expected_exit_code, "#{expected_output}\n"], [status.exitstatus, string], "for #{link}"
@@ -557,7 +582,7 @@ describe DirectLink do
         ]
         '.gsub(/^ {8}/, ""), "json"],
     ].each do |expected_output, param|
-      it "#{param || "default"} succeeds" do
+      it "#{param || "default"} output format" do
         string, status = Open3.capture2e "export #{File.read("api_tokens_for_travis.sh").gsub(/\n?export/, ?\s).strip} && bundle exec ruby bin/directlink#{" --#{param}" if param} #{valid_imgur_image_url1} #{valid_imgur_image_url2}"
         assert_equal [0, expected_output], [status.exitstatus, string]
       end
