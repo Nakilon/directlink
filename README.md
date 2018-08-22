@@ -85,7 +85,9 @@ When an image hosting with known API is recognized, it will try to use the API t
 ```
 $ export IMGUR_CLIENT_ID=0f99cd781...
 $ export FLICKR_API_KEY=dc2bfd348b...
+$ export REDDIT_SECRETS=secrets.yaml
 ```
+(check the format of reddit secrets file in the [reddit_bot gem dependency README](https://github.com/Nakilon/reddit_bot/#usage))
 
 #### the "don't give up mode"
 
