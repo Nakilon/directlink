@@ -238,7 +238,8 @@ def DirectLink link, max_redirect_resolving_retry_delay = nil, giveup = false
   begin
     URI link
   rescue URI::InvalidURIError
-    link = URI.escape link
+    require "addressable"
+    link = Addressable::URI.escape link
   end
   raise DirectLink::ErrorBadLink.new link, true unless URI(link).host
 

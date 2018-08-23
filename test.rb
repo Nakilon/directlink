@@ -397,6 +397,15 @@ describe DirectLink do
 
   describe "DirectLink()" do
 
+    # thanks to gem addressable
+    it "does not throw URI::InvalidURIError if there are brackets" do
+      assert_equal 404, (
+        assert_raises NetHTTPUtils::Error do
+          DirectLink "https://www.flickr.com/photos/leogaggl/28488925847/%20[2048x1152]"
+        end.code
+      )
+    end
+
     it "throws ErrorBadLink if link is invalid" do
       assert_equal "test".inspect, (
         assert_raises DirectLink::ErrorBadLink do

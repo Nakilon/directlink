@@ -40,7 +40,7 @@ if github
     # FileUtils.rm_rf dir
   end
 else
-  require "directlink"
+  require_relative "../lib/directlink"
 end
 NetHTTPUtils.logger.level = debug ? Logger::INFO : Logger::FATAL
 # TODO --timeout=
