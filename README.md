@@ -158,7 +158,7 @@ SocketError: Failed to open TCP connection to minus.com:80 (getaddrinfo: nodenam
 ## Notes:
 
 * `module DirectLink` public methods return different sets of properties -- `DirectLink()` unites them
-* the `ErrorAssert` and `ErrorMissingEnvVar` should never be raised and you might report it if it does
+* the `ErrorAssert`, `ErrorMissingEnvVar` and `URI::InvalidURIError` should never be raised and you might report it
 * style: `@@` and lambdas are used to keep things private
 * this gem is a historically 2 or 3 libraries merged -- this is why tests may look awkward
 * 500px.com has discontinued API in June 2018 -- the tool now uses undocumented methods

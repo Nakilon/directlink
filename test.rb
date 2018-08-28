@@ -394,6 +394,21 @@ describe DirectLink do
       end
     end
 
+    # TODO: test each webservice-specific method
+    # TODO: check not in OpenSSL but higher -- in Net::HTTP
+        it "does not cause the SystemStackError" do
+          OpenSSL::Buffering.module_eval do
+            old = instance_method :write
+            depths = []
+            define_method :write do |arg|
+              depths.push caller.size
+              raise "probable infinite recursion" if [1]*10 == depths.each_cons(2).map{ |i,j| j-i } if depths.size > 10
+              old.bind(self).(arg)
+            end
+          end
+          DirectLink "https://i.redd.it/gdo0cnmeagx01.jpg"
+        end
+
   end
 
   describe "DirectLink()" do

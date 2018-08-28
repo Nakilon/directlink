@@ -313,13 +313,13 @@ def DirectLink link, max_redirect_resolving_retry_delay = nil, giveup = false
 
   begin
     s, u = DirectLink.reddit(link)
-    if s
-      return DirectLink u, max_redirect_resolving_retry_delay, giveup
+    unless s
+      raise DirectLink::ErrorBadLink.new link if giveup   # TODO: print original url in such cases if there was a recursion
+      f = ->_{ _.type == :a ? _.attr["href"] : _.children.flat_map(&f) }
+      require "kramdown"
+      return f[Kramdown::Document.new(u).root].map{ |_| DirectLink _, max_redirect_resolving_retry_delay, giveup }
     end
-    raise DirectLink::ErrorBadLink.new link if giveup   # TODO: print original url in such cases if there was a recursion
-    f = ->_{ _.type == :a ? _.attr["href"] : _.children.flat_map(&f) }
-    require "kramdown"
-    return f[Kramdown::Document.new(u).root].map{ |_| DirectLink _, max_redirect_resolving_retry_delay, giveup }
+    link = u
   rescue DirectLink::ErrorMissingEnvVar
   end if %w{ reddit com } == URI(link).host.split(?.).last(2) ||
          %w{ redd it    } == URI(link).host.split(?.).last(2)
