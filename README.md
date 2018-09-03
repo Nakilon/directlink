@@ -155,6 +155,13 @@ DirectLink "http://minus.com/", 0
 SocketError: Failed to open TCP connection to minus.com:80 (getaddrinfo: nodename nor servname provided, or not known) to http://minus.com/
 ```
 
+#### Ruby 2.0
+
+The `addressable` dependency (for proper URI parsing) has a dependency that by default wants Ruby 2.1 or higher. You may fix it safely by adding this line to your `Gemfile`:
+```
+gem "jwt", "<2"
+```
+
 ## Notes:
 
 * `module DirectLink` public methods return different sets of properties -- `DirectLink()` unites them

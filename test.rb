@@ -445,6 +445,21 @@ describe DirectLink do
           end
         end
       end
+      it "does not raise JSON::ParserError -- Reddit sucks and may respond with wrong content type" do
+        DirectLink.reddit "https://www.reddit.com/123456"   # just to initialize DirectLink.reddit_bot
+        tries = 3
+        m = DirectLink.reddit_bot.method :json
+        DirectLink.reddit_bot.stub :json, ->*args{
+          if args != [:get, "/by_id/t3_123456"] || 0 == tries -= 1
+            m.call *args
+          else
+            raise JSON::ParserError
+          end
+        } do
+          DirectLink.reddit "https://www.reddit.com/123456"
+        end
+        assert_equal 0, tries
+      end
       [ # TODO this URLs may be reused from tests that check that this method calls internal method
         [:google, "//lh3.googleusercontent.com/proxy/DZtTi5KL7PqiBwJc8weNGLk_Wi2UTaQH0AC_h2kuURiu0AbwyI2ywOk2XgdAjL7ceg=w530-h354-n"],
         [:imgur, "http://imgur.com/HQHBBBD"],

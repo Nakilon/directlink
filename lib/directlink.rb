@@ -210,17 +210,25 @@ module DirectLink
                                                      URI(link).path[/\A\/[a-z0-9]{12,13}\.(gif|jpg)\z/]
       return [true, link]
     end
-    if ENV["REDDIT_SECRETS"]
+    json = if ENV["REDDIT_SECRETS"]
       require "reddit_bot"
       RedditBot.logger.level = Logger::FATAL
       require "yaml"
-      reddit_bot ||= RedditBot::Bot.new YAML.load_file ENV["REDDIT_SECRETS"]
-      json = reddit_bot.json(:get, "/by_id/t3_#{id}")
+      self.reddit_bot ||= RedditBot::Bot.new YAML.load_file ENV["REDDIT_SECRETS"]
+      t = 1
+      begin
+        self.reddit_bot.json :get, "/by_id/t3_#{id}"
+      rescue JSON::ParserError => e
+        RedditBot.logger.warn "#{e}, retrying in #{t} seconds"
+        sleep t
+        t *= 2
+        retry
+      end
     else
       raise ErrorMissingEnvVar.new "defining REDDIT_SECRETS env var is highly recommended" rescue nil
       json = JSON.load NetHTTPUtils.request_data "#{link}.json", header: {"User-Agent" => "Mozilla"}
       raise ErrorAssert.new "our knowledge about Reddit API seems to be outdated" unless json.size == 2
-      json = json.find{ |_| _["data"]["children"].first["kind"] == "t3" }
+      json.find{ |_| _["data"]["children"].first["kind"] == "t3" }
     end
     data = json["data"]["children"].first["data"]
     url = data["url"]
