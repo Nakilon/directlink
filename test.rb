@@ -188,21 +188,27 @@ describe DirectLink do
         assert_nil e.cause if Exception.instance_methods.include? :cause  # Ruby 2.1
       end
 
-      valid_imgur_image_url = "https://i.imgur.com/BLCesav.jpg"
+      valid_imgur_image_url_direct = "https://i.imgur.com/BLCesav.jpg"
       it 200 do
         assert_equal [["https://i.imgur.com/BLCesav.jpg", 1000, 1500, "image/jpeg"]],
-                     DirectLink.imgur(valid_imgur_image_url)
+                     DirectLink.imgur(valid_imgur_image_url_direct)
       end
-      [400, 500].each do |error_code|
-        it "retries two times on error #{error_code}" do
-          tries = 0
-          e = assert_raises DirectLink::ErrorAssert do
-            NetHTTPUtils.stub :request_data, ->*{ tries += 1; raise NetHTTPUtils::Error.new "", error_code } do
-              DirectLink.imgur valid_imgur_image_url, 4   # do not remove `4` or test may hang
+      valid_imgur_image_url_album = "https://imgur.com/a/wPi63mj"
+      [400, 500, 503].each do |error_code|
+        [
+          [valid_imgur_image_url_direct, :direct],
+          [valid_imgur_image_url_album, :album],
+        ].each do |url, kind|
+          it "retries two times on error #{error_code} (#{kind})" do
+            tries = 0
+            e = assert_raises DirectLink::ErrorAssert do
+              NetHTTPUtils.stub :request_data, ->*{ tries += 1; raise NetHTTPUtils::Error.new "", error_code } do
+                DirectLink.imgur url, 4   # do not remove `4` or test will hang
+              end
             end
+            assert_equal error_code, e.cause.code if Exception.instance_methods.include? :cause  # Ruby 2.1
+            assert_equal 3, tries
           end
-          assert_equal error_code, e.cause.code if Exception.instance_methods.include? :cause  # Ruby 2.1
-          assert_equal 3, tries
         end
       end
       it "does not throw 400 after a successfull retry" do
@@ -214,13 +220,13 @@ describe DirectLink do
           m.call *args
         } do
           assert_equal [["https://i.imgur.com/BLCesav.jpg", 1000, 1500, "image/jpeg"]],
-            DirectLink.imgur(valid_imgur_image_url, 4)   # do not remove `4` or test may hang
+            DirectLink.imgur(valid_imgur_image_url_direct, 4)   # do not remove `4` or test may hang
         end
       end
       it 404 do
         e = assert_raises DirectLink::ErrorNotFound do
           NetHTTPUtils.stub :request_data, ->*{ raise NetHTTPUtils::Error.new "", 404 } do
-            DirectLink.imgur valid_imgur_image_url
+            DirectLink.imgur valid_imgur_image_url_direct
           end
         end
         assert_equal 404, e.cause.code if Exception.instance_methods.include? :cause  # Ruby 2.1

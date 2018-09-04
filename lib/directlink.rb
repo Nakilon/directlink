@@ -91,24 +91,25 @@ module DirectLink
   def self.imgur link, timeout = 1000
     raise ErrorMissingEnvVar.new "define IMGUR_CLIENT_ID env var" unless ENV["IMGUR_CLIENT_ID"]
 
-    case link
-    when /\Ahttps?:\/\/(?:(?:i|m|www)\.)?imgur\.com\/(a|gallery)\/([a-zA-Z0-9]{5}(?:[a-zA-Z0-9]{2})?)\z/,
-         /\Ahttps?:\/\/imgur\.com\/(gallery)\/([a-zA-Z0-9]{5}(?:[a-zA-Z0-9]{2})?)\/new\z/
+    request_data = lambda do |url|
       t = 1
-      json = begin
-        NetHTTPUtils.request_data "https://api.imgur.com/3/#{
-          $1 == "gallery" ? "gallery" : "album"
-        }/#{$2}/0.json", header: { Authorization: "Client-ID #{ENV["IMGUR_CLIENT_ID"]}" }
+      begin
+        NetHTTPUtils.request_data url, header: { Authorization: "Client-ID #{ENV["IMGUR_CLIENT_ID"]}" }
       rescue NetHTTPUtils::Error => e
-        if 500 == e.code && t < timeout
-          logger.error "retrying in #{t} seconds because of Imgur HTTP ERROR 500"
+        raise ErrorNotFound.new url.inspect if 404 == e.code
+        if t < timeout && [400, 500, 503].include?(e.code)
+          logger.error "retrying in #{t} seconds because of Imgur HTTP ERROR #{e.code}"
           sleep t
           t *= 2
           retry
         end
-        raise ErrorNotFound.new link.inspect if 404 == e.code
-        raise ErrorAssert.new "unexpected http error for #{link}"
+        raise ErrorAssert.new "unexpected http error for #{url}"
       end
+    end
+    case link
+    when /\Ahttps?:\/\/(?:(?:i|m|www)\.)?imgur\.com\/(a|gallery)\/([a-zA-Z0-9]{5}(?:[a-zA-Z0-9]{2})?)\z/,
+         /\Ahttps?:\/\/imgur\.com\/(gallery)\/([a-zA-Z0-9]{5}(?:[a-zA-Z0-9]{2})?)\/new\z/
+      json = request_data["https://api.imgur.com/3/#{$1 == "gallery" ? "gallery" : "album"}/#{$2}/0.json"]
       data = JSON.load(json)["data"]
       if data["error"]
         raise ErrorAssert.new "unexpected error #{data.inspect} for #{link}"
@@ -129,19 +130,7 @@ module DirectLink
          /\Ahttps?:\/\/imgur\.com\/([a-zA-Z0-9]{5}(?:[a-zA-Z0-9]{2})?)\z/,
          /\Ahttps?:\/\/imgur\.com\/([a-zA-Z0-9]{7})(?:\?\S+)?\z/,
          /\Ahttps?:\/\/imgur\.com\/r\/[0-9_a-z]+\/([a-zA-Z0-9]{7})\z/
-      t = 1
-      json = begin
-        NetHTTPUtils.request_data "https://api.imgur.com/3/image/#{$1}/0.json", header: { Authorization: "Client-ID #{ENV["IMGUR_CLIENT_ID"]}" }
-      rescue NetHTTPUtils::Error => e
-        raise ErrorNotFound.new link.inspect if e.code == 404
-        if t < timeout && [400, 500].include?(e.code)
-          logger.error "retrying in #{t} seconds because of Imgur HTTP ERROR #{e.code}"
-          sleep t
-          t *= 2
-          retry
-        end
-        raise ErrorAssert.new "unexpected http error for #{link}"
-      end
+      json = request_data["https://api.imgur.com/3/image/#{$1}/0.json"]
       [ JSON.load(json)["data"] ]
     else
       raise ErrorBadLink.new link
