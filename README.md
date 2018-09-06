@@ -23,6 +23,13 @@ $ directlink //4.bp.blogspot.com/-5kP8ndL0kuM/Wpt82UCqvmI/AAAAAAAAEjI/ZbbZWs0-kg
 => https://4.bp.blogspot.com/-5kP8ndL0kuM/Wpt82UCqvmI/AAAAAAAAEjI/ZbbZWs0-kgwRXEJ9JEGioR0bm6U8MOkvQCKgBGAs/s0/IMG_20171223_093922.jpg
    jpeg 4160x3120
 ```
+Given the link to a page it tries to find the main image on it.
+```
+$ directlink https://plus.google.com/107956229381790410785/posts/Gu9apRHri41
+<= https://plus.google.com/107956229381790410785/posts/Gu9apRHri41
+=> https://lh3.googleusercontent.com/-mRDjiHoDA30/W0mndQaRXeI/AAAAAAAAfyA/NhZGMAoQsbAb8cUFDzNWh-NXQ9O-YQhuQCJoC/s0/001
+   jpeg 2000x1328
+```
 Retrieves all images from Imgur album or gallery, orders them by resolution from high to low:
 ```
 $ directlink https://imgur.com/a/oacI3gl
@@ -91,7 +98,7 @@ $ export REDDIT_SECRETS=secrets.yaml
 
 #### the "don't give up mode"
 
-If the passed link is not the image link or a photo page of a known image hosting, the tool is still able to find the main images that the linked webpage contains (here it found three images in the markdown file):
+If the passed link is not the image link or a photo page of a known image hosting, the tool is still able to find the main images that the linked webpage contains. Like in the second example of this README or here -- it found three images in the markdown file:
 ```
 $ directlink https://github.com/Nakilon/dhash-vips
 <= https://github.com/Nakilon/dhash-vips

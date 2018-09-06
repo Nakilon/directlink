@@ -119,6 +119,7 @@ describe DirectLink do
         //lh3.googleusercontent.com/proxy/SEfB6tFuim6X0HdZfEBSxrXtumUdf4Q4y05rUW4wc_clWWVrowuWAGZghx71xwPUmf_8si2VQwnRivsM7PfD2gp3kA=w480-h360-n
         https://lh3.googleusercontent.com/-u3FhiUTmLCY/Vk7dMQnxR2I/AAAAAAAAMc0/I76_52swA4s/w530-h322-n/Harekosh_A%252520Concert_YkRqQg.jpg
         https://lh3.googleusercontent.com/-t_ab__91ChA/VeLaObkUlgI/AAAAAAAAL4s/VjO6KK_lkRw/w530-d-h351-n/30.08.15%2B-%2B1
+        //lh3.googleusercontent.com/-u2NzdIQfVyQ/Wy83AzoFT8I/AAAAAAAAh6M/fdpxOUkj5mUIfpvYol_R5dyupnF2nDIEACJoC/w530-h298-p/_DSC9134.jpg
       }.each_with_index do |link, i|  # July contenstants
         it "another (July) Google Plus community post image ##{i + 1}" do
           assert DirectLink.google link
