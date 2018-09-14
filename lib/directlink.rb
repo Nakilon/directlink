@@ -202,23 +202,26 @@ module DirectLink
                                                      URI(link).path[/\A\/[a-z0-9]{12,13}\.(gif|jpg)\z/]
       return [true, link]
     end
-    json = if ENV["REDDIT_SECRETS"]
-      require "reddit_bot"
-      RedditBot.logger.level = Logger::FATAL
-      require "yaml"
-      self.reddit_bot ||= RedditBot::Bot.new YAML.load_file ENV["REDDIT_SECRETS"]
+    retry_on_json_parseerror = lambda do |&b|
       t = 1
       begin
-        self.reddit_bot.json :get, "/by_id/t3_#{id}"
+        b.call
       rescue JSON::ParserError => e
         RedditBot.logger.warn "#{e}, retrying in #{t} seconds"
         sleep t
         t *= 2
         retry
       end
+    end
+    json = if ENV["REDDIT_SECRETS"]
+      require "reddit_bot"
+      RedditBot.logger.level = Logger::FATAL
+      require "yaml"
+      self.reddit_bot ||= RedditBot::Bot.new YAML.load_file ENV["REDDIT_SECRETS"]
+      retry_on_json_parseerror.call{ self.reddit_bot.json :get, "/by_id/t3_#{id}" }
     else
       raise ErrorMissingEnvVar.new "defining REDDIT_SECRETS env var is highly recommended" rescue nil
-      json = JSON.load NetHTTPUtils.request_data "#{link}.json", header: {"User-Agent" => "Mozilla"}
+      json = retry_on_json_parseerror.call{ JSON.load NetHTTPUtils.request_data "#{link}.json", header: {"User-Agent" => "Mozilla"} }
       raise ErrorAssert.new "our knowledge about Reddit API seems to be outdated" unless json.size == 2
       json.find{ |_| _["data"]["children"].first["kind"] == "t3" }
     end

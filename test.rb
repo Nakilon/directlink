@@ -428,6 +428,35 @@ describe DirectLink do
           DirectLink "https://i.redd.it/gdo0cnmeagx01.jpg"
         end
 
+    it "does not raise JSON::ParserError -- Reddit sucks and may respond with wrong content type" do
+      DirectLink.reddit "https://www.reddit.com/123456"   # just to initialize DirectLink.reddit_bot
+                                                          # I don't remember for what though
+                                                          # oh, maybe to avoid rasing in initializer
+                                                          # but why not?
+      limit = 0
+      loop do
+        limit += 1
+        tries = 0
+        m = JSON.method :load
+        JSON.stub :load, ->*args{
+          if limit == tries += 1
+            raise JSON::ParserError
+          else
+            m.call *args
+          end
+        } do
+          t = ENV.delete "REDDIT_SECRETS"
+          begin
+            p DirectLink.reddit "https://www.reddit.com/123456"
+          ensure
+            ENV["REDDIT_SECRETS"] = t
+          end
+        end
+        break if 1 == tries
+      end
+      assert_equal 2, limit, "`JSON.load` was called only once?!"
+    end
+
   end
 
   describe "DirectLink()" do
@@ -463,21 +492,6 @@ describe DirectLink do
             DirectLink "http://example.com/404"
           end
         end
-      end
-      it "does not raise JSON::ParserError -- Reddit sucks and may respond with wrong content type" do
-        DirectLink.reddit "https://www.reddit.com/123456"   # just to initialize DirectLink.reddit_bot
-        tries = 3
-        m = DirectLink.reddit_bot.method :json
-        DirectLink.reddit_bot.stub :json, ->*args{
-          if args != [:get, "/by_id/t3_123456"] || 0 == tries -= 1
-            m.call *args
-          else
-            raise JSON::ParserError
-          end
-        } do
-          DirectLink.reddit "https://www.reddit.com/123456"
-        end
-        assert_equal 0, tries
       end
       [ # TODO this URLs may be reused from tests that check that this method calls internal method
         [:google, "//lh3.googleusercontent.com/proxy/DZtTi5KL7PqiBwJc8weNGLk_Wi2UTaQH0AC_h2kuURiu0AbwyI2ywOk2XgdAjL7ceg=w530-h354-n"],

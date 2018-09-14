@@ -180,3 +180,4 @@ gem "jwt", "<2"
 
 TODO: maybe make all these web service specific methods private and discourage to use them since they all return very different things and sometimes don't raise exceptions while the `DirectLink()` does  
 TODO: what should `--json` print if exception was thrown?
+TODO: looped prompt mode
