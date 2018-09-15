@@ -212,7 +212,7 @@ describe DirectLink do
           [valid_imgur_image_url_direct, :direct],
           [valid_imgur_image_url_album, :album],
         ].each do |url, kind|
-          it "retries two times on error #{error_code} (#{kind})" do
+          it "retries limited amout of times on error #{error_code} (#{kind})" do
             tries = 0
             e = assert_raises DirectLink::ErrorAssert do
               NetHTTPUtils.stub :request_data, ->*{ tries += 1; raise NetHTTPUtils::Error.new "", error_code } do
@@ -334,7 +334,7 @@ describe DirectLink do
         ["http://redd.it/32tq0i", [true, "http://i.imgur.com/vy6Ms4Z.jpg"]],                    # TODO maybe check that it calls #imgur recursively
         ["https://i.redd.it/c8rk0kjywhy01.jpg", [true, "https://i.redd.it/c8rk0kjywhy01.jpg"]],
         ["https://i.redd.it/si758zk7r5xz.jpg", [true, "https://i.redd.it/si758zk7r5xz.jpg"]],   # it is 404 but `.reddit` does not care -- it just returns the url
-        ["https://reddit.com/123456", [true, "http://www.youtube.com/watch?v=b9upM4RbIeU&amp;feature=g-vrec"]],
+        ["https://reddit.com/123456", [true, "https://i.ytimg.com/vi/b9upM4RbIeU/hqdefault.jpg"]],
         ["https://www.reddit.com/r/travel/988889", [true, "https://i.redd.it/3h5xls6ehrg11.jpg"]],
         ["http://redd.it/988889", [true, "https://i.redd.it/3h5xls6ehrg11.jpg"]],
       ] ],
@@ -401,6 +401,46 @@ describe DirectLink do
       end
     end
 
+    # TODO: make a Reddit describe
+    it "retries limited amout of times on error JSON::ParserError" do
+      link = "https://www.reddit.com/r/gifs/comments/9ftc8f/low_pass_wake_vortices/?st=JM2JIKII&amp;sh=c00fea4f"
+      tries = 0
+      m = NetHTTPUtils.method :request_data
+      e = assert_raises DirectLink::ErrorBadLink do
+        NetHTTPUtils.stub :request_data, lambda{ |*args|
+          if args.first == "https://www.reddit.com/9ftc8f.json"
+            tries += 1
+            raise JSON::ParserError
+          end
+          m.call *args
+        } do
+          t = ENV.delete "REDDIT_SECRETS"
+          begin
+            DirectLink.reddit link, 3   # do not remove `4` or test will hang
+          ensure
+            ENV["REDDIT_SECRETS"] = t
+          end
+        end
+      end
+      assert_instance_of JSON::ParserError, e.cause if Exception.instance_methods.include? :cause  # Ruby 2.1
+      assert_equal 3, tries
+    end
+    it "Reddit correctly parses out id when no token provided" do
+      t = ENV.delete "REDDIT_SECRETS"
+      begin
+        assert_equal "https://i.redditmedia.com/-WnE-3o4RhKx6ImGD69vJYAo7UjMn5b4ClHHISJ0_Kk.png?s=fc3e2f2f9973c45daa759a45a75557bf",
+                     DirectLink("https://www.reddit.com/r/gifs/comments/9ftc8f/low_pass_wake_vortices/?st=JM2JIKII&amp;sh=c00fea4f").url
+      ensure
+        ENV["REDDIT_SECRETS"] = t
+      end
+    end
+    it "it is really impossible to get dimensions from the shitty Reddit media hosting" do
+      # TODO: why does it call the same Net::HTTP::Get twice?
+      assert_raises FastImage::UnknownImageType do
+        DirectLink "https://v.redd.it/2tyovczka8m11/DASH_4_8_M"
+      end
+    end
+
     describe "throws ErrorBadLink if method does not match the link" do
       %i{ google imgur flickr _500px wiki reddit }.each do |method|
         ["", "test", "http://example.com/"].each_with_index do |url, i|
@@ -427,6 +467,10 @@ describe DirectLink do
           end
           DirectLink "https://i.redd.it/gdo0cnmeagx01.jpg"
         end
+
+  end
+
+  describe "DirectLink()" do
 
     it "does not raise JSON::ParserError -- Reddit sucks and may respond with wrong content type" do
       DirectLink.reddit "https://www.reddit.com/123456"   # just to initialize DirectLink.reddit_bot
@@ -456,10 +500,6 @@ describe DirectLink do
       end
       assert_equal 2, limit, "`JSON.load` was called only once?!"
     end
-
-  end
-
-  describe "DirectLink()" do
 
     # thanks to gem addressable
     it "does not throw URI::InvalidURIError if there are brackets" do
@@ -544,8 +584,6 @@ describe DirectLink do
         ["https://github.com/Nakilon/dhash-vips", 3],
         ["http://imgur.com/HQHBBBD",              FastImage::UnknownImageType, true],
         ["http://imgur.com/HQHBBBD",              "https://i.imgur.com/HQHBBBD.jpg?fb"],  # .at_css("meta[@property='og:image']")
-        ["http://redd.it/123456",                 FastImage::UnknownImageType, true],
-        ["http://redd.it/123456",                 1],
         ["http://redd.it/997he7",                 DirectLink::ErrorBadLink, true],
         ["http://redd.it/997he7",                 1],   # currently only links are parsed
       ].each_with_index do |(input, expectation, giveup), i|

@@ -195,7 +195,7 @@ module DirectLink
   class << self
     attr_accessor :reddit_bot
   end
-  def self.reddit link
+  def self.reddit link, timeout = 1000
     unless id = URI(link).path[/\A(?:\/r\/[0-9a-zA-Z_]+)?(?:\/comments)?\/([0-9a-z]{5,6})(?:\/|\z)/, 1]
       raise DirectLink::ErrorBadLink.new link unless URI(link).host &&
                                                      URI(link).host.split(?.) == %w{ i redd it } &&
@@ -207,7 +207,8 @@ module DirectLink
       begin
         b.call
       rescue JSON::ParserError => e
-        RedditBot.logger.warn "#{e}, retrying in #{t} seconds"
+        raise ErrorBadLink.new link if t > timeout
+        logger.error "#{e.message[0, 500].gsub(/\s+/, " ")}, retrying in #{t} seconds"
         sleep t
         t *= 2
         retry
@@ -221,14 +222,21 @@ module DirectLink
       retry_on_json_parseerror.call{ self.reddit_bot.json :get, "/by_id/t3_#{id}" }
     else
       raise ErrorMissingEnvVar.new "defining REDDIT_SECRETS env var is highly recommended" rescue nil
-      json = retry_on_json_parseerror.call{ JSON.load NetHTTPUtils.request_data "#{link}.json", header: {"User-Agent" => "Mozilla"} }
+      json = retry_on_json_parseerror.call{ JSON.load NetHTTPUtils.request_data "https://www.reddit.com/#{id}.json", header: {"User-Agent" => "Mozilla"} }
       raise ErrorAssert.new "our knowledge about Reddit API seems to be outdated" unless json.size == 2
       json.find{ |_| _["data"]["children"].first["kind"] == "t3" }
     end
     data = json["data"]["children"].first["data"]
-    url = data["url"]
-    return [true, url] unless data["is_self"]
-    raise ErrorAssert.new "our knowledge about Reddit API seems to be outdated" if url != "https://www.reddit.com" + data["permalink"]
+    if data["media"]["reddit_video"]
+      t = data["preview"]["images"]
+      raise ErrorAssert.new "our knowledge about Reddit API seems to be outdated" unless t.size == 1
+      return [true, t.first["source"]["url"]]
+    else
+      raise ErrorAssert.new "our knowledge about Reddit API seems to be outdated" unless data["media"].keys.sort == %w{ oembed type } && data["media"]["type"] == "youtube.com"
+      return [true, data["media"]["oembed"]["thumbnail_url"]]
+    end if data["media"]
+    return [true, data["url"]] unless data["is_self"]
+    raise ErrorAssert.new "our knowledge about Reddit API seems to be outdated" if data["url"] != "https://www.reddit.com" + data["permalink"]
     return [false, data["selftext"]]
   end
 
@@ -322,10 +330,11 @@ def DirectLink link, max_redirect_resolving_retry_delay = nil, giveup = false
       require "kramdown"
       return f[Kramdown::Document.new(u).root].map{ |_| DirectLink _, max_redirect_resolving_retry_delay, giveup }
     end
+    return struct.new *u.values_at(*%w{ fallback_url width height }), "video" if u.is_a? Hash
     link = u
   rescue DirectLink::ErrorMissingEnvVar
   end if %w{ reddit com } == URI(link).host.split(?.).last(2) ||
-         %w{ redd it    } == URI(link).host.split(?.).last(2)
+         %w{ redd it    } == URI(link).host.split(?.)
 
 
   begin
