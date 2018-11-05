@@ -70,6 +70,7 @@ begin
   end
 rescue SocketError,
        Net::OpenTimeout,
+       Errno::ECONNRESET,
        NetHTTPUtils::Error,
        FastImage::UnknownImageType,
        FastImage::ImageFetchFailure,

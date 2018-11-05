@@ -19,7 +19,7 @@ module DirectLink
   end
   logging_error = Class.new RuntimeError do
     def initialize msg
-      Module.nesting.first.logger.error msg
+      Module.nesting.first.logger.error "#{self.class}: #{msg}"
       super msg
     end
   end
@@ -216,7 +216,7 @@ module DirectLink
     end
     json = if ENV["REDDIT_SECRETS"]
       require "reddit_bot"
-      RedditBot.logger.level = Logger::FATAL
+      RedditBot.logger.level = Logger::ERROR
       require "yaml"
       self.reddit_bot ||= RedditBot::Bot.new YAML.load_file ENV["REDDIT_SECRETS"]
       retry_on_json_parseerror.call{ self.reddit_bot.json :get, "/by_id/t3_#{id}" }
@@ -228,13 +228,12 @@ module DirectLink
     end
     data = json["data"]["children"].first["data"]
     if data["media"]["reddit_video"]
-      t = data["preview"]["images"]
-      raise ErrorAssert.new "our knowledge about Reddit API seems to be outdated" unless t.size == 1
-      return [true, t.first["source"]["url"]]
+      return [true, data["media"]["reddit_video"]["fallback_url"]]
     else
       raise ErrorAssert.new "our knowledge about Reddit API seems to be outdated" unless data["media"].keys.sort == %w{ oembed type } && data["media"]["type"] == "youtube.com"
       return [true, data["media"]["oembed"]["thumbnail_url"]]
     end if data["media"]
+    return reddit data["url"] if data["crosspost_parent"]   # TODO: test that it does it
     return [true, data["url"]] unless data["is_self"]
     raise ErrorAssert.new "our knowledge about Reddit API seems to be outdated" if data["url"] != "https://www.reddit.com" + data["permalink"]
     return [false, data["selftext"]]
@@ -273,7 +272,9 @@ def DirectLink link, max_redirect_resolving_retry_delay = nil, giveup = false
   #   > NetHTTPUtils.logger.level = Logger::DEBUG
   #   > NetHTTPUtils.request_data "http://www.aeronautica.difesa.it/organizzazione/REPARTI/divolo/PublishingImages/6%C2%B0%20Stormo/2013-decollo%20al%20tramonto%20REX%201280.jpg",
   #                               max_read_retry_delay: 5, timeout: 5
-  r = NetHTTPUtils.get_response link, header: {"User-Agent" => "Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/66.0.3359.139 Safari/537.36"}, **(max_redirect_resolving_retry_delay ? {
+  r = NetHTTPUtils.get_response link, header: {
+    "User-Agent" => "Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/66.0.3359.139 Safari/537.36"
+  }, **(max_redirect_resolving_retry_delay ? {
     max_timeout_retry_delay: max_redirect_resolving_retry_delay,
     max_sslerror_retry_delay: max_redirect_resolving_retry_delay,
     max_read_retry_delay: max_redirect_resolving_retry_delay,
@@ -328,7 +329,9 @@ def DirectLink link, max_redirect_resolving_retry_delay = nil, giveup = false
       raise DirectLink::ErrorBadLink.new link if giveup   # TODO: print original url in such cases if there was a recursion
       f = ->_{ _.type == :a ? _.attr["href"] : _.children.flat_map(&f) }
       require "kramdown"
-      return f[Kramdown::Document.new(u).root].map{ |_| DirectLink _, max_redirect_resolving_retry_delay, giveup }
+      return f[Kramdown::Document.new(u).root].map do |sublink|
+        DirectLink URI.join(link, sublink), max_redirect_resolving_retry_delay, giveup
+      end
     end
     return struct.new *u.values_at(*%w{ fallback_url width height }), "video" if u.is_a? Hash
     link = u
@@ -343,17 +346,15 @@ def DirectLink link, max_redirect_resolving_retry_delay = nil, giveup = false
     raise if giveup
     require "nokogiri"
     html = Nokogiri::HTML NetHTTPUtils::request_data link, header: {"User-Agent" => "Mozilla"}
-    h = {}
+    h = {}  # TODO: maybe move it outside because of possible img[:src] recursion?...
     l = lambda do |node, s = []|
       node.element_children.flat_map do |child|
-        if "img" == child.node_name
-          begin
-            [[s, (h[child[:src]] = h[child[:src]] || DirectLink(child[:src], nil, true))]]
-          rescue => e
-            []
-          end
-        else
-          l[child, s + [child.node_name]]
+        next l[child, s + [child.node_name]] unless "img" == child.node_name
+        begin
+          [[s, (h[child[:src]] = h[child[:src]] || DirectLink(URI.join(link, child[:src]), nil, true))]]  # ... or wait, do we giveup?
+        rescue => e
+          DirectLink.logger.error e
+          []
         end
       end
     end
@@ -363,6 +364,7 @@ def DirectLink link, max_redirect_resolving_retry_delay = nil, giveup = false
       return DirectLink t[:content], nil, true
     end.max_by{ |_, v| v.map{ |i| i.width * i.height }.inject(:+) / v.size }.last
   else
+    # TODO: maybe move this to right before `rescue` line
     w, h = f.size
     struct.new link, w, h, f.type
   end

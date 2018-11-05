@@ -412,8 +412,11 @@ describe DirectLink do
             tries += 1
             raise JSON::ParserError
           end
+          # this gem call should never return success -- it should experience JSON::ParserError
+          #   so I'm not much sure why do we need this line
           m.call *args
         } do
+          # why?
           t = ENV.delete "REDDIT_SECRETS"
           begin
             DirectLink.reddit link, 3   # do not remove `4` or test will hang
@@ -427,11 +430,17 @@ describe DirectLink do
     end
     it "Reddit correctly parses out id when no token provided" do
       t = ENV.delete "REDDIT_SECRETS"
-      begin
-        assert_equal "https://i.redditmedia.com/-WnE-3o4RhKx6ImGD69vJYAo7UjMn5b4ClHHISJ0_Kk.png?s=fc3e2f2f9973c45daa759a45a75557bf",
-                     DirectLink("https://www.reddit.com/r/gifs/comments/9ftc8f/low_pass_wake_vortices/?st=JM2JIKII&amp;sh=c00fea4f").url
-      ensure
-        ENV["REDDIT_SECRETS"] = t
+      FastImage.stub :new, lambda{ |link, *|
+        assert_equal "https://v.redd.it/2tyovczka8m11/DASH_4_8_M", link
+        throw :_
+      } do
+        begin
+          catch :_ do
+            DirectLink "https://www.reddit.com/r/gifs/comments/9ftc8f/low_pass_wake_vortices/?st=JM2JIKII&amp;sh=c00fea4f"
+          end
+        ensure
+          ENV["REDDIT_SECRETS"] = t
+        end
       end
     end
     it "it is really impossible to get dimensions from the shitty Reddit media hosting" do
@@ -519,10 +528,15 @@ describe DirectLink do
     end
 
     describe "does not shadow the internal exception" do
-      it "raises SocketError from the redirect resolving stage" do
-        assert_raises SocketError do
-          NetHTTPUtils.stub :get_response, ->*{ raise SocketError.new } do
-            DirectLink "http://example.com/404"
+      [
+        SocketError,
+        Errno::ECONNRESET,
+      ].each do |exception|
+        it "raises #{exception} from the redirect resolving stage" do
+          assert_raises exception do
+            NetHTTPUtils.stub :get_response, ->*{ raise exception.new } do
+              DirectLink "http://example.com/404"
+            end
           end
         end
       end
