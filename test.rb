@@ -647,7 +647,7 @@ describe DirectLink do
         ["DirectLink::ErrorBadLink: \"asd\"\n", "asd"],
       ].each_with_index do |(expectation, param), i|
         it "##{i + 1}" do
-          string, status = Open3.capture2e "bundle exec ruby bin/directlink #{param}"
+          string, status = Open3.capture2e "bin/directlink #{param}"
           if expectation.is_a? String
             assert_equal expectation, string
           else
