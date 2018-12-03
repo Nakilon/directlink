@@ -648,7 +648,7 @@ describe DirectLink do
         ["DirectLink::ErrorBadLink: \"asd\"\n", "asd"],
       ].each_with_index do |(expectation, param), i|
         it "##{i + 1}" do
-          string, status = Open3.capture2e "bin/directlink #{param}"
+          string, status = Open3.capture2e "RUBYOPT='-rbundler/setup' ./bin/directlink #{param}"
           if expectation.is_a? String
             assert_equal expectation, string
           else
@@ -677,7 +677,7 @@ describe DirectLink do
         # TODO: a test that it appends the `exception.cause`
       ].each_with_index do |(expected_exit_code, link, expected_output, unset), i| # TODO: unset is not used anymore or I have to go sleep?
         it "##{i + 1}" do
-          string, status = Open3.capture2e "export #{File.read("api_tokens_for_travis.sh").gsub(/\n?export/, ?\s).strip}#{unset} && bundle exec ruby bin/directlink #{link}"
+          string, status = Open3.capture2e "export #{File.read("api_tokens_for_travis.sh").gsub(/\n?export/, ?\s).strip}#{unset} && RUBYOPT='-rbundler/setup' ./bin/directlink #{link}"
           assert_equal [expected_exit_code, "#{expected_output}\n"], [status.exitstatus, string], "for #{link}"
         end
       end
@@ -720,13 +720,13 @@ describe DirectLink do
         '.gsub(/^ {8}/, ""), "json"],
     ].each do |expected_output, param|
       it "#{param || "default"} output format" do
-        string, status = Open3.capture2e "export #{File.read("api_tokens_for_travis.sh").gsub(/\n?export/, ?\s).strip} && bundle exec ruby bin/directlink#{" --#{param}" if param} #{valid_imgur_image_url1} #{valid_imgur_image_url2}"
+        string, status = Open3.capture2e "export #{File.read("api_tokens_for_travis.sh").gsub(/\n?export/, ?\s).strip} && RUBYOPT='-rbundler/setup' ./bin/directlink#{" --#{param}" if param} #{valid_imgur_image_url1} #{valid_imgur_image_url2}"
         assert_equal [0, expected_output], [status.exitstatus, string]
       end
     end
 
     it "reddit_bot gem logger does not flood STDOUT" do
-      string, status = Open3.capture2e "bundle exec ruby bin/directlink http://redd.it/997he7"
+      string, status = Open3.capture2e "RUBYOPT='-rbundler/setup' ./bin/directlink http://redd.it/997he7"
       assert_equal "<= http://redd.it/997he7\n=> https://i.imgur.com/QpOBvRY.png\n   image/png 460x460\n", string
     end
 
