@@ -132,6 +132,7 @@ describe DirectLink do
         https://lh3.googleusercontent.com/-VXUjuSl-dZY/WvK340_E9uI/AAAAAAAAVlg/HqKf1LgUcPUJNrLxHebCMuHhpDRq36_bQCJoC/s0/gplus248254159.jpg
         https://lh3.googleusercontent.com/-NlZRwcX_Lj8/WvQTijeAfJI/AAAAAAABNyo/jgoDgbZdTvsnLOGmmYlXMr2jL66ieZV4QCJoC/s0/67u8iii.png
         https://lh3.googleusercontent.com/-8baBz80pf8Y/Wu8KG5lyGhI/AAAAAAACSyU/s3hasZzObK0VlntA1EBj-WBrTRagzRnLQCJoC/s0/%25D0%2592%25D0%25B5%25D1%2581%25D0%25B5%25D0%25BD%25D0%25BD%25D0%25B8%25D0%25B5%2B%25D0%25BA%25D1%2580%25D0%25B0%25D1%2581%25D0%25B0%25D0%25B2%25D1%2586%25D1%258B.JPG
+        https://lh3.googleusercontent.com/-BBjhu17YIgg/W-gnZNaZeMI/AAAAAAABA-k/UMlSbNuE0DsSEPV8u3yf_6i2S5H9vFoBgCJoC/s0/gplus320347186.png
       }.each_with_index do |link, i|
         it "already high res image ##{i + 1}" do
           assert DirectLink.google link

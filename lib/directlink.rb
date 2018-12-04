@@ -69,7 +69,8 @@ module DirectLink
          /\Ahttps:\/\/lh3\.googleusercontent\.com\/-[a-zA-Z0-9]{11}\/W[a-zA-Z0-9]{9}I\/AAAAAAAA[a-zA-Z_]{3}\/[a-zA-Z0-9]{32}gCJoC\/s0\/[^\/]+\z/,
          /\Ahttps:\/\/lh3\.googleusercontent\.com\/-[a-zA-Z0-9]{11}\/[a-zA-Z0-9]{10}I\/AAAAAAA[a-zA-Z0-9]{4}\/[a-zA-Z0-9_-]{32}wCJoC\/s0\/[^\/]+\z/,
          /\Ahttps:\/\/lh3\.googleusercontent\.com\/-[a-zA-Z0-9]{11}\/[a-zA-Z0-9]{10}I\/AAAAAAA[A-Z]{4}\/[a-zA-Z0-9-]{32}gCJoC\/s0\/[^\/]+\z/,
-         /\Ahttps:\/\/lh3\.googleusercontent\.com\/-[a-zA-Z0-9-]{11}\/[a-zA-Z0-9-]{10}I\/AAAAAAA[a-zA-Z]{4}\/[a-zA-Z0-9_-]{32}ACJoC\/s0\/[^\/]+\z/
+         /\Ahttps:\/\/lh3\.googleusercontent\.com\/-[a-zA-Z0-9-]{11}\/[a-zA-Z0-9-]{10}I\/AAAAAAA[a-zA-Z]{4}\/[a-zA-Z0-9_-]{32}ACJoC\/s0\/[^\/]+\z/,
+         /\Ahttps:\/\/lh3\.googleusercontent\.com\/-[a-zA-Z0-9]{11}\/[a-zA-Z0-9-]{10}I\/AAAAAAA[a-zA-Z-]{4}\/[a-zA-Z0-9_]{32}gCJoC\/s0\/[^\/]+\z/
       src
     # Google Plus userpic
     when /\A(https:\/\/lh3\.googleusercontent\.com\/-[a-zA-Z0-9-]{11}\/AAAAAAAAAAI\/AAAAAAAA[a-zA-Z0-9]{3}\/[a-zA-Z0-9_-]{11}\/)s\d\d-p(?:-k)?-rw-no(\/photo\.jpg)\z/
@@ -129,7 +130,7 @@ module DirectLink
         # one day single-video item should hit this but somehow it didn't yet
         raise ErrorAssert.new "unknown data format #{data.inspect} for #{link}"
       end
-    when /\Ahttps?:\/\/(?:(?:i|m|www)\.)?imgur\.com\/([a-zA-Z0-9]{7})(?:\.(?:gifv|jpg|png))?\z/,
+    when /\Ahttps?:\/\/(?:(?:i|m|www)\.)?imgur\.com\/([a-zA-Z0-9]{7,8})(?:\.(?:gifv|jpg|png))?\z/,
          /\Ahttps?:\/\/(?:(?:i|m|www)\.)?imgur\.com\/([a-zA-Z0-9]{5})\.mp4\z/,
          /\Ahttps?:\/\/imgur\.com\/([a-zA-Z0-9]{5}(?:[a-zA-Z0-9]{2})?)\z/,
          /\Ahttps?:\/\/imgur\.com\/([a-zA-Z0-9]{7})(?:\?\S+)?\z/,
