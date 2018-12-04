@@ -1,4 +1,5 @@
-#!/usr/bin/env ruby -W0
+#!/usr/bin/env ruby
+$VERBOSE = nil
 
 # "-W0" is against Fastimage's "warning: already initialized constant URI::DEFAULT_PARSER" on Ruby 2.0 and 2.1
 #       that ruins binstub tests
