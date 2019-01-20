@@ -43,7 +43,7 @@ if github
 else
   require "directlink"
 end
-NetHTTPUtils.logger.level = debug ? Logger::INFO : Logger::FATAL
+NetHTTPUtils.logger.level = debug ? Logger::INFO : Logger::FATAL unless ENV.include? "LOGLEVEL_NetHTTPUtils"
 # TODO --timeout=
 DirectLink.silent = !debug
 abort "usage: directlink [--debug] [--json] [--github] <link1> <link2> <link3> ...\n#{

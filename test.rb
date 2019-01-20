@@ -227,11 +227,10 @@ describe DirectLink do
         end
       end
       it "does not throw 400 after a successfull retry" do
-        f = false
+        f = 0
         m = NetHTTPUtils.method :request_data
         NetHTTPUtils.stub :request_data, lambda{ |*args|
-          f ^= true
-          raise NetHTTPUtils::Error.new "", 400 if f
+          raise NetHTTPUtils::Error.new "", 400 if 1 == f += 1
           m.call *args
         } do
           assert_equal [["https://i.imgur.com/BLCesav.jpg", 1000, 1500, "image/jpeg"]],
@@ -433,7 +432,7 @@ describe DirectLink do
     it "Reddit correctly parses out id when no token provided" do
       t = ENV.delete "REDDIT_SECRETS"
       FastImage.stub :new, lambda{ |link, *|
-        assert_equal "https://v.redd.it/2tyovczka8m11/DASH_4_8_M", link
+        assert_equal "https://v.redd.it/2tyovczka8m11/DASH_4_8_M?source=fallback", link
         throw :_
       } do
         begin
@@ -536,7 +535,7 @@ describe DirectLink do
       ].each do |exception|
         it "raises #{exception} from the redirect resolving stage" do
           assert_raises exception do
-            NetHTTPUtils.stub :get_response, ->*{ raise exception.new } do
+            NetHTTPUtils.stub :request_data, ->*{ raise exception.new } do
               DirectLink "http://example.com/404"
             end
           end
@@ -544,7 +543,7 @@ describe DirectLink do
       end
       it "raises Net::OpenTimeout -- server side issues can happen (not related to User Agent)" do
         assert_raises Net::OpenTimeout do
-          NetHTTPUtils.stub :get_response, ->*{ raise Net::OpenTimeout.new } do
+          NetHTTPUtils.stub :request_data, ->*{ raise Net::OpenTimeout.new } do
             DirectLink "http://example.com/404"
           end
         end
@@ -570,7 +569,7 @@ describe DirectLink do
 
     describe "other domains tests" do
       [
-        ["http://www.aeronautica.difesa.it/organizzazione/REPARTI/divolo/PublishingImages/6%C2%B0%20Stormo/2013-decollo%20al%20tramonto%20REX%201280.jpg", ["http://www.aeronautica.difesa.it/organizzazione/REPARTI/divolo/PublishingImages/6%C2%B0%20Stormo/2013-decollo%20al%20tramonto%20REX%201280.jpg", 1280, 853, :jpeg]],
+        ["http://www.aeronautica.difesa.it/organizzazione/REPARTI/divolo/PublishingImages/6%C2%B0%20Stormo/2013-decollo%20al%20tramonto%20REX%201280.jpg", ["http://www.aeronautica.difesa.it/organizzazione/REPARTI/divolo/PublishingImages/6%C2%B0%20Stormo/2013-decollo%20al%20tramonto%20REX%201280.jpg", 1280, 853, :jpeg], nil, 1],
         ["http://minus.com/lkP3hgRJd9npi", SocketError, /nodename nor servname provided, or not known|No address associated with hostname/, 0],
         ["http://www.cutehalloweencostumeideas.org/wp-content/uploads/2017/10/Niagara-Falls_04.jpg", SocketError, /nodename nor servname provided, or not known|Name or service not known/, 0],
       ].each_with_index do |(input, expectation, message_string_or_regex, max_redirect_resolving_retry_delay), i|
@@ -603,7 +602,7 @@ describe DirectLink do
         ["http://redd.it/997he7",                 DirectLink::ErrorBadLink, true],
         ["http://redd.it/997he7",                 1],   # currently only links are parsed
       ].each_with_index do |(input, expectation, giveup), i|
-        it "##{i + 1} (#{URI(input).host})" do  # to match with minitest `-n` run flag
+        it "##{i + 1} (#{URI(input).host}) (giveup=#{!!giveup})" do  # to match with minitest `-n` run flag
           ti = ENV.delete "IMGUR_CLIENT_ID"
           tr = ENV.delete "REDDIT_SECRETS"
           begin
@@ -678,7 +677,7 @@ describe DirectLink do
         # TODO: a test that it appends the `exception.cause`
       ].each_with_index do |(expected_exit_code, link, expected_output, unset), i| # TODO: unset is not used anymore or I have to go sleep?
         it "##{i + 1}" do
-          string, status = Open3.capture2e "export #{File.read("api_tokens_for_travis.sh").gsub(/\n?export/, ?\s).strip}#{unset} && RUBYOPT='-rbundler/setup' ./bin/directlink #{link}"
+          string, status = Open3.capture2e "export #{File.read("api_tokens_for_travis.sh").gsub(/\n?export/, ?\s).strip}#{unset} && RUBYOPT='-rbundler/setup #{$-I.map{ |i| "-I #{i}" }.join " "}' ./bin/directlink #{link}"
           assert_equal [expected_exit_code, "#{expected_output}\n"], [status.exitstatus, string], "for #{link}"
         end
       end
@@ -689,7 +688,7 @@ describe DirectLink do
     [
       ["<= #{valid_imgur_image_url1}
         => https://i.imgur.com/QpOBvRY.png
-           image/png 460x460
+           png 460x460
         <= #{valid_imgur_image_url2}
         => https://i.imgur.com/QpOBvRY.png
            image/png 460x460
@@ -701,7 +700,7 @@ describe DirectLink do
             "url": "https://i.imgur.com/QpOBvRY.png",
             "width": 460,
             "height": 460,
-            "type": "image/png"
+            "type": "png"
           },
           [
             {
@@ -728,7 +727,7 @@ describe DirectLink do
 
     it "reddit_bot gem logger does not flood STDOUT" do
       string, status = Open3.capture2e "RUBYOPT='-rbundler/setup' ./bin/directlink http://redd.it/997he7"
-      assert_equal "<= http://redd.it/997he7\n=> https://i.imgur.com/QpOBvRY.png\n   image/png 460x460\n", string
+      assert_equal "<= http://redd.it/997he7\n=> https://i.imgur.com/QpOBvRY.png\n   png 460x460\n", string
     end
 
   end

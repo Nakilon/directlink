@@ -108,7 +108,7 @@ module DirectLink
           t *= 2
           retry
         end
-        raise ErrorAssert.new "unexpected http error for #{url}"
+        raise ErrorAssert.new "unexpected http error #{e.code} for #{url}"
       end
     end
     case link
@@ -134,7 +134,8 @@ module DirectLink
          /\Ahttps?:\/\/(?:(?:i|m|www)\.)?imgur\.com\/([a-zA-Z0-9]{5})\.mp4\z/,
          /\Ahttps?:\/\/imgur\.com\/([a-zA-Z0-9]{5}(?:[a-zA-Z0-9]{2})?)\z/,
          /\Ahttps?:\/\/imgur\.com\/([a-zA-Z0-9]{7})(?:\?\S+)?\z/,
-         /\Ahttps?:\/\/imgur\.com\/r\/[0-9_a-z]+\/([a-zA-Z0-9]{7})\z/
+         /\Ahttps?:\/\/imgur\.com\/r\/[0-9_a-z]+\/([a-zA-Z0-9]{7})\z/,
+         /\Ahttps?:\/\/api\.imgur\.com\/3\/image\/([a-zA-Z0-9]{7})\/0\.json\z/
       json = request_data["https://api.imgur.com/3/image/#{$1}/0.json"]
       [ JSON.load(json)["data"] ]
     else
@@ -151,8 +152,21 @@ module DirectLink
 
   def self._500px link
     raise ErrorBadLink.new link unless %r{\Ahttps://500px\.com/photo/(?<id>[^/]+)/[^/]+\z} =~ link
-    w, h = JSON.load(NetHTTPUtils.request_data "https://api.500px.com/v1/photos", form: {ids: id})["photos"].values.first.values_at("width", "height")
-    u, f = JSON.load(NetHTTPUtils.request_data "https://api.500px.com/v1/photos", form: {"image_size[]" => w, "ids" => id})["photos"].values.first["images"].first.values_at("url", "format")
+    require "nokogiri"
+    resp = NetHTTPUtils.request_data link
+    f = lambda do |form|
+      JSON.load(
+        NetHTTPUtils.request_data "https://api.500px.com/v1/photos",
+          form: form,
+          header: {
+            "Cookie" => resp.instance_variable_get(:@last_response).to_hash.fetch("set-cookie").join(?\s),
+            "X-CSRF-Token" => Nokogiri::HTML(resp).at_css("[name=csrf-token]")[:content]
+          }
+      ).fetch("photos").values.first
+    end
+    w, h = f[{"ids" => id                     }].values_at("width", "height")
+    # we need the above request to find the real resolution otherwise the "url" in the next request will be wrong
+    u, f = f[{"ids" => id, "image_size[]" => w}].fetch("images").first.values_at("url", "format")
     [w, h, u, f]
   end
 
@@ -248,6 +262,7 @@ end
 require "fastimage"
 
 def DirectLink link, max_redirect_resolving_retry_delay = nil, giveup = false
+  ArgumentError.new("link should be a <String>, not <#{link.class}>") unless link.is_a? String
   begin
     URI link
   rescue URI::InvalidURIError
@@ -274,17 +289,25 @@ def DirectLink link, max_redirect_resolving_retry_delay = nil, giveup = false
   #   > NetHTTPUtils.logger.level = Logger::DEBUG
   #   > NetHTTPUtils.request_data "http://www.aeronautica.difesa.it/organizzazione/REPARTI/divolo/PublishingImages/6%C2%B0%20Stormo/2013-decollo%20al%20tramonto%20REX%201280.jpg",
   #                               max_read_retry_delay: 5, timeout: 5
-  r = NetHTTPUtils.get_response link, header: {
-    "User-Agent" => "Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/66.0.3359.139 Safari/537.36"
-  }, **(max_redirect_resolving_retry_delay ? {
-    max_timeout_retry_delay: max_redirect_resolving_retry_delay,
-    max_sslerror_retry_delay: max_redirect_resolving_retry_delay,
-    max_read_retry_delay: max_redirect_resolving_retry_delay,
-    max_econnrefused_retry_delay: max_redirect_resolving_retry_delay,
-    max_socketerror_retry_delay: max_redirect_resolving_retry_delay,
-  } : {})
-  raise NetHTTPUtils::Error.new "", r.code.to_i unless "200" == r.code
-  link = r.uri.to_s
+
+  begin
+    head = NetHTTPUtils.request_data link, :head, header: {
+      "User-Agent" => "Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/66.0.3359.139 Safari/537.36"
+    }, **(max_redirect_resolving_retry_delay ? {timeout: max_redirect_resolving_retry_delay, max_start_http_retry_delay: max_redirect_resolving_retry_delay, max_read_retry_delay: max_redirect_resolving_retry_delay} : {})
+  rescue Net::ReadTimeout
+  rescue NetHTTPUtils::Error => e
+    raise unless e.code == 401
+  else
+    link = case head.instance_variable_get(:@last_response).code
+    when "200" ; link
+    when "302"
+      URI( head.instance_variable_get(:@last_response).to_hash.fetch("location").tap do |a|
+        raise DirectLink::ErrorAssert.new "unexpected size of locations after redirect" unless a.size == 1
+      end.first )
+    else ; raise NetHTTPUtils::Error.new "", (head.instance_variable_get(:@last_response).code || fail).to_i
+    end
+  end
+
   # why do we resolve redirects before trying the known adapters?
   #   because they can be hidden behind URL shorteners
   #   also it can resolve NetHTTPUtils::Error(404) before trying the adapter
@@ -298,10 +321,7 @@ def DirectLink link, max_redirect_resolving_retry_delay = nil, giveup = false
     # `DirectLink.imgur` return value is always an Array
     return imgur.size == 1 ? imgur.first : imgur
   rescue DirectLink::ErrorMissingEnvVar
-  end if %w{     imgur com } == URI(link).host.split(?.).last(2) ||
-         %w{   i imgur com } == URI(link).host.split(?.).last(3) ||
-         %w{   m imgur com } == URI(link).host.split(?.).last(3) ||
-         %w{ www imgur com } == URI(link).host.split(?.).last(3)
+  end if %w{ imgur com } == URI(link).host.split(?.).last(2)
 
   if %w{ 500px com } == URI(link).host.split(?.).last(2)
     w, h, u, t = DirectLink._500px(link)
@@ -332,7 +352,7 @@ def DirectLink link, max_redirect_resolving_retry_delay = nil, giveup = false
       f = ->_{ _.type == :a ? _.attr["href"] : _.children.flat_map(&f) }
       require "kramdown"
       return f[Kramdown::Document.new(u).root].map do |sublink|
-        DirectLink URI.join(link, sublink), max_redirect_resolving_retry_delay, giveup
+        DirectLink URI.join(link, sublink).to_s, max_redirect_resolving_retry_delay, giveup
       end
     end
     return struct.new *u.values_at(*%w{ fallback_url width height }), "video" if u.is_a? Hash
@@ -341,21 +361,25 @@ def DirectLink link, max_redirect_resolving_retry_delay = nil, giveup = false
   end if %w{ reddit com } == URI(link).host.split(?.).last(2) ||
          %w{ redd it    } == URI(link).host.split(?.)
 
-
   begin
-    f = FastImage.new(link, raise_on_failure: true, http_header: {"User-Agent" => "Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/66.0.3359.139 Safari/537.36"})
+    f = FastImage.new(link, raise_on_failure: true, timeout: 5, http_header: {"User-Agent" => "Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/66.0.3359.139 Safari/537.36"})
   rescue FastImage::UnknownImageType
     raise if giveup
     require "nokogiri"
-    html = Nokogiri::HTML NetHTTPUtils::request_data link, header: {"User-Agent" => "Mozilla"}
+    head = NetHTTPUtils.request_data link, :head, header: {"User-Agent" => "Mozilla"}
+    case head.instance_variable_get(:@last_response).content_type
+    when "text/html" ; nil
+    else ; raise
+    end
+    html = Nokogiri::HTML NetHTTPUtils.request_data link, header: {"User-Agent" => "Mozilla"}
     h = {}  # TODO: maybe move it outside because of possible img[:src] recursion?...
     l = lambda do |node, s = []|
       node.element_children.flat_map do |child|
         next l[child, s + [child.node_name]] unless "img" == child.node_name
         begin
-          [[s, (h[child[:src]] = h[child[:src]] || DirectLink(URI.join(link, child[:src]), nil, true))]]  # ... or wait, do we giveup?
+          [[s, (h[child[:src]] = h[child[:src]] || DirectLink(URI.join(link, child[:src]).to_s, nil, true))]]  # ... or wait, do we giveup?
         rescue => e
-          DirectLink.logger.error e
+          DirectLink.logger.error "#{e} (from no giveup)"
           []
         end
       end
@@ -368,6 +392,6 @@ def DirectLink link, max_redirect_resolving_retry_delay = nil, giveup = false
   else
     # TODO: maybe move this to right before `rescue` line
     w, h = f.size
-    struct.new link, w, h, f.type
+    struct.new f.instance_variable_get(:@parsed_uri).to_s, w, h, f.type
   end
 end
