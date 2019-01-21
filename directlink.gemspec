@@ -1,6 +1,6 @@
 Gem::Specification.new do |spec|
   spec.name         = "directlink"
-  spec.version      = "0.0.4.8"
+  spec.version      = "0.0.4.9"
   spec.summary      = "converts any kind of image hyperlink to direct link, type of image and its resolution"
 
   spec.author       = "Victor Maslov aka Nakilon"
@@ -11,6 +11,7 @@ Gem::Specification.new do |spec|
 
   spec.add_dependency "fastimage", "~>2.1.3"
   spec.add_dependency "nokogiri"
+  spec.add_dependency "nethttputils", "~>0.3.2.3"   # HEAD form fix
   spec.add_dependency "reddit_bot", "~>1.7.0"
   spec.add_dependency "kramdown"
   spec.add_dependency "addressable"
