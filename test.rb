@@ -330,6 +330,7 @@ describe DirectLink do
         ["https://en.wikipedia.org/wiki/Third_Party_System#/media/File:United_States_presidential_election_results,_1876-1892.svg", DirectLink::ErrorAssert],
         ["http://commons.wikimedia.org/wiki/File:Eduard_Bohlen_anagoria.jpg", "https://upload.wikimedia.org/wikipedia/commons/0/0d/Eduard_Bohlen_anagoria.jpg"],
         ["https://en.wikipedia.org/wiki/Spanish_Civil_War#/media/File:Alfonso_XIIIdeEspa%C3%B1a.jpg", "https://upload.wikimedia.org/wikipedia/commons/f/fb/Alfonso_XIIIdeEspa%C3%B1a.jpg"],   # escaped input URI
+        ["https://en.wikipedia.org/wiki/File:Tyson_Lewis.jpg", "https://upload.wikimedia.org/wikipedia/en/c/cd/Tyson_Lewis.jpg"],  # exists only in en.wiki, not in commons
       ] ],
       [ :reddit, [
         ["https://www.reddit.com/r/cacography/comments/32tq0i/c/", [true, "http://i.imgur.com/vy6Ms4Z.jpg"]],
