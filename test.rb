@@ -18,6 +18,9 @@ describe DirectLink do
   describe "./lib" do
 
     describe "google" do
+
+      describe "does not fail" do
+
       "
            1 //1.bp.blogspot.com/-rYk_u-qROQc/WngolJ8M0LI/AAAAAAAAD-w/woivnaIVzasBPG5C2T1t-VrWKRd_U6lMgCLcBGAs/w530-h278-p/i-469.jpg
            2 //4.bp.blogspot.com/-1RlHbRShONs/Wngp9WfxbfI/AAAAAAAAD-8/vnBBXpSZdvUMz4VjJPBpprLBrJ5QpBaqACLcBGAs/w530-h278-p/i-468.jpg
@@ -154,6 +157,23 @@ describe DirectLink do
         end
       end
       %w{
+        https://4.bp.blogspot.com/--L451qLtGq8/W2MiFy8SVCI/AAAAAAAARgM/9qr4fr2PiV8IE4d3zVmf5dEnlchx1V6vwCLcBGAs/w72-h72-p-k-no-nu/blood_moon_5k.jpg
+        https://3.bp.blogspot.com/-aZETNznngSo/W2xbe673_6I/AAAAAAAARhs/hkXvEk85ol4SqVeZ1hI3luDGLyT4V45kACLcBGAs/w72-h72-p-k-no-nu/waterfall-1280x800-ireland-4k-19245.jpg
+        https://3.bp.blogspot.com/-ZmCuJkPliO8/W3WjIWvdjXI/AAAAAAAARi4/qO9I8kzJvCMRWsgxElxzwcOCQPCyu_xDQCLcBGAs/w72-h72-p-k-no-nu/ford_mustang_neon_lights_5k.jpg
+        https://2.bp.blogspot.com/-rb2PXLGZy0s/W2nQe3mXOSI/AAAAAAAARhQ/P8gV-bMtYbY2xxpTJNcYVxu3XDTUaugxQCLcBGAs/w72-h72-p-k-no-nu/beach-bora-bora-clouds-753626.jpg
+        https://1.bp.blogspot.com/-FGnZn0040os/W3g7wnT2o-I/AAAAAAAARjE/xfgcR4fyvQgBgV5vFnyLtYOVK4d4dTouwCLcBGAs/w72-h72-p-k-no-nu/axl_2018_movie_4k_8k-7680x4320.jpg
+        https://1.bp.blogspot.com/-h9kL603XSgY/XCe5rYiOczI/AAAAAAAARmY/qz_kMyR1q-scfs-rEGRzaof_QocYK7RegCLcBGAs/w72-h72-p-k-no-nu/spider_man_into_the_spider_verse_hd_4k.jpg
+        https://2.bp.blogspot.com/-rb2PXLGZy0s/W2nQe3mXOSI/AAAAAAAARhQ/P8gV-bMtYbY2xxpTJNcYVxu3XDTUaugxQCLcBGAs/s640/beach-bora-bora-clouds-753626.jpg
+        http://4.bp.blogspot.com/-poH-QXn7YGg/U-3ZTDkeF_I/AAAAAAAAISE/ms2gNIb-v-g/w72-h72-p-k-no-nu/Top-24-Inspired-181.jpg
+        http://1.bp.blogspot.com/-iSU4orVuR9Y/VFYrwQZ5qYI/AAAAAAAAMnc/WY4VfCaeplw/w72-h72-p-k-no-nu/Wolf%2Bphotography2.jpg
+        http://1.bp.blogspot.com/-vPQSh6RKijU/VEi7r3D-jJI/AAAAAAAAL2Q/bGHmyuoDp5M/w72-h72-p-k-no-nu/Building%2BIn%2BLondon1-4__880.jpeg
+        http://1.bp.blogspot.com/-W4xKJSsVf3M/Uz73jPlctbI/AAAAAAAAGz4/K8Tw6PILMeY/w72-h72-p-k-no-nu/Beautiful+Japanese+places4.jpg
+      }.each_with_index do |link, i|
+        it "largeimages ##{i + 1}" do
+          assert DirectLink.google link
+        end
+      end
+      %w{
         //lh3.googleusercontent.com/proxy/S-Z1P92Dd_u0DjYrz5Tb7j0mbZsGjPVffx9lHPQZCqqCFr6vAigCPOG0fEYKU6d-wIvwYr2WriAfh97KjBr9Bq1RKgyHzHq2fpAotTnJYOLd3x_tF2chsGBVuAewE7qp2QDtCYyomyn3dGjZ6cKUnYIC8w=s110-p-k
       }.each_with_index do |link, i|
         it "posted_website_preview_##{i + 1}" do
@@ -182,6 +202,19 @@ describe DirectLink do
           assert DirectLink.google link
         end
       end
+
+      end
+
+      # TODO: expand this for every branch in lib
+      %w{
+        https_long_blogspot https://2.bp.blogspot.com/-rb2PXLGZy0s/W2nQe3mXOSI/AAAAAAAARhQ/P8gV-bMtYbY2xxpTJNcYVxu3XDTUaugxQCLcBGAs/s640/beach-bora-bora-clouds-753626.jpg https://2.bp.blogspot.com/-rb2PXLGZy0s/W2nQe3mXOSI/AAAAAAAARhQ/P8gV-bMtYbY2xxpTJNcYVxu3XDTUaugxQCLcBGAs/s0
+        http_short_blogspot http://4.bp.blogspot.com/-poH-QXn7YGg/U-3ZTDkeF_I/AAAAAAAAISE/ms2gNIb-v-g/w72-h72-p-k-no-nu/Top-24-Inspired-181.jpg https://4.bp.blogspot.com/-poH-QXn7YGg/U-3ZTDkeF_I/AAAAAAAAISE/ms2gNIb-v-g/s0
+      }.each_slice 3 do |name, link, o|
+        it "replaces s0 and schema correctly #{name}" do
+          assert_equal o, DirectLink.google(link)
+        end
+      end
+
     end
 
     describe "imgur" do
@@ -363,6 +396,8 @@ describe DirectLink do
         https://lh3.googleusercontent.com/-NVJgqmI_2Is/WqMM2OMYg-I/AAAAAAAALrk/5-p3JL3iZt0Ho9dOf_p3gpddzqwr3Wp0ACJoC/w424-h318-n/001
         //lh3.googleusercontent.com/proxy/DZtTi5KL7PqiBwJc8weNGLk_Wi2UTaQH0AC_h2kuURiu0AbwyI2ywOk2XgdAjL7ceg=w530-h354-n
         //1.bp.blogspot.com/-rYk_u-qROQc/WngolJ8M0LI/AAAAAAAAD-w/woivnaIVzasBPG5C2T1t-VrWKRd_U6lMgCLcBGAs/w530-h278-p/i-469.jpg
+        https://2.bp.blogspot.com/-rb2PXLGZy0s/W2nQe3mXOSI/AAAAAAAARhQ/P8gV-bMtYbY2xxpTJNcYVxu3XDTUaugxQCLcBGAs/s640/beach-bora-bora-clouds-753626.jpg
+        http://4.bp.blogspot.com/-poH-QXn7YGg/U-3ZTDkeF_I/AAAAAAAAISE/ms2gNIb-v-g/w72-h72-p-k-no-nu/Top-24-Inspired-181.jpg
       },
       imgur: %w{
         https://imgur.com/3eThW
@@ -639,11 +674,11 @@ describe DirectLink do
 
     describe "shows usage help if misused" do
       [
-        [/\Ausage: directlink \[--debug\] \[--json\] \[--github\] <link1> <link2> <link3> \.\.\.\ndirectlink version \d\.\d\.\d\.\d \(https:\/\/github\.com\/nakilon\/directlink\)\n\z/, nil],
-        [/\Ausage: directlink \[--debug\] \[--json\] \[--github\] <link1> <link2> <link3> \.\.\.\ndirectlink version \d\.\d\.\d\.\d \(https:\/\/github\.com\/nakilon\/directlink\)\n\z/, "-h"],
-        [/\Ausage: directlink \[--debug\] \[--json\] \[--github\] <link1> <link2> <link3> \.\.\.\ndirectlink version \d\.\d\.\d\.\d \(https:\/\/github\.com\/nakilon\/directlink\)\n\z/, "--help"],
-        [/\Ausage: directlink \[--debug\] \[--json\] \[--github\] <link1> <link2> <link3> \.\.\.\ndirectlink version \d\.\d\.\d\.\d \(https:\/\/github\.com\/nakilon\/directlink\)\n\z/, "-v"],
-        [/\Ausage: directlink \[--debug\] \[--json\] \[--github\] <link1> <link2> <link3> \.\.\.\ndirectlink version \d\.\d\.\d\.\d \(https:\/\/github\.com\/nakilon\/directlink\)\n\z/, "--version"],
+        [/\Ausage: directlink \[--debug\] \[--json\] \[--github\] <link1> <link2> <link3> \.\.\.\ndirectlink version \d\.\d\.\d\.\d\d? \(https:\/\/github\.com\/nakilon\/directlink\)\n\z/, nil],
+        [/\Ausage: directlink \[--debug\] \[--json\] \[--github\] <link1> <link2> <link3> \.\.\.\ndirectlink version \d\.\d\.\d\.\d\d? \(https:\/\/github\.com\/nakilon\/directlink\)\n\z/, "-h"],
+        [/\Ausage: directlink \[--debug\] \[--json\] \[--github\] <link1> <link2> <link3> \.\.\.\ndirectlink version \d\.\d\.\d\.\d\d? \(https:\/\/github\.com\/nakilon\/directlink\)\n\z/, "--help"],
+        [/\Ausage: directlink \[--debug\] \[--json\] \[--github\] <link1> <link2> <link3> \.\.\.\ndirectlink version \d\.\d\.\d\.\d\d? \(https:\/\/github\.com\/nakilon\/directlink\)\n\z/, "-v"],
+        [/\Ausage: directlink \[--debug\] \[--json\] \[--github\] <link1> <link2> <link3> \.\.\.\ndirectlink version \d\.\d\.\d\.\d\d? \(https:\/\/github\.com\/nakilon\/directlink\)\n\z/, "--version"],
         ["DirectLink::ErrorBadLink: \"--\"\n", "--"],
         ["DirectLink::ErrorBadLink: \"-\"\n", "-"],
         ["DirectLink::ErrorBadLink: \"-\"\n", "- -"],
