@@ -196,8 +196,8 @@ module DirectLink
 
   require "cgi"
   def self.wiki link
-    raise ErrorBadLink.new link unless %r{\Ahttps?://([a-z]{2}\.wikipedia|commons.wikimedia)\.org/wiki(/[^/]+)*/(?<id>File:.+)} =~ link
-    t = JSON.load json = NetHTTPUtils.request_data( "https://commons.wikimedia.org/w/api.php", form: {
+    raise ErrorBadLink.new link unless %r{\Ahttps?://(?<hostname>([a-z]{2}\.wikipedia|commons.wikimedia)\.org)/wiki(/[^/]+)*/(?<id>File:.+)} =~ link
+    t = JSON.load json = NetHTTPUtils.request_data( "https://#{hostname}/w/api.php", form: {
       format: "json",
       action: "query",
       prop: "imageinfo",
