@@ -296,8 +296,6 @@ def DirectLink link, max_redirect_resolving_retry_delay = nil, giveup = false
       "User-Agent" => "Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/66.0.3359.139 Safari/537.36"
     }, **(max_redirect_resolving_retry_delay ? {timeout: max_redirect_resolving_retry_delay, max_start_http_retry_delay: max_redirect_resolving_retry_delay, max_read_retry_delay: max_redirect_resolving_retry_delay} : {})
   rescue Net::ReadTimeout
-  rescue NetHTTPUtils::Error => e
-    raise unless e.code == 401
   else
     link = case head.instance_variable_get(:@last_response).code
     when "200" ; link
