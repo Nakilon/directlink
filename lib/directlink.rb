@@ -40,16 +40,16 @@ module DirectLink
     # this can handle links without schema because it's used for parsing community HTML pages
     case src
     # Google Plus post image
-    when /\A(https:\/\/lh3\.googleusercontent\.com\/-[a-zA-Z0-9_-]{11}\/W[a-zA-Z0-9_-]{9}I\/AAAAAAAA[a-zA-Z0-9_]{3}\/[a-zA-Z0-9_-]{32}[gwAQ]CJoC\/)w[1-4]\d\d-h(318|353|727)-n(\/[^\/]+)\z/,
-         /\A(https:\/\/lh3\.googleusercontent\.com\/-[a-zA-Z0-9_-]{11}\/W[a-zA-Z0-9_-]{9}I\/AAAAAAAA[ABI][a-z0-9A-Z][a-zA-Z0-9_-]\/[a-zA-Z0-9_-]{32}[gwAQ]CJoC\/)w265-h353-n(\/[^\/]+)\z/,
-         /\A(https:\/\/lh3\.googleusercontent\.com\/-[a-zA-Z0-9]{11}\/W[a-zA-Z0-9]{9}I\/AAAAAAAA[A-Z]{3}\/[a-zA-Z0-9_]{32}wCJoC\/)w346-h195-n-k-no(\/[^\/.]+\.gif)\z/,
-         /\A(https:\/\/lh3\.googleusercontent\.com\/-[a-zA-Z0-9-]{11}\/W[a-zA-Z0-9_-]{9}I\/AAAAAAAA[a-zA-Z_]{3}\/[a-zA-Z0-9]{32}[gQw]CJoC\/)w3\d\d-h318-n(\/[^\/]+)\z/,
-         /\A(https:\/\/lh3\.googleusercontent\.com\/-[a-zA-Z0-9_-]{11}\/W[a-zA-Z0-9_-]{9}I\/AAAAAAAA[a-zA-Z0-9_]{3}\/[a-zA-Z0-9_-]{32}[gwAQ]CJoC\/)w4\d\d-h318-n(\/[^\/]+)\z/,
-         /\A(https:\/\/lh3\.googleusercontent\.com\/-[a-zA-Z0-9_]{11}\/W[a-zA-Z0-9]{9}I\/AAAAAAAA[a-zA-Z0-9]{3}\/[a-zA-Z0-9_-]{32}[gw]CJoC\/)w48\d-h8\d\d-n(\/[^\/]+)\z/,
-         /\A(https:\/\/lh3\.googleusercontent\.com\/-[a-zA-Z0-9_-]{11}\/W[a-zA-Z0-9_-]{9}I\/AAAAAAA[a-zA-Z0-9_-]{4}\/[a-zA-Z0-9_-]{33}(?:CJoC|CL0B(?:GAs)?)\/)w530(?:-d)?-h[1-9]\d\d-n(\/[^\/]+)\z/,
-         /\A(https:\/\/lh3\.googleusercontent\.com\/-[a-zA-Z0-9]{11}\/X[a-zA-Z0-9-]{9}I\/AAAAAAAAC0s\/[a-zA-Z0-9]{33}CJoC\/)w530-h[1-9]\d\d-n(\/[^\/]+)\z/,
-         /\A(https:\/\/lh3\.googleusercontent\.com\/-[a-zA-Z-]{11}\/W[a-zA-Z-]{9}I\/AAAAAAAA[a-zA-Z]{3}\/[a-zA-Z0-9_-]{32}ACJoC\/)w179-h318-n(\/[^\/]+)\z/
-      "#{$1}s#{width}#{$2}"
+    when /\A(https:\/\/lh3\.googleusercontent\.com\/-[a-zA-Z0-9_-]{11}\/W[a-zA-Z0-9_-]{9}I\/AAAAAAAA[a-zA-Z0-9_]{3}\/[a-zA-Z0-9_-]{32}[gwAQ]CJoC\/)w[1-4]\d\d-h(318|353|727)-n\/[^\/]+\z/,
+         /\A(https:\/\/lh3\.googleusercontent\.com\/-[a-zA-Z0-9_-]{11}\/W[a-zA-Z0-9_-]{9}I\/AAAAAAAA[ABI][a-z0-9A-Z][a-zA-Z0-9_-]\/[a-zA-Z0-9_-]{32}[gwAQ]CJoC\/)w265-h353-n\/[^\/]+\z/,
+         /\A(https:\/\/lh3\.googleusercontent\.com\/-[a-zA-Z0-9]{11}\/W[a-zA-Z0-9]{9}I\/AAAAAAAA[A-Z]{3}\/[a-zA-Z0-9_]{32}wCJoC\/)w346-h195-n-k-no\/[^\/.]+\.gif\z/,
+         /\A(https:\/\/lh3\.googleusercontent\.com\/-[a-zA-Z0-9-]{11}\/W[a-zA-Z0-9_-]{9}I\/AAAAAAAA[a-zA-Z_]{3}\/[a-zA-Z0-9]{32}[gQw]CJoC\/)w3\d\d-h318-n\/[^\/]+\z/,
+         /\A(https:\/\/lh3\.googleusercontent\.com\/-[a-zA-Z0-9_-]{11}\/W[a-zA-Z0-9_-]{9}I\/AAAAAAAA[a-zA-Z0-9_]{3}\/[a-zA-Z0-9_-]{32}[gwAQ]CJoC\/)w4\d\d-h318-n\/[^\/]+\z/,
+         /\A(https:\/\/lh3\.googleusercontent\.com\/-[a-zA-Z0-9_]{11}\/W[a-zA-Z0-9]{9}I\/AAAAAAAA[a-zA-Z0-9]{3}\/[a-zA-Z0-9_-]{32}[gw]CJoC\/)w48\d-h8\d\d-n\/[^\/]+\z/,
+         /\A(https:\/\/lh3\.googleusercontent\.com\/-[a-zA-Z0-9_-]{11}\/W[a-zA-Z0-9_-]{9}I\/AAAAAAA[a-zA-Z0-9_-]{4}\/[a-zA-Z0-9_-]{33}(?:CJoC|CL0B(?:GAs)?)\/)w530(?:-d)?-h[1-9]\d\d-n\/[^\/]+\z/,
+         /\A(https:\/\/lh3\.googleusercontent\.com\/-[a-zA-Z0-9]{11}\/X[a-zA-Z0-9-]{9}I\/AAAAAAA[AB][a-zA-Z0-9]{3}\/[a-zA-Z0-9_]{33}CJoC\/)w530-h[1-9]\d\d-n\/[^\/]+\z/,
+         /\A(https:\/\/lh3\.googleusercontent\.com\/-[a-zA-Z-]{11}\/W[a-zA-Z-]{9}I\/AAAAAAAA[a-zA-Z]{3}\/[a-zA-Z0-9_-]{32}ACJoC\/)w179-h318-n\/[^\/]+\z/
+      "#{$1}s#{width}"
     when /\A(\/\/lh3\.googleusercontent\.com\/proxy\/[a-zA-Z0-9_-]{66,523}=)(?:w(?:[45]\d\d)-h\d\d\d-[np]|s530-p|s110-p-k)\z/
       "https:#{$1}s#{width}"
     when /\A(\/\/lh3\.googleusercontent\.com\/cOh2Nsv7EGo0QbuoKxoKZVZO_NcBzufuvPtzirMJfPmAzCzMtnEncfA7zGIDTJfkc1YZFX2MhgKnjA=)w530-h398-p\z/

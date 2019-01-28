@@ -151,6 +151,7 @@ describe DirectLink do
         https://lh3.googleusercontent.com/-cJajRreI87w/W4gW5uF4Q7I/AAAAAAADZKI/mw1YayYE-MY2-1OCCmjvgM3kbCK0lmIggCJoC/s0/2504855.jpg
         https://lh3.googleusercontent.com/-rm-m1meCOMY/W92GhExMG-I/AAAAAAADsTw/bIAm5-1CIOYEpyPJLnxT8VmI_YNW2W5dACJoC/s0/2659806_800n.jpg
         https://lh3.googleusercontent.com/-z1nwsq4NOT4/XETT5qhXP-I/AAAAAAAAC0s/03kJ22drB1EdqZ97gUXCPHkLZbbqrDbOACJoC/w530-h942-n/gplus1629127930.jpg
+        https://lh3.googleusercontent.com/-NiGph3ObOPg/XE3DgnavXlI/AAAAAAABvgE/pcPPCe88rsU1r941wwP76TVf_o89i74kwCJoC/w530-h353-n/DSCF0753.JPG
       }.each_with_index do |link, i|
         it "gpluscomm_105636351696833883213_86400 ##{i + 1}" do
           assert DirectLink.google link
@@ -209,6 +210,7 @@ describe DirectLink do
       %w{
         https_long_blogspot https://2.bp.blogspot.com/-rb2PXLGZy0s/W2nQe3mXOSI/AAAAAAAARhQ/P8gV-bMtYbY2xxpTJNcYVxu3XDTUaugxQCLcBGAs/s640/beach-bora-bora-clouds-753626.jpg https://2.bp.blogspot.com/-rb2PXLGZy0s/W2nQe3mXOSI/AAAAAAAARhQ/P8gV-bMtYbY2xxpTJNcYVxu3XDTUaugxQCLcBGAs/s0
         http_short_blogspot http://4.bp.blogspot.com/-poH-QXn7YGg/U-3ZTDkeF_I/AAAAAAAAISE/ms2gNIb-v-g/w72-h72-p-k-no-nu/Top-24-Inspired-181.jpg https://4.bp.blogspot.com/-poH-QXn7YGg/U-3ZTDkeF_I/AAAAAAAAISE/ms2gNIb-v-g/s0
+        just_gplus https://lh3.googleusercontent.com/-NiGph3ObOPg/XE3DgnavXlI/AAAAAAABvgE/pcPPCe88rsU1r941wwP76TVf_o89i74kwCJoC/w530-h353-n/DSCF0753.JPG https://lh3.googleusercontent.com/-NiGph3ObOPg/XE3DgnavXlI/AAAAAAABvgE/pcPPCe88rsU1r941wwP76TVf_o89i74kwCJoC/s0
       }.each_slice 3 do |name, link, o|
         it "replaces s0 and schema correctly #{name}" do
           assert_equal o, DirectLink.google(link)
