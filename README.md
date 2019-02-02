@@ -168,6 +168,10 @@ The `addressable` dependency (for proper URI parsing) has a dependency that by d
 ```
 gem "jwt", "<2"
 ```
+Possibly you will instead have a problem with `kramdown` gem -- solve it the same way:
+```
+gem "kramdown", "<2"
+```
 
 ## Notes:
 

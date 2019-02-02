@@ -49,11 +49,11 @@ module DirectLink
          /\A(https:\/\/lh3\.googleusercontent\.com\/-[a-zA-Z0-9_-]{11}\/W[a-zA-Z0-9_-]{9}I\/AAAAAAA[a-zA-Z0-9_-]{4}\/[a-zA-Z0-9_-]{33}(?:CJoC|CL0B(?:GAs)?)\/)w530(?:-d)?-h[1-9]\d\d-n\/[^\/]+\z/,
          /\A(https:\/\/lh3\.googleusercontent\.com\/-[a-zA-Z0-9]{11}\/X[a-zA-Z0-9-]{9}I\/AAAAAAA[AB][a-zA-Z0-9]{3}\/[a-zA-Z0-9_]{33}CJoC\/)w530-h[1-9]\d\d-n\/[^\/]+\z/,
          /\A(https:\/\/lh3\.googleusercontent\.com\/-[a-zA-Z-]{11}\/W[a-zA-Z-]{9}I\/AAAAAAAA[a-zA-Z]{3}\/[a-zA-Z0-9_-]{32}ACJoC\/)w179-h318-n\/[^\/]+\z/
-      "#{$1}s#{width}"
+      "#{$1}s#{width}/"
     when /\A(\/\/lh3\.googleusercontent\.com\/proxy\/[a-zA-Z0-9_-]{66,523}=)(?:w(?:[45]\d\d)-h\d\d\d-[np]|s530-p|s110-p-k)\z/
-      "https:#{$1}s#{width}"
+      "https:#{$1}s#{width}/"
     when /\A(\/\/lh3\.googleusercontent\.com\/cOh2Nsv7EGo0QbuoKxoKZVZO_NcBzufuvPtzirMJfPmAzCzMtnEncfA7zGIDTJfkc1YZFX2MhgKnjA=)w530-h398-p\z/
-      "https:#{$1}s#{width}"
+      "https:#{$1}s#{width}/"
     when /\A(\/\/lh3\.googleusercontent\.com\/-[a-zA-Z0-9-]{11}\/[VW][a-zA-Z0-9_-]{9}I\/AAAAAAA[AC][a-zA-Z0-9]{3}\/[a-zA-Z0-9_-]{32}[gwAQ]CJoC\/)w530-h3\d\d-p\/[^\/]+\z/,
          /\A(\/\/lh3\.googleusercontent\.com\/-[a-zA-Z0-9]{11}\/W[a-zA-Z0-9]{9}I\/AAAAAAAA[a-zA-Z0-9]{3}\/[a-zA-Z0-9_]{32}ACJoC\/)w530-h298-p\/[^\/]+\z/,
          /\A(\/\/[124]\.bp\.blogspot\.com\/-[a-zA-Z0-9_-]{11}\/W[npw][a-zA-Z0-9_-]{8}I\/AAAAAAAA[KDE][a-zA-Z0-9_-]{2}\/[a-zA-Z0-9_-]{33}C(?:Lc|Kg)BGAs\/)w530-h[23]\d\d-p\/[^\/]+\z/,
@@ -61,13 +61,13 @@ module DirectLink
          /\A(\/\/4\.bp\.blogspot\.com\/-[a-zA-Z0-9-]{11}\/W[a-zA-Z0-9]{9}I\/AAAAAAAAHHg\/[a-zA-Z0-9-]{33}CLcBGAs\/)w530-h353-p\/[^\/]+\z/,
          /\Ahttps:(\/\/[1-4]\.bp\.blogspot\.com\/-[a-zA-Z0-9-]{11}\/[UVWX][a-zA-Z0-9_-]{9}I\/AAAAAAAA[A-Z][a-zA-Z][a-zA-Z0-9]\/[a-zA-Z0-9_-]{33}CLcBGAs\/)(s640|w72-h72-p-k-no-nu)\/[^\/]+\z/,
          /\Ahttps?:(\/\/[14]\.bp\.blogspot\.com\/-[a-zA-Z0-9-]{11}\/[UV][a-zA-Z0-9_-]{9}I\/AAAAAAAA[A-Z][a-zA-Z0-9]{2}\/[a-zA-Z0-9-]{11}\/)w72-h72-p-k-no-nu\/[^\/]+\z/
-      "https:#{$1}s#{width}"
-    when /\A(https:\/\/lh3\.googleusercontent\.com\/-dUQsDY2vWuE\/AAAAAAAAAAI\/AAAAAAAAAAQ\/wVFZagieszU\/)w530-h176-n(\/photo\.jpg)\z/,
-         /\A(https:\/\/lh3\.googleusercontent\.com\/-t_ab__91ChA\/VeLaObkUlgI\/AAAAAAAAL4s\/VjO6KK_lkRw\/)w530-h351-n(\/[^\/]+)\z/,
-         /\A(https:\/\/lh3\.googleusercontent\.com\/-s655sojwyvw\/VcNB4YMCz-I\/AAAAAAAALqo\/kW98MOcJJ0g\/)w530-h398-n\/06\.08\.15%2B-%2B1\z/,
-         /\A(https:\/\/lh3\.googleusercontent\.com\/-u3FhiUTmLCY\/Vk7dMQnxR2I\/AAAAAAAAMc0\/I76_52swA4s\/)w530-h322-n\/Harekosh_A%252520Concert_YkRqQg\.jpg\z/,
-         /\A(https:\/\/lh3\.googleusercontent\.com\/-t_ab__91ChA\/VeLaObkUlgI\/AAAAAAAAL4s\/VjO6KK_lkRw\/)w530-d-h351-n\/30\.08\.15%2B-%2B1\z/
-      "#{$1}s#{width}#{$2}"
+      "https:#{$1}s#{width}/"
+    when /\A(https:\/\/lh3\.googleusercontent\.com\/-dUQsDY2vWuE\/AAAAAAAAAAI\/AAAAAAAAAAQ\/wVFZagieszU\/)w530-h176-n\/[^\/]+\z/,
+         /\A(https:\/\/lh3\.googleusercontent\.com\/-t_ab__91ChA\/VeLaObkUlgI\/AAAAAAAAL4s\/VjO6KK_lkRw\/)w530-h351-n\/[^\/]+\z/,
+         /\A(https:\/\/lh3\.googleusercontent\.com\/-s655sojwyvw\/VcNB4YMCz-I\/AAAAAAAALqo\/kW98MOcJJ0g\/)w530-h398-n\/[^\/]+\z/,
+         /\A(https:\/\/lh3\.googleusercontent\.com\/-u3FhiUTmLCY\/Vk7dMQnxR2I\/AAAAAAAAMc0\/I76_52swA4s\/)w530-h322-n\/[^\/]+\z/,
+         /\A(https:\/\/lh3\.googleusercontent\.com\/-t_ab__91ChA\/VeLaObkUlgI\/AAAAAAAAL4s\/VjO6KK_lkRw\/)w530-d-h351-n\/[^\/]+\z/
+      "#{$1}s#{width}/"
     # high res (s0) Google Plus post image
     when /\Ahttps:\/\/lh3\.googleusercontent\.com\/-[a-zA-Z0-9_-]{11}\/W[a-zA-Z0-9_-]{9}I\/AAAAAAA[ABC][a-zA-Z0-9]{3}\/[a-zA-Z0-9_-]{33}CJoC\/s0\/[^\/]+\z/,
          /\Ahttps:\/\/lh3\.googleusercontent\.com\/-[a-zA-Z0-9]{11}\/W[a-zA-Z0-9]{9}I\/AAAAAAAA[a-zA-Z_]{3}\/[a-zA-Z0-9]{32}gCJoC\/s0\/[^\/]+\z/,
@@ -77,17 +77,17 @@ module DirectLink
          /\Ahttps:\/\/lh3\.googleusercontent\.com\/-[a-zA-Z0-9]{11}\/[a-zA-Z0-9-]{10}I\/AAAAAAA[a-zA-Z-]{4}\/[a-zA-Z0-9_]{32}gCJoC\/s0\/[^\/]+\z/
       src
     # Google Plus userpic
-    when /\A(https:\/\/lh3\.googleusercontent\.com\/-[a-zA-Z0-9-]{11}\/AAAAAAAAAAI\/AAAAAAAA[a-zA-Z0-9]{3}\/[a-zA-Z0-9_-]{11}\/)s\d\d-p(?:-k)?-rw-no(\/photo\.jpg)\z/
-      "#{$1}s#{width}#{$2}"
+    when /\A(https:\/\/lh3\.googleusercontent\.com\/-[a-zA-Z0-9-]{11}\/AAAAAAAAAAI\/AAAAAAAA[a-zA-Z0-9]{3}\/[a-zA-Z0-9_-]{11}\/)s\d\d-p(?:-k)?-rw-no\/photo\.jpg\z/
+      "#{$1}s#{width}/"
     # Hangout userpic
-    when /\A(https:\/\/lh5\.googleusercontent\.com\/-[a-zA-Z]{11}\/AAAAAAAAAAI\/AAAAAAAAAAA\/[a-zA-Z0-9]{11}\/)s64-c-k(\/photo\.jpg)\z/,
-         /\A(https:\/\/lh[35]\.googleusercontent\.com\/-[a-zA-Z0-9]{11}\/AAAAAAAAAAI\/AAAAAAAA[a-zA-Z0-9]{3}\/[a-zA-Z0-9-]{11}\/)s\d\d-c-k-no(\/photo\.jpg)\z/,
-         /\A(https:\/\/lh3\.googleusercontent\.com\/-[a-zA-Z0-9]{11}\/AAAAAAAAAAI\/AAAAAAAAAAA\/[a-zA-Z0-9]{34}\/)s64-c-mo(\/photo\.jpg)\z/,
-         /\A(https:\/\/lh6\.googleusercontent\.com\/-[a-zA-Z0-9]{11}\/AAAAAAAAAAI\/AAAAAAAAAAA\/[a-zA-Z0-9_]{34}\/)s46-c-k-no-mo(\/photo\.jpg)\z/
-      "#{$1}s#{width}#{$2}"
+    when /\A(https:\/\/lh5\.googleusercontent\.com\/-[a-zA-Z]{11}\/AAAAAAAAAAI\/AAAAAAAAAAA\/[a-zA-Z0-9]{11}\/)s64-c-k\/photo\.jpg\z/,
+         /\A(https:\/\/lh[35]\.googleusercontent\.com\/-[a-zA-Z0-9]{11}\/AAAAAAAAAAI\/AAAAAAAA[a-zA-Z0-9]{3}\/[a-zA-Z0-9-]{11}\/)s\d\d-c-k-no\/photo\.jpg\z/,
+         /\A(https:\/\/lh3\.googleusercontent\.com\/-[a-zA-Z0-9]{11}\/AAAAAAAAAAI\/AAAAAAAAAAA\/[a-zA-Z0-9]{34}\/)s64-c-mo\/photo\.jpg\z/,
+         /\A(https:\/\/lh6\.googleusercontent\.com\/-[a-zA-Z0-9]{11}\/AAAAAAAAAAI\/AAAAAAAAAAA\/[a-zA-Z0-9_]{34}\/)s46-c-k-no-mo\/photo\.jpg\z/
+      "#{$1}s#{width}/"
     # mp4
-    when /\A(https:\/\/lh3\.googleusercontent\.com\/-[a-zA-Z]{11}\/W[a-zA-Z0-9]{9}I\/AAAAAAAAODw\/[a-zA-Z0-9]{32}QCJoC\/)w530-h883-n-k-no(\/[^\/]+\.mp4)\z/
-      "#{$1}s#{width}#{$2}"
+    when /\A(https:\/\/lh3\.googleusercontent\.com\/-[a-zA-Z]{11}\/W[a-zA-Z0-9]{9}I\/AAAAAAAAODw\/[a-zA-Z0-9]{32}QCJoC\/)w530-h883-n-k-no\/[^\/]+\.mp4\z/
+      "#{$1}s#{width}/"
     else
       raise ErrorBadLink.new src
     end
