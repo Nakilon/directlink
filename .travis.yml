@@ -30,8 +30,8 @@ matrix:
   # the 'The command "bundle install --jobs=3 --retry=3" failed and exited with 1 during .'
   # I guess Travis is deprecating old Rubies and so will I
   - rvm: 2.0
-    os: linux
+    os: osx
   - rvm: 2.1
-    os: linux
+    os: osx
   - rvm: 2.2
-    os: linux
+    os: osx
