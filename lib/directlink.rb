@@ -195,7 +195,7 @@ module DirectLink
     attr_accessor :reddit_bot
   end
   def self.reddit link, timeout = 1000
-    unless id = URI(link).path[/\A(?:\/r\/[0-9a-zA-Z_]+)?(?:\/comments)?\/([0-9a-z]{5,6})(?:\/|\z)/, 1]
+    unless id = URI(link).path[/\A(?:\/r\/[0-9a-zA-Z_]+)?(?:\/comments|\/duplicates)?\/([0-9a-z]{5,6})(?:\/|\z)/, 1]
       raise DirectLink::ErrorBadLink.new link unless URI(link).host &&
                                                      URI(link).host.split(?.) == %w{ i redd it } &&
                                                      URI(link).path[/\A\/[a-z0-9]{12,13}\.(gif|jpg)\z/]
@@ -337,7 +337,7 @@ def DirectLink link, max_redirect_resolving_retry_delay = nil, giveup = false
       end
     end
     return struct.new *u.values_at(*%w{ fallback_url width height }), "video" if u.is_a? Hash
-    link = u
+    return DirectLink u
   rescue DirectLink::ErrorMissingEnvVar
   end if %w{ reddit com } == URI(link).host.split(?.).last(2) ||
          %w{ redd it    } == URI(link).host.split(?.)
@@ -348,6 +348,7 @@ def DirectLink link, max_redirect_resolving_retry_delay = nil, giveup = false
     raise if giveup
     require "nokogiri"
     head = NetHTTPUtils.request_data link, :head, header: {"User-Agent" => "Mozilla"}
+    # if we use :get here we will download megabytes of files just to giveup on content_type we can't process
     case head.instance_variable_get(:@last_response).content_type
     when "text/html" ; nil
     else ; raise

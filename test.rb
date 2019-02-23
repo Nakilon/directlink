@@ -376,6 +376,7 @@ describe DirectLink do
         ["https://reddit.com/123456", [true, "https://i.ytimg.com/vi/b9upM4RbIeU/hqdefault.jpg"]],
         ["https://www.reddit.com/r/travel/988889", [true, "https://i.redd.it/3h5xls6ehrg11.jpg"]],
         ["http://redd.it/988889", [true, "https://i.redd.it/3h5xls6ehrg11.jpg"]],
+        ["https://www.reddit.com/r/CatsStandingUp/duplicates/abn0ua/cat/", [true, "https://v.redd.it/s9b86afb6w721/DASH_2_4_M?source=fallback"]],
       ] ],
     ].each do |method, tests|
       describe method do
@@ -470,6 +471,7 @@ describe DirectLink do
       assert_equal 3, tries
     end
     it "Reddit correctly parses out id when no token provided" do
+      # this URL isn't supposed to not throw exception -- FastImage does not handle this media type (see the next test)
       t = ENV.delete "REDDIT_SECRETS"
       FastImage.stub :new, lambda{ |link, *|
         assert_equal "https://v.redd.it/2tyovczka8m11/DASH_4_8_M?source=fallback", link
