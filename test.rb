@@ -314,6 +314,7 @@ describe DirectLink do
         ["http://imgur.com/a/AdJUK", 3, "https://i.imgur.com/Yunpxnx.jpg", "https://i.imgur.com/2epn2nT.jpg", "https://i.imgur.com/3afw2aF.jpg"],
         ["https://imgur.com/9yaMdJq", "https://i.imgur.com/9yaMdJq.mp4", 720, 404, "video/mp4"],
         ["http://imgur.com/gallery/dCQprEq/new", "https://i.imgur.com/dCQprEq.jpg", 5760, 3840, "image/jpeg"],
+        ["https://i.imgur.com/fFUTSJu.jpg?fb", "https://i.imgur.com/fFUTSJu.jpg", 1469, 2200, "image/jpeg"],    # from reddit.com/93mtba
       ].each_with_index do |t, i|
         url, n, first, last, type = t
         it "##{i + 1}" do
@@ -378,6 +379,7 @@ describe DirectLink do
         ["https://www.reddit.com/r/travel/988889", [true, "https://i.redd.it/3h5xls6ehrg11.jpg"]],
         ["http://redd.it/988889", [true, "https://i.redd.it/3h5xls6ehrg11.jpg"]],
         ["https://www.reddit.com/r/CatsStandingUp/duplicates/abn0ua/cat/", [true, "https://v.redd.it/s9b86afb6w721/DASH_2_4_M?source=fallback"]],
+        ["https://www.reddit.com/r/hangers/comments/97you5/tara_radovic/", [true, "https://i.imgur.com/rbLqgOu.jpg"]],   # "crossport" from Imgur
       ] ],
     ].each do |method, tests|
       describe method do

@@ -113,7 +113,7 @@ module DirectLink
         # one day single-video item should hit this but somehow it didn't yet
         raise ErrorAssert.new "unknown data format #{data.inspect} for #{link}"
       end
-    when /\Ahttps?:\/\/(?:(?:i|m|www)\.)?imgur\.com\/([a-zA-Z0-9]{7,8})(?:\.(?:gifv|jpg|png))?\z/,
+    when /\Ahttps?:\/\/(?:(?:i|m|www)\.)?imgur\.com\/([a-zA-Z0-9]{7,8})(?:\.(?:gifv|jpg(?:\?fb)?|png))?\z/,
          /\Ahttps?:\/\/(?:(?:i|m|www)\.)?imgur\.com\/([a-zA-Z0-9]{5})\.mp4\z/,
          /\Ahttps?:\/\/imgur\.com\/([a-zA-Z0-9]{5}(?:[a-zA-Z0-9]{2})?)\z/,
          /\Ahttps?:\/\/imgur\.com\/([a-zA-Z0-9]{7})(?:\?\S+)?\z/,
@@ -232,7 +232,7 @@ module DirectLink
       raise ErrorAssert.new "our knowledge about Reddit API seems to be outdated" unless data["media"].keys.sort == %w{ oembed type } && %w{ youtube.com gfycat.com imgur.com }.include?(data["media"]["type"])
       return [true, data["media"]["oembed"]["thumbnail_url"]]
     end if data["media"]
-    return reddit data["url"] if data["crosspost_parent"]   # TODO: test that it does it
+    return [true, data["url"]] if data["crosspost_parent"]
     return [true, data["url"]] unless data["is_self"]
     raise ErrorAssert.new "our knowledge about Reddit API seems to be outdated" if data["url"] != "https://www.reddit.com" + data["permalink"]
     return [false, data["selftext"]]
