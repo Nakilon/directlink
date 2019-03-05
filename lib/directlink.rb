@@ -229,7 +229,7 @@ module DirectLink
     if data["media"]["reddit_video"]
       return [true, data["media"]["reddit_video"]["fallback_url"]]
     else
-      raise ErrorAssert.new "our knowledge about Reddit API seems to be outdated" unless data["media"].keys.sort == %w{ oembed type } && %w{ youtube.com gfycat.com }.include?(data["media"]["type"])
+      raise ErrorAssert.new "our knowledge about Reddit API seems to be outdated" unless data["media"].keys.sort == %w{ oembed type } && %w{ youtube.com gfycat.com imgur.com }.include?(data["media"]["type"])
       return [true, data["media"]["oembed"]["thumbnail_url"]]
     end if data["media"]
     return reddit data["url"] if data["crosspost_parent"]   # TODO: test that it does it
