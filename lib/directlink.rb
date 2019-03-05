@@ -40,7 +40,7 @@ module DirectLink
     # this can handle links without schema because it's used for parsing community HTML pages
     case src
     # Google Plus post image
-    when /\A(https:\/\/lh3\.googleusercontent\.com\/-[a-zA-Z0-9_-]{11}\/[WX][a-zA-Z0-9_-]{9}I\/AAAAAAA[a-zA-Z0-9_-]{4}\/[a-zA-Z0-9_-]{33}(?:[gwAQ]?CJoC|CL0B(?:GAs)?)\/)w[1-5]\d\d(?:-d)?-h[1-9]\d\d-n(?:-k-no)?\/[^\/]+\z/
+    when /\A(https:\/\/lh3\.googleusercontent\.com\/-[a-zA-Z0-9_-]{11}\/[WX][a-zA-Z0-9_-]{9}I\/AAAAAAA[a-zA-Z0-9_-]{4}\/[a-zA-Z0-9_-]{33}(?:[gwAQ]?CJoC|CL0B(?:GAs)?)\/)w[1-7]\d\d(?:-d)?-h[1-9]\d\d\d?-n(?:-k-no|-rw|)\/[^\/]+\z/
       "#{$1}s#{width}/"
     when /\A(\/\/lh3\.googleusercontent\.com\/proxy\/[a-zA-Z0-9_-]{66,523}=)(?:w(?:[45]\d\d)-h\d\d\d-[np]|s530-p|s110-p-k)\z/
       "https:#{$1}s#{width}/"

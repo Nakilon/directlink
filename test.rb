@@ -152,6 +152,7 @@ describe DirectLink do
         https://lh3.googleusercontent.com/-rm-m1meCOMY/W92GhExMG-I/AAAAAAADsTw/bIAm5-1CIOYEpyPJLnxT8VmI_YNW2W5dACJoC/s0/2659806_800n.jpg
         https://lh3.googleusercontent.com/-z1nwsq4NOT4/XETT5qhXP-I/AAAAAAAAC0s/03kJ22drB1EdqZ97gUXCPHkLZbbqrDbOACJoC/w530-h942-n/gplus1629127930.jpg
         https://lh3.googleusercontent.com/-NiGph3ObOPg/XE3DgnavXlI/AAAAAAABvgE/pcPPCe88rsU1r941wwP76TVf_o89i74kwCJoC/w530-h353-n/DSCF0753.JPG
+        https://lh3.googleusercontent.com/-QfChCi9Lj6A/XEciVlXmDhI/AAAAAAACuZw/iYzoMIxr7SsGzEFbk1LrqIdCdWVu8zCHACJoC/w795-h1193-n-rw/z7765765765757575.jpg
       }.each_with_index do |link, i|
         it "gpluscomm_105636351696833883213_86400 ##{i + 1}" do
           assert DirectLink.google link
