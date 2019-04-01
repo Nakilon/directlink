@@ -173,6 +173,8 @@ Possibly you will instead have a problem with `kramdown` gem -- solve it the sam
 gem "kramdown", "<2"
 ```
 
+(`<2` here has nothing to do with the Ruby version -- it's just a coincidence)
+
 ## Notes:
 
 * `module DirectLink` public methods return different sets of properties -- `DirectLink()` unites them
