@@ -20,6 +20,7 @@ describe DirectLink do
     describe "google" do
 
       describe "does not fail" do
+        # TODO: also check the #google is being called
 
       "
            1 //1.bp.blogspot.com/-rYk_u-qROQc/WngolJ8M0LI/AAAAAAAAD-w/woivnaIVzasBPG5C2T1t-VrWKRd_U6lMgCLcBGAs/w530-h278-p/i-469.jpg
@@ -206,13 +207,25 @@ describe DirectLink do
           assert DirectLink.google link
         end
       end
+      %w{
+        https://lh4.googleusercontent.com/KwxMEMlyjNKXqSqszuiCgPMi7_oE5fVv1Sw373HXBYlguP8AnIPAqefTS6DbBuurVGYRSxGrtDyKei1hae9Djf6rjiwjJd0aauA5Bg-z=s615
+        https://lh5.googleusercontent.com/fRmAL_04p7oomNHCiV4tH4-agHSDBtLaWi_Tb6bgE5ZSHVu5OjQF3iRn06nNwP3ywZwdFP92zWM-o8yw0cn6m0tDTBARuO6F9e0wYu_1=s685
+        https://lh5.googleusercontent.com/FcYUQBKLXWtFLEvbQduvu7FHUm2f7U_MVdMBVnNbpwfzKHIU-xABkudxw-m21SlM0jFYRHedh7Is5Dg6qlgIQF1iSndlWjiKCTTsUo1w=s1080
+        https://lh5.googleusercontent.com/gcDb3dxbch9jUKPzKGawJiwtHcNS9wp6o2sc0aJj9wOWQA-u8kXmKIrZ-TkLxajee6qLaT2p6OK2N7klTJ9CxU66OnpBhYJMg0q9QEdq5Q=s2160
+      }.each_with_index do |link, i|
+        it "google keep ##{i + 1}" do
+          assert DirectLink.google link
+        end
+      end
 
       end
+
       # TODO: expand this for every branch in lib
       %w{
         https_long_blogspot https://2.bp.blogspot.com/-rb2PXLGZy0s/W2nQe3mXOSI/AAAAAAAARhQ/P8gV-bMtYbY2xxpTJNcYVxu3XDTUaugxQCLcBGAs/s640/beach-bora-bora-clouds-753626.jpg https://2.bp.blogspot.com/-rb2PXLGZy0s/W2nQe3mXOSI/AAAAAAAARhQ/P8gV-bMtYbY2xxpTJNcYVxu3XDTUaugxQCLcBGAs/s0/
         http_short_blogspot http://4.bp.blogspot.com/-poH-QXn7YGg/U-3ZTDkeF_I/AAAAAAAAISE/ms2gNIb-v-g/w72-h72-p-k-no-nu/Top-24-Inspired-181.jpg https://4.bp.blogspot.com/-poH-QXn7YGg/U-3ZTDkeF_I/AAAAAAAAISE/ms2gNIb-v-g/s0/
         just_gplus https://lh3.googleusercontent.com/-NiGph3ObOPg/XE3DgnavXlI/AAAAAAABvgE/pcPPCe88rsU1r941wwP76TVf_o89i74kwCJoC/w530-h353-n/DSCF0753.JPG https://lh3.googleusercontent.com/-NiGph3ObOPg/XE3DgnavXlI/AAAAAAABvgE/pcPPCe88rsU1r941wwP76TVf_o89i74kwCJoC/s0/
+        google_keep https://lh5.googleusercontent.com/fRmAL_04p7oomNHCiV4tH4-agHSDBtLaWi_Tb6bgE5ZSHVu5OjQF3iRn06nNwP3ywZwdFP92zWM-o8yw0cn6m0tDTBARuO6F9e0wYu_1=s685 https://lh5.googleusercontent.com/fRmAL_04p7oomNHCiV4tH4-agHSDBtLaWi_Tb6bgE5ZSHVu5OjQF3iRn06nNwP3ywZwdFP92zWM-o8yw0cn6m0tDTBARuO6F9e0wYu_1=s0
       }.each_slice 3 do |name, link, o|
         it "replaces s0 and schema correctly #{name}" do
           assert_equal o, DirectLink.google(link)
@@ -299,7 +312,7 @@ describe DirectLink do
         ["http://imgur.com/gallery/qP2RQtL", "https://i.imgur.com/qP2RQtL.png"], # single image gallery?
         ["http://imgur.com/gallery/nKAwE/new", 28, "https://i.imgur.com/VQhR8hB.jpg", "https://i.imgur.com/axlzNRL.jpg"],
         ["http://m.imgur.com/rarOohr", "https://i.imgur.com/rarOohr.jpg"],
-        ["http://imgur.com/r/wallpaper/j39dKMi", "https://i.imgur.com/j39dKMi.jpg"],
+        ["http://imgur.com/r/wallpaper/j39dKMi", "https://i.imgur.com/j39dKMi.jpg?1"],
         ["http://imgur.com/gallery/jm0OKQM", DirectLink::ErrorNotFound],  # this id does not belong to gallery but to an image, that is probably irrelevant
         ["http://imgur.com/gallery/oZXfZ", DirectLink::ErrorNotFound],    # this id does not belong to gallery but to an album, that is probably irrelevant
         ["http://imgur.com/gallery/dCQprEq/new", "https://i.imgur.com/dCQprEq.jpg", 5760, 3840, "image/jpeg"],
@@ -405,6 +418,7 @@ describe DirectLink do
         //1.bp.blogspot.com/-rYk_u-qROQc/WngolJ8M0LI/AAAAAAAAD-w/woivnaIVzasBPG5C2T1t-VrWKRd_U6lMgCLcBGAs/w530-h278-p/i-469.jpg
         https://2.bp.blogspot.com/-rb2PXLGZy0s/W2nQe3mXOSI/AAAAAAAARhQ/P8gV-bMtYbY2xxpTJNcYVxu3XDTUaugxQCLcBGAs/s640/beach-bora-bora-clouds-753626.jpg
         http://4.bp.blogspot.com/-poH-QXn7YGg/U-3ZTDkeF_I/AAAAAAAAISE/ms2gNIb-v-g/w72-h72-p-k-no-nu/Top-24-Inspired-181.jpg
+        https://lh5.googleusercontent.com/FcYUQBKLXWtFLEvbQduvu7FHUm2f7U_MVdMBVnNbpwfzKHIU-xABkudxw-m21SlM0jFYRHedh7Is5Dg6qlgIQF1iSndlWjiKCTTsUo1w=s1080
       },
       imgur: %w{
         https://imgur.com/3eThW
@@ -417,7 +431,7 @@ describe DirectLink do
         https://500px.com/photo/112134597/milky-way-by-tom-hall
       },
       flickr: %w{
-        https://www.flickr.com/photos/tomas-/17220613278/
+        https://www.flickr.com/photos/59880970@N07/15773941043/in/dateposted-public/
         https://flic.kr/p/vPvCWJ
       },
       wiki: %w{
@@ -426,7 +440,6 @@ describe DirectLink do
       },
       reddit: %w{
         https://www.reddit.com/r/cacography/comments/32tq0i/c/
-        https://i.redd.it/si758zk7r5xz.jpg
         http://redd.it/32tq0i
         https://reddit.com/123456
         https://www.reddit.com/r/travel/988889
@@ -434,12 +447,12 @@ describe DirectLink do
     }.each do |method, tests|
       describe "DirectLink() calls #{method}" do
         tests.each_with_index do |input, i|
-          it "##{i + 1}" do
-            called = false
-            m = DirectLink.method method
-            DirectLink.stub method, ->link{ called = true } do
-              DirectLink.method(method).call input
-              assert called, "DirectLink.#{method} was not called"
+          it "##{i + 1} (this may prematurely fail on redirect resolving, so links should be valid)" do
+            DirectLink.stub method, ->link{ throw :_ } do
+              catch :_ do
+                DirectLink input
+                fail "DirectLink.#{method} was not called"
+              end
             end
           end
         end
@@ -615,7 +628,7 @@ describe DirectLink do
     describe "other domains tests" do
       [
         ["http://www.aeronautica.difesa.it/organizzazione/REPARTI/divolo/PublishingImages/6%C2%B0%20Stormo/2013-decollo%20al%20tramonto%20REX%201280.jpg", ["http://www.aeronautica.difesa.it/organizzazione/REPARTI/divolo/PublishingImages/6%C2%B0%20Stormo/2013-decollo%20al%20tramonto%20REX%201280.jpg", 1280, 853, :jpeg], nil, 1],
-        ["http://minus.com/lkP3hgRJd9npi", SocketError, /nodename nor servname provided, or not known|No address associated with hostname/, 0],
+        # ["http://minus.com/lkP3hgRJd9npi", SocketError, /nodename nor servname provided, or not known|No address associated with hostname/, 0],
         ["http://www.cutehalloweencostumeideas.org/wp-content/uploads/2017/10/Niagara-Falls_04.jpg", SocketError, /nodename nor servname provided, or not known|Name or service not known/, 0],
       ].each_with_index do |(input, expectation, message_string_or_regex, max_redirect_resolving_retry_delay), i|
         it "##{i + 1}" do
@@ -733,7 +746,7 @@ describe DirectLink do
     [
       ["<= #{valid_imgur_image_url1}
         => https://i.imgur.com/QpOBvRY.png
-           png 460x460
+           image/png 460x460
         <= #{valid_imgur_image_url2}
         => https://i.imgur.com/QpOBvRY.png
            image/png 460x460
@@ -745,7 +758,7 @@ describe DirectLink do
             "url": "https://i.imgur.com/QpOBvRY.png",
             "width": 460,
             "height": 460,
-            "type": "png"
+            "type": "image/png"
           },
           [
             {
@@ -772,7 +785,7 @@ describe DirectLink do
 
     it "reddit_bot gem logger does not flood STDOUT" do
       string, status = Open3.capture2e "RUBYOPT='-rbundler/setup' ./bin/directlink http://redd.it/997he7"
-      assert_equal "<= http://redd.it/997he7\n=> https://i.imgur.com/QpOBvRY.png\n   png 460x460\n", string
+      assert_equal "<= http://redd.it/997he7\n=> https://i.imgur.com/QpOBvRY.png\n   image/png 460x460\n", string
     end
 
   end

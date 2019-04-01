@@ -64,6 +64,9 @@ module DirectLink
          /\A(https:\/\/lh[356]\.googleusercontent\.com\/-[a-zA-Z0-9]{11}\/AAAAAAAAAAI\/AAAAAAAAAAA\/[a-zA-Z0-9]{11}\/)s64-c-k\/photo\.jpg\z/,
          /\A(https:\/\/lh[356]\.googleusercontent\.com\/-[a-zA-Z0-9]{11}\/AAAAAAAAAAI\/AAAAAAAAAAA\/[a-zA-Z0-9_]{34}\/)s(?:46|64)-c(?:-k(?:-no)?)?-mo\/photo\.jpg\z/
       "#{$1}s#{width}/"
+    # Google Keep
+    when /\A(https:\/\/lh\d\.googleusercontent\.com\/[a-zA-Z0-9_-]{104,106}=s)\d\d\d\d?\Z/
+      "#{$1}#{width}"
     # mp4
     when /\A(https:\/\/lh3\.googleusercontent\.com\/-[a-zA-Z]{11}\/W[a-zA-Z0-9]{9}I\/AAAAAAAAODw\/[a-zA-Z0-9]{32}QCJoC\/)w530-h883-n-k-no\/[^\/]+\.mp4\z/
       "#{$1}s#{width}/"
@@ -258,6 +261,9 @@ def DirectLink link, max_redirect_resolving_retry_delay = nil, giveup = false
 
   google_without_schema_crutch = lambda do
     if %w{ lh3 googleusercontent com } == URI(link).host.split(?.).last(3) ||
+       %w{ lh4 googleusercontent com } == URI(link).host.split(?.).last(3) ||
+       %w{ lh5 googleusercontent com } == URI(link).host.split(?.).last(3) ||
+       %w{ lh6 googleusercontent com } == URI(link).host.split(?.).last(3) ||
        %w{ bp blogspot com } == URI(link).host.split(?.).last(3)
       u = DirectLink.google link
       f = FastImage.new(u, raise_on_failure: true, http_header: {"User-Agent" => "Mozilla"})
@@ -279,14 +285,7 @@ def DirectLink link, max_redirect_resolving_retry_delay = nil, giveup = false
     }, **(max_redirect_resolving_retry_delay ? {timeout: max_redirect_resolving_retry_delay, max_start_http_retry_delay: max_redirect_resolving_retry_delay, max_read_retry_delay: max_redirect_resolving_retry_delay} : {})
   rescue Net::ReadTimeout
   else
-    link = case head.instance_variable_get(:@last_response).code
-    when "200" ; link
-    when "302"
-      URI( head.instance_variable_get(:@last_response).to_hash.fetch("location").tap do |a|
-        raise DirectLink::ErrorAssert.new "unexpected size of locations after redirect" unless a.size == 1
-      end.first )
-    else ; raise NetHTTPUtils::Error.new "", (head.instance_variable_get(:@last_response).code || fail).to_i
-    end
+    link = head.instance_variable_get(:@last_response).uri.to_s
   end
 
   # why do we resolve redirects before trying the known adapters?
@@ -314,10 +313,11 @@ def DirectLink link, max_redirect_resolving_retry_delay = nil, giveup = false
     f = FastImage.new(u, raise_on_failure: true) # , http_header: {"User-Agent" => "Mozilla"}
     return struct.new u, w, h, f.type
   rescue DirectLink::ErrorMissingEnvVar
-  end if %w{ www flickr com } == URI(link).host.split(?.).last(3)
+  end if %w{ www flickr com } == URI(link).host.split(?.) ||
+         %w{     flic kr    } == URI(link).host.split(?.)
 
   if %w{         wikipedia org } == URI(link).host.split(?.).last(2) ||
-     %w{ commons wikimedia org } == URI(link).host.split(?.).last(3)
+     %w{ commons wikimedia org } == URI(link).host.split(?.)
     u = DirectLink.wiki link
     f = FastImage.new(u, raise_on_failure: true) # , http_header: {"User-Agent" => "Mozilla"}
     w, h = f.size
@@ -338,6 +338,7 @@ def DirectLink link, max_redirect_resolving_retry_delay = nil, giveup = false
     end
     return struct.new *u.values_at(*%w{ fallback_url width height }), "video" if u.is_a? Hash
     return DirectLink u
+    fail if link == u
   rescue DirectLink::ErrorMissingEnvVar
   end if %w{ reddit com } == URI(link).host.split(?.).last(2) ||
          %w{ redd it    } == URI(link).host.split(?.)
