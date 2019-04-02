@@ -355,6 +355,9 @@ def DirectLink link, max_redirect_resolving_retry_delay = nil, giveup = false
     else ; raise
     end
     html = Nokogiri::HTML NetHTTPUtils.request_data link, header: {"User-Agent" => "Mozilla"}
+    if t = html.at_css("meta[@property='og:image']")
+      return DirectLink t[:content], nil, true
+    end
     h = {}  # TODO: maybe move it outside because of possible img[:src] recursion?...
     l = lambda do |node, s = []|
       node.element_children.flat_map do |child|
@@ -367,10 +370,8 @@ def DirectLink link, max_redirect_resolving_retry_delay = nil, giveup = false
         end
       end
     end
-    l[html].group_by(&:first).map{ |k, v| [k.join(?>), v.map(&:last)] }.tap do |result|
-      next unless result.empty?
-      raise unless t = html.at_css("meta[@property='og:image']")
-      return DirectLink t[:content], nil, true
+    l[html].group_by(&:first).map{ |k, v| [k.join(?>), v.map(&:last)] }.tap do |results|
+      raise if results.empty?
     end.max_by{ |_, v| v.map{ |i| i.width * i.height }.inject(:+) / v.size }.last
   else
     # TODO: maybe move this to right before `rescue` line

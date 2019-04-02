@@ -367,9 +367,9 @@ describe DirectLink do
       [ :flickr, [
         ["https://www.flickr.com/photos/tomas-/17220613278/", DirectLink::ErrorNotFound],
         ["https://www.flickr.com/photos/16936123@N07/18835195572", DirectLink::ErrorNotFound],
-        ["https://www.flickr.com/photos/44133687@N00/17380073505/", [3000, 2000, "https://farm8.staticflickr.com/7757/17380073505_ed5178cc6a_o.jpg"]],                            # trailing slash
+        ["https://www.flickr.com/photos/44133687@N00/17380073505/", [3000, 2000, "https://live.staticflickr.com/7757/17380073505_ed5178cc6a_o.jpg"]],                            # trailing slash
         ["https://www.flickr.com/photos/jacob_schmidt/18414267018/in/album-72157654235845651/", DirectLink::ErrorNotFound],                                                       # username in-album
-        ["https://www.flickr.com/photos/tommygi/5291099420/in/dateposted-public/", [1600, 1062, "https://farm6.staticflickr.com/5249/5291099420_3bf8f43326_o.jpg"]],              # username in-public
+        ["https://www.flickr.com/photos/tommygi/5291099420/in/dateposted-public/", [1600, 1062, "https://live.staticflickr.com/5249/5291099420_3bf8f43326_o.jpg"]],              # username in-public
         ["https://www.flickr.com/photos/132249412@N02/18593786659/in/album-72157654521569061/", DirectLink::ErrorNotFound],
         ["https://www.flickr.com/photos/130019700@N03/18848891351/in/dateposted-public/", [4621, 3081, "https://farm4.staticflickr.com/3796/18848891351_f751b35aeb_o.jpg"]],      # userid   in-public
         ["https://www.flickr.com/photos/frank3/3778768209/in/photolist-6KVb92-eCDTCr-ur8K-7qbL5z-c71afh-c6YvXW-7mHG2L-c71ak9-c71aTq-c71azf-c71aq5-ur8Q-6F6YkR-eCDZsD-eCEakg-eCE6DK-4ymYku-7ubEt-51rUuc-buujQE-ur8x-9fuNu7-6uVeiK-qrmcC6-ur8D-eCEbei-eCDY9P-eCEhCk-eCE5a2-eCH457-eCHrcq-eCEdZ4-eCH6Sd-c71b5o-c71auE-eCHa8m-eCDSbz-eCH1dC-eCEg3v-7JZ4rh-9KwxYL-6KV9yR-9tUSbU-p4UKp7-eCHfwS-6KVbAH-5FrdbP-eeQ39v-eeQ1UR-4jHAGN", [1024, 681, "https://farm3.staticflickr.com/2499/3778768209_280f82abab_b.jpg"]],
@@ -653,12 +653,12 @@ describe DirectLink do
     describe "giving up" do
       [
         ["http://example.com",                    FastImage::UnknownImageType],
-        ["https://github.com/Nakilon/dhash-vips", FastImage::UnknownImageType, true],
-        ["https://github.com/Nakilon/dhash-vips", 3],
+        ["https://www.tic.com/index.html",        FastImage::UnknownImageType, true],
+        ["https://www.tic.com/index.html",        2],
         ["http://imgur.com/HQHBBBD",              FastImage::UnknownImageType, true],
         ["http://imgur.com/HQHBBBD",              "https://i.imgur.com/HQHBBBD.jpg?fb"],  # .at_css("meta[@property='og:image']")
-        ["http://redd.it/997he7",                 DirectLink::ErrorBadLink, true],
-        ["http://redd.it/997he7",                 1],   # currently only links are parsed
+        ["https://www.deviantart.com/nadyasonika/art/Asuka-Langley-Beach-Time-590134861", FastImage::UnknownImageType, true],
+        ["https://www.deviantart.com/nadyasonika/art/Asuka-Langley-Beach-Time-590134861", "https://images-wixmp-ed30a86b8c4ca887773594c2.wixmp.com/f/943f66cb-78ad-40f2-a086-44420b98b431/d9rcmz1-5cbc5670-0193-485b-ac14-755ddb9562f4.jpg/v1/fill/w_1024,h_732,q_75,strp/asuka_langley_beach_time_by_nadyasonika_d9rcmz1-fullview.jpg?token=eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJ1cm46YXBwOjdlMGQxODg5ODIyNjQzNzNhNWYwZDQxNWVhMGQyNmUwIiwiaXNzIjoidXJuOmFwcDo3ZTBkMTg4OTgyMjY0MzczYTVmMGQ0MTVlYTBkMjZlMCIsIm9iaiI6W1t7ImhlaWdodCI6Ijw9NzMyIiwicGF0aCI6IlwvZlwvOTQzZjY2Y2ItNzhhZC00MGYyLWEwODYtNDQ0MjBiOThiNDMxXC9kOXJjbXoxLTVjYmM1NjcwLTAxOTMtNDg1Yi1hYzE0LTc1NWRkYjk1NjJmNC5qcGciLCJ3aWR0aCI6Ijw9MTAyNCJ9XV0sImF1ZCI6WyJ1cm46c2VydmljZTppbWFnZS5vcGVyYXRpb25zIl19.M-a_heYtVPwnR4eC9KIPk2mIYeNzEaTg4b4jqr_GwyI"],
       ].each_with_index do |(input, expectation, giveup), i|
         it "##{i + 1} (#{URI(input).host}) (giveup=#{!!giveup})" do  # to match with minitest `-n` run flag
           ti = ENV.delete "IMGUR_CLIENT_ID"
