@@ -254,9 +254,9 @@ describe DirectLink do
         assert_nil e.cause if Exception.instance_methods.include? :cause  # Ruby 2.1
       end
 
-      valid_imgur_image_url_direct = "https://i.imgur.com/BLCesav.jpg"
+      valid_imgur_image_url_direct = "https://i.imgur.com/dCQprEq.jpg"
       it 200 do
-        assert_equal [["https://i.imgur.com/BLCesav.jpg", 1000, 1500, "image/jpeg"]],
+        assert_equal [[valid_imgur_image_url_direct, 5760, 3840, "image/jpeg"]],
                      DirectLink.imgur(valid_imgur_image_url_direct)
       end
       valid_imgur_image_url_album = "https://imgur.com/a/wPi63mj"
@@ -284,7 +284,7 @@ describe DirectLink do
           raise NetHTTPUtils::Error.new "", 400 if 1 == f += 1
           m.call *args
         } do
-          assert_equal [["https://i.imgur.com/BLCesav.jpg", 1000, 1500, "image/jpeg"]],
+          assert_equal [[valid_imgur_image_url_direct, 5760, 3840, "image/jpeg"]],
             DirectLink.imgur(valid_imgur_image_url_direct, 4)   # do not remove `4` or test may hang
         end
       end
@@ -298,7 +298,7 @@ describe DirectLink do
       end
 
       [ # TODO: move these end line comments to test names; and do the same in other tests
-        ["https://imgur.com/a/Aoh6l", "https://i.imgur.com/BLCesav.jpg", 1000, 1500, "image/jpeg"],
+        ["https://imgur.com/a/j5xmY", "https://i.imgur.com/KTTuoyN.jpg", 2828, 2828, "image/jpeg"],   # single photo album
         ["http://i.imgur.com/7xcxxkR.gifv", "http://i.imgur.com/7xcxxkRh.gif", 718, 404, "image/gif"],
         ["https://imgur.com/9yaMdJq", "https://i.imgur.com/9yaMdJq.mp4", 720, 404, "video/mp4"],
         ["http://imgur.com/gallery/dCQprEq/new", "https://i.imgur.com/dCQprEq.jpg"],
@@ -371,10 +371,10 @@ describe DirectLink do
         ["https://www.flickr.com/photos/jacob_schmidt/18414267018/in/album-72157654235845651/", DirectLink::ErrorNotFound],                                                       # username in-album
         ["https://www.flickr.com/photos/tommygi/5291099420/in/dateposted-public/", [1600, 1062, "https://live.staticflickr.com/5249/5291099420_3bf8f43326_o.jpg"]],              # username in-public
         ["https://www.flickr.com/photos/132249412@N02/18593786659/in/album-72157654521569061/", DirectLink::ErrorNotFound],
-        ["https://www.flickr.com/photos/130019700@N03/18848891351/in/dateposted-public/", [4621, 3081, "https://farm4.staticflickr.com/3796/18848891351_f751b35aeb_o.jpg"]],      # userid   in-public
-        ["https://www.flickr.com/photos/frank3/3778768209/in/photolist-6KVb92-eCDTCr-ur8K-7qbL5z-c71afh-c6YvXW-7mHG2L-c71ak9-c71aTq-c71azf-c71aq5-ur8Q-6F6YkR-eCDZsD-eCEakg-eCE6DK-4ymYku-7ubEt-51rUuc-buujQE-ur8x-9fuNu7-6uVeiK-qrmcC6-ur8D-eCEbei-eCDY9P-eCEhCk-eCE5a2-eCH457-eCHrcq-eCEdZ4-eCH6Sd-c71b5o-c71auE-eCHa8m-eCDSbz-eCH1dC-eCEg3v-7JZ4rh-9KwxYL-6KV9yR-9tUSbU-p4UKp7-eCHfwS-6KVbAH-5FrdbP-eeQ39v-eeQ1UR-4jHAGN", [1024, 681, "https://farm3.staticflickr.com/2499/3778768209_280f82abab_b.jpg"]],
-        ["https://www.flickr.com/photos/patricksloan/18230541413/sizes/l", [2048, 491, "https://farm6.staticflickr.com/5572/18230541413_fec4783d79_k.jpg"]],
-        ["https://flic.kr/p/vPvCWJ", [2048, 1365, "https://farm1.staticflickr.com/507/19572004110_d44d1b4ead_k.jpg"]],
+        ["https://www.flickr.com/photos/130019700@N03/18848891351/in/dateposted-public/", [4621, 3081, "https://live.staticflickr.com/3796/18848891351_f751b35aeb_o.jpg"]],      # userid   in-public
+        ["https://www.flickr.com/photos/frank3/3778768209/in/photolist-6KVb92-eCDTCr-ur8K-7qbL5z-c71afh-c6YvXW-7mHG2L-c71ak9-c71aTq-c71azf-c71aq5-ur8Q-6F6YkR-eCDZsD-eCEakg-eCE6DK-4ymYku-7ubEt-51rUuc-buujQE-ur8x-9fuNu7-6uVeiK-qrmcC6-ur8D-eCEbei-eCDY9P-eCEhCk-eCE5a2-eCH457-eCHrcq-eCEdZ4-eCH6Sd-c71b5o-c71auE-eCHa8m-eCDSbz-eCH1dC-eCEg3v-7JZ4rh-9KwxYL-6KV9yR-9tUSbU-p4UKp7-eCHfwS-6KVbAH-5FrdbP-eeQ39v-eeQ1UR-4jHAGN", [1024, 681, "https://live.staticflickr.com/2499/3778768209_280f82abab_b.jpg"]],
+        ["https://www.flickr.com/photos/patricksloan/18230541413/sizes/l", [2048, 491, "https://live.staticflickr.com/5572/18230541413_fec4783d79_k.jpg"]],
+        ["https://flic.kr/p/vPvCWJ", [2048, 1365, "https://live.staticflickr.com/507/19572004110_d44d1b4ead_k.jpg"]],
       ] ],
       [ :wiki, [
         ["https://en.wikipedia.org/wiki/Prostitution_by_country#/media/File:Prostitution_laws_of_the_world.PNG", "https://upload.wikimedia.org/wikipedia/commons/e/e8/Prostitution_laws_of_the_world.PNG"],
@@ -412,43 +412,47 @@ describe DirectLink do
     end
 
     {
-      google: %w{
-        https://lh3.googleusercontent.com/-NVJgqmI_2Is/WqMM2OMYg-I/AAAAAAAALrk/5-p3JL3iZt0Ho9dOf_p3gpddzqwr3Wp0ACJoC/w424-h318-n/001
-        //lh3.googleusercontent.com/proxy/DZtTi5KL7PqiBwJc8weNGLk_Wi2UTaQH0AC_h2kuURiu0AbwyI2ywOk2XgdAjL7ceg=w530-h354-n
-        //1.bp.blogspot.com/-rYk_u-qROQc/WngolJ8M0LI/AAAAAAAAD-w/woivnaIVzasBPG5C2T1t-VrWKRd_U6lMgCLcBGAs/w530-h278-p/i-469.jpg
-        https://2.bp.blogspot.com/-rb2PXLGZy0s/W2nQe3mXOSI/AAAAAAAARhQ/P8gV-bMtYbY2xxpTJNcYVxu3XDTUaugxQCLcBGAs/s640/beach-bora-bora-clouds-753626.jpg
-        http://4.bp.blogspot.com/-poH-QXn7YGg/U-3ZTDkeF_I/AAAAAAAAISE/ms2gNIb-v-g/w72-h72-p-k-no-nu/Top-24-Inspired-181.jpg
-        https://lh5.googleusercontent.com/FcYUQBKLXWtFLEvbQduvu7FHUm2f7U_MVdMBVnNbpwfzKHIU-xABkudxw-m21SlM0jFYRHedh7Is5Dg6qlgIQF1iSndlWjiKCTTsUo1w=s1080
-      },
-      imgur: %w{
-        https://imgur.com/3eThW
-        https://i.imgur.com/3eThW
-        https://m.imgur.com/3eThW
-        https://www.imgur.com/3eThW
-        https://goo.gl/ySqUb5
-      },
+      google: [
+        "https://lh3.googleusercontent.com/-NVJgqmI_2Is/WqMM2OMYg-I/AAAAAAAALrk/5-p3JL3iZt0Ho9dOf_p3gpddzqwr3Wp0ACJoC/w424-h318-n/001",
+        "//lh3.googleusercontent.com/proxy/DZtTi5KL7PqiBwJc8weNGLk_Wi2UTaQH0AC_h2kuURiu0AbwyI2ywOk2XgdAjL7ceg=w530-h354-n",
+        "//1.bp.blogspot.com/-rYk_u-qROQc/WngolJ8M0LI/AAAAAAAAD-w/woivnaIVzasBPG5C2T1t-VrWKRd_U6lMgCLcBGAs/w530-h278-p/i-469.jpg",
+        "https://2.bp.blogspot.com/-rb2PXLGZy0s/W2nQe3mXOSI/AAAAAAAARhQ/P8gV-bMtYbY2xxpTJNcYVxu3XDTUaugxQCLcBGAs/s640/beach-bora-bora-clouds-753626.jpg",
+        "http://4.bp.blogspot.com/-poH-QXn7YGg/U-3ZTDkeF_I/AAAAAAAAISE/ms2gNIb-v-g/w72-h72-p-k-no-nu/Top-24-Inspired-181.jpg",
+        "https://lh5.googleusercontent.com/FcYUQBKLXWtFLEvbQduvu7FHUm2f7U_MVdMBVnNbpwfzKHIU-xABkudxw-m21SlM0jFYRHedh7Is5Dg6qlgIQF1iSndlWjiKCTTsUo1w=s1080",
+      ],
+      imgur: [
+        ["https://imgur.com/3eThW", "https://imgur.com/3eThW"],
+        ["https://i.imgur.com/3eThW", "https://imgur.com/3eThW"],
+        ["https://m.imgur.com/3eThW", "https://imgur.com/3eThW"],
+        ["https://www.imgur.com/3eThW", "https://imgur.com/3eThW"],
+        ["https://goo.gl/ySqUb5", "https://i.imgur.com/QpOBvRY.png"],
+      ],
       _500px: %w{
         https://500px.com/photo/112134597/milky-way-by-tom-hall
       },
-      flickr: %w{
-        https://www.flickr.com/photos/59880970@N07/15773941043/in/dateposted-public/
-        https://flic.kr/p/vPvCWJ
-      },
-      wiki: %w{
-        https://en.wikipedia.org/wiki/Third_Party_System#/media/File:United_States_presidential_election_results,_1876-1892.svg
-        http://commons.wikimedia.org/wiki/File:Eduard_Bohlen_anagoria.jpg
-      },
-      reddit: %w{
-        https://www.reddit.com/r/cacography/comments/32tq0i/c/
-        http://redd.it/32tq0i
-        https://reddit.com/123456
-        https://www.reddit.com/r/travel/988889
-      },
+      flickr: [
+        "https://www.flickr.com/photos/59880970@N07/15773941043/in/dateposted-public/",
+        ["https://flic.kr/p/vPvCWJ", "https://www.flickr.com/photos/mlopezphotography/19572004110/"],
+      ],
+      wiki: [
+        "https://en.wikipedia.org/wiki/Third_Party_System#/media/File:United_States_presidential_election_results,_1876-1892.svg",
+        ["http://commons.wikimedia.org/wiki/File:Eduard_Bohlen_anagoria.jpg", "https://commons.wikimedia.org/wiki/File:Eduard_Bohlen_anagoria.jpg"],
+      ],
+      reddit: [
+        "https://www.reddit.com/r/cacography/comments/32tq0i/c/",
+        ["http://redd.it/32tq0i", "https://www.reddit.com/comments/32tq0i"],
+        ["https://reddit.com/123456", "https://www.reddit.com/r/funny/comments/123456/im_thinking_about_getting_a_dog_and_youtubed_ways/"],
+        ["https://www.reddit.com/r/travel/988889", "https://www.reddit.com/r/travel/comments/988889/playa_miramar_in_guaymas_sonora/"],
+        "https://www.reddit.com/r/KsyushaEgorova/comments/beuqs2/a_little_shy/", # NSFW causes redirect to /over_18? if the special cookie not provided
+      ],
     }.each do |method, tests|
       describe "DirectLink() calls #{method}" do
-        tests.each_with_index do |input, i|
-          it "##{i + 1} (this may prematurely fail on redirect resolving, so links should be valid)" do
-            DirectLink.stub method, ->link{ throw :_ } do
+        tests.each_with_index do |(input, expected), i|
+          it "##{i + 1}" do
+            DirectLink.stub method, ->link{
+              assert_equal (expected || input), link
+              throw :_
+            } do
               catch :_ do
                 DirectLink input
                 fail "DirectLink.#{method} was not called"

@@ -280,9 +280,16 @@ def DirectLink link, max_redirect_resolving_retry_delay = nil, giveup = false
   #                               max_read_retry_delay: 5, timeout: 5
 
   begin
-    head = NetHTTPUtils.request_data link, :head, header: {
-      "User-Agent" => "Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/66.0.3359.139 Safari/537.36"
-    }, **(max_redirect_resolving_retry_delay ? {timeout: max_redirect_resolving_retry_delay, max_start_http_retry_delay: max_redirect_resolving_retry_delay, max_read_retry_delay: max_redirect_resolving_retry_delay} : {})
+    header = {
+      "User-Agent" => "Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/66.0.3359.139 Safari/537.36",
+      **( %w{ reddit com } == URI(link).host.split(?.).last(2) ||
+          %w{   redd it  } == URI(link).host.split(?.) ? {Cookie: "over18=1"} : {} ),
+    }
+    head = NetHTTPUtils.request_data link, :head, header: header, **(max_redirect_resolving_retry_delay ? {
+      timeout: max_redirect_resolving_retry_delay,
+      max_start_http_retry_delay: max_redirect_resolving_retry_delay,
+      max_read_retry_delay: max_redirect_resolving_retry_delay
+    } : {})
   rescue Net::ReadTimeout
   else
     link = head.instance_variable_get(:@last_response).uri.to_s
@@ -341,7 +348,7 @@ def DirectLink link, max_redirect_resolving_retry_delay = nil, giveup = false
     fail if link == u
   rescue DirectLink::ErrorMissingEnvVar
   end if %w{ reddit com } == URI(link).host.split(?.).last(2) ||
-         %w{ redd it    } == URI(link).host.split(?.)
+         %w{   redd it  } == URI(link).host.split(?.)
 
   begin
     f = FastImage.new(link, raise_on_failure: true, timeout: 5, http_header: {"User-Agent" => "Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/66.0.3359.139 Safari/537.36"})
