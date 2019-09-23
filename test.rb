@@ -396,6 +396,7 @@ describe DirectLink do
       ] ],
       [ :vk, [
         ["https://vk.com/id57030827?z=photo57030827_456241143", [1920, 1440, "https://sun9-66.userapi.com/c845322/v845322944/167836/bP9z41BybhI.jpg"]],
+        ["https://vk.com/id57030827?z=photo57030827_456241143%2Falbum57030827_0", [1920, 1440, "https://sun9-66.userapi.com/c845322/v845322944/167836/bP9z41BybhI.jpg"]],
       ] ],
     ].each do |method, tests|
       describe method do

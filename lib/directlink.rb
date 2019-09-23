@@ -242,7 +242,7 @@ module DirectLink
   end
 
   def self.vk link
-    raise ErrorBadLink.new link unless %r{\Ahttps?://vk\.com/id(?<user_id>\d+)\?z=photo(?<id>\k<user_id>_\d+)\z} =~ link
+    raise ErrorBadLink.new link unless %r{\Ahttps://vk\.com/id(?<user_id>\d+)\?z=photo(?<id>\k<user_id>_\d+)(%2Falbum\k<user_id>_0)?\z} =~ link
     raise ErrorMissingEnvVar.new "define VK_ACCESS_TOKEN and VK_CLIENT_SECRET env vars" unless ENV["VK_ACCESS_TOKEN"] && ENV["VK_CLIENT_SECRET"]
     json = JSON.load NetHTTPUtils.request_data "https://api.vk.com/method/photos.getById", :POST, form: { photos: id, access_token: ENV["VK_ACCESS_TOKEN"], client_secret: ENV["VK_CLIENT_SECRET"], v: "5.101" }
     json.fetch("response").tap do |r|
