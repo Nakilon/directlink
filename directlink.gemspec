@@ -16,6 +16,7 @@ Gem::Specification.new do |spec|
   spec.add_dependency "kramdown"
   spec.add_dependency "addressable"
   spec.add_development_dependency "minitest"
+  spec.add_development_dependency "byebug"
 
   spec.require_path = "lib"
   spec.bindir       = "bin"

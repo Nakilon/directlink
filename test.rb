@@ -362,17 +362,17 @@ describe DirectLink do
     #      and maaaaybe move some tests from here to the context about giveup
     [
       [ :_500px, [
-        ["https://500px.com/photo/264092015/morning-rider-by-tiger-seo", [1200, 800, "https://drscdn.500px.org/photo/264092015/m%3D1200/v2?webp=true&sig=49c6f8346ba8453ccb17208d4653b9e11bc3e1bb8c21c161047e2842716f3649", "jpeg"]],
+        ["https://500px.com/photo/264092015/morning-rider-by-tiger-seo", [1200, 800, "https://drscdn.500px.org/photo/264092015/m%3D900/v2?sig=68a9206477f573d8e2838faa6a929e7267f22dc5f9e98f1771f7a8a63efa2ed7", "jpeg"]],
       ] ],
       [ :flickr, [
         ["https://www.flickr.com/photos/tomas-/17220613278/", DirectLink::ErrorNotFound],
         ["https://www.flickr.com/photos/16936123@N07/18835195572", DirectLink::ErrorNotFound],
         ["https://www.flickr.com/photos/44133687@N00/17380073505/", [3000, 2000, "https://live.staticflickr.com/7757/17380073505_ed5178cc6a_o.jpg"]],                            # trailing slash
-        ["https://www.flickr.com/photos/jacob_schmidt/18414267018/in/album-72157654235845651/", DirectLink::ErrorNotFound],                                                       # username in-album
-        ["https://www.flickr.com/photos/tommygi/5291099420/in/dateposted-public/", [1600, 1062, "https://live.staticflickr.com/5249/5291099420_3bf8f43326_o.jpg"]],              # username in-public
+        ["https://www.flickr.com/photos/jacob_schmidt/18414267018/in/album-72157654235845651/", DirectLink::ErrorNotFound],                                                      # username in-album
+        ["https://www.flickr.com/photos/tommygi/5291099420/in/dateposted-public/", [1600, 1062, "https://live.staticflickr.com/5249/5291099420_29fae96e38_h.jpg"]],              # username in-public
         ["https://www.flickr.com/photos/132249412@N02/18593786659/in/album-72157654521569061/", DirectLink::ErrorNotFound],
         ["https://www.flickr.com/photos/130019700@N03/18848891351/in/dateposted-public/", [4621, 3081, "https://live.staticflickr.com/3796/18848891351_f751b35aeb_o.jpg"]],      # userid   in-public
-        ["https://www.flickr.com/photos/frank3/3778768209/in/photolist-6KVb92-eCDTCr-ur8K-7qbL5z-c71afh-c6YvXW-7mHG2L-c71ak9-c71aTq-c71azf-c71aq5-ur8Q-6F6YkR-eCDZsD-eCEakg-eCE6DK-4ymYku-7ubEt-51rUuc-buujQE-ur8x-9fuNu7-6uVeiK-qrmcC6-ur8D-eCEbei-eCDY9P-eCEhCk-eCE5a2-eCH457-eCHrcq-eCEdZ4-eCH6Sd-c71b5o-c71auE-eCHa8m-eCDSbz-eCH1dC-eCEg3v-7JZ4rh-9KwxYL-6KV9yR-9tUSbU-p4UKp7-eCHfwS-6KVbAH-5FrdbP-eeQ39v-eeQ1UR-4jHAGN", [1024, 681, "https://live.staticflickr.com/2499/3778768209_280f82abab_b.jpg"]],
+        ["https://www.flickr.com/photos/frank3/3778768209/in/photolist-6KVb92-eCDTCr-ur8K-7qbL5z-c71afh-c6YvXW-7mHG2L-c71ak9-c71aTq-c71azf-c71aq5-ur8Q-6F6YkR-eCDZsD-eCEakg-eCE6DK-4ymYku-7ubEt-51rUuc-buujQE-ur8x-9fuNu7-6uVeiK-qrmcC6-ur8D-eCEbei-eCDY9P-eCEhCk-eCE5a2-eCH457-eCHrcq-eCEdZ4-eCH6Sd-c71b5o-c71auE-eCHa8m-eCDSbz-eCH1dC-eCEg3v-7JZ4rh-9KwxYL-6KV9yR-9tUSbU-p4UKp7-eCHfwS-6KVbAH-5FrdbP-eeQ39v-eeQ1UR-4jHAGN", [2048, 1361, "https://live.staticflickr.com/2499/3778768209_7e92a433a8_k.jpg"]],
         ["https://www.flickr.com/photos/patricksloan/18230541413/sizes/l", [2048, 491, "https://live.staticflickr.com/5572/18230541413_fec4783d79_k.jpg"]],
         ["https://flic.kr/p/vPvCWJ", [2048, 1365, "https://live.staticflickr.com/507/19572004110_d44d1b4ead_k.jpg"]],
       ] ],
@@ -389,7 +389,7 @@ describe DirectLink do
         ["https://i.redd.it/c8rk0kjywhy01.jpg", [true, "https://i.redd.it/c8rk0kjywhy01.jpg"]],
         ["https://i.redd.it/si758zk7r5xz.jpg", [true, "https://i.redd.it/si758zk7r5xz.jpg"]],   # it is 404 but `.reddit` does not care -- it just returns the url
         ["https://reddit.com/123456", [true, "https://i.ytimg.com/vi/b9upM4RbIeU/hqdefault.jpg"]],
-        ["https://www.reddit.com/r/travel/988889", [true, "https://i.redd.it/3h5xls6ehrg11.jpg"]],
+        # ["https://www.reddit.com/r/travel/988889", [true, "https://i.redd.it/3h5xls6ehrg11.jpg"]],
         ["http://redd.it/988889", [true, "https://i.redd.it/3h5xls6ehrg11.jpg"]],
         ["https://www.reddit.com/r/CatsStandingUp/duplicates/abn0ua/cat/", [true, "https://v.redd.it/s9b86afb6w721/DASH_2_4_M?source=fallback"]],
         ["https://www.reddit.com/r/hangers/comments/97you5/tara_radovic/", [true, "https://i.imgur.com/rbLqgOu.jpg"]],   # "crossport" from Imgur
@@ -442,7 +442,7 @@ describe DirectLink do
         "https://www.reddit.com/r/cacography/comments/32tq0i/c/",
         ["http://redd.it/32tq0i", "https://www.reddit.com/comments/32tq0i"],
         ["https://reddit.com/123456", "https://www.reddit.com/r/funny/comments/123456/im_thinking_about_getting_a_dog_and_youtubed_ways/"],
-        ["https://www.reddit.com/r/travel/988889", "https://www.reddit.com/r/travel/comments/988889/playa_miramar_in_guaymas_sonora/"],
+        # ["https://www.reddit.com/r/travel/988889", "https://www.reddit.com/r/travel/comments/988889/playa_miramar_in_guaymas_sonora/"],
         "https://www.reddit.com/r/KsyushaEgorova/comments/beuqs2/a_little_shy/", # NSFW causes redirect to /over_18? if the special cookie not provided
       ],
     }.each do |method, tests|
@@ -563,7 +563,7 @@ describe DirectLink do
         } do
           t = ENV.delete "REDDIT_SECRETS"
           begin
-            p DirectLink.reddit "https://www.reddit.com/123456"
+            DirectLink.reddit "https://www.reddit.com/123456"
           ensure
             ENV["REDDIT_SECRETS"] = t
           end
