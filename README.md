@@ -84,11 +84,21 @@ $ directlink --json https://imgur.com/a/oacI3gl https://avatars1.githubuserconte
   }
 ]
 ```
+By default tries to parse the `<meta property="og:image"` tag in the "don't give up" mode but can also ignore it:
+```
+$ directlink --ignore-meta https://www.kp.ru/daily/26342.7/3222103/
+<= https://www.kp.ru/daily/26342.7/3222103/
+=> https://s11.stc.all.kpcdn.net/share/i/12/8024261/wx1080.jpg
+   jpeg 1080x653
+=> https://s13.stc.all.kpcdn.net/share/i/12/8024233/wx1080.jpg
+   jpeg 1080x653
+...
+```
 Downloads `master:HEAD` version of `lib/directlink.rb` from GitHub and uses it once instead of installed one:
 ```
 $ directlink --github https://imgur.com/a/oacI3gl
 ```
-When an image hosting with known API is recognized, it will try to use the API tokens you've provided as env vars (otherwise it will go "don't give up" mode):
+When an image hosting with known API is recognized, it will try to use the API tokens you've provided as env vars (otherwise it will go the "don't give up" mode):
 ```
 $ export IMGUR_CLIENT_ID=0f99cd781...
 $ export FLICKR_API_KEY=dc2bfd348b...

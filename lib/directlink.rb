@@ -247,7 +247,7 @@ end
 
 require "fastimage"
 
-def DirectLink link, max_redirect_resolving_retry_delay = nil, giveup = false
+def DirectLink link, max_redirect_resolving_retry_delay = nil, giveup: false, ignore_meta: false
   ArgumentError.new("link should be a <String>, not <#{link.class}>") unless link.is_a? String
   begin
     URI link
@@ -340,7 +340,7 @@ def DirectLink link, max_redirect_resolving_retry_delay = nil, giveup = false
       f = ->_{ _.type == :a ? _.attr["href"] : _.children.flat_map(&f) }
       require "kramdown"
       return f[Kramdown::Document.new(u).root].map do |sublink|
-        DirectLink URI.join(link, sublink).to_s, max_redirect_resolving_retry_delay, giveup
+        DirectLink URI.join(link, sublink).to_s, max_redirect_resolving_retry_delay, giveup: giveup
       end
     end
     return struct.new *u.values_at(*%w{ fallback_url width height }), "video" if u.is_a? Hash
@@ -363,14 +363,14 @@ def DirectLink link, max_redirect_resolving_retry_delay = nil, giveup = false
     end
     html = Nokogiri::HTML NetHTTPUtils.request_data link, header: {"User-Agent" => "Mozilla"}
     if t = html.at_css("meta[@property='og:image']")
-      return DirectLink t[:content], nil, true
-    end
+      return DirectLink t[:content], nil, giveup: true
+    end unless ignore_meta
     h = {}  # TODO: maybe move it outside because of possible img[:src] recursion?...
     l = lambda do |node, s = []|
       node.element_children.flat_map do |child|
         next l[child, s + [child.node_name]] unless "img" == child.node_name
         begin
-          [[s, (h[child[:src]] = h[child[:src]] || DirectLink(URI.join(link, child[:src]).to_s, nil, true))]]  # ... or wait, do we giveup?
+          [[s, (h[child[:src]] = h[child[:src]] || DirectLink(URI.join(link, child[:src]).to_s, nil, giveup: true))]]  # ... or wait, do we giveup?
         rescue => e
           DirectLink.logger.error "#{e} (from no giveup)"
           []

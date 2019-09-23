@@ -671,14 +671,14 @@ describe DirectLink do
             case expectation
             when Class
               e = assert_raises expectation, "for #{input} (giveup = #{giveup})" do
-                DirectLink input, nil, giveup
+                DirectLink input, nil, giveup: giveup
               end
               assert_equal expectation.to_s, e.class.to_s, "for #{input} (giveup = #{giveup})"
             when String
-              result = DirectLink input, nil, giveup
+              result = DirectLink input, nil, giveup: giveup
               assert_equal expectation, result.url, "for #{input} (giveup = #{giveup})"
             else
-              result = DirectLink input, nil, giveup
+              result = DirectLink input, nil, giveup: giveup
               result = [result] unless result.is_a? Array   # we can't do `Array(<Struct>)` because it splats by elements
               assert_equal expectation, result.size, ->{
                 "for #{input} (giveup = #{giveup}): #{result.map &:url}"
@@ -699,11 +699,11 @@ describe DirectLink do
 
     describe "shows usage help if misused" do
       [
-        [/\Ausage: directlink \[--debug\] \[--json\] \[--github\] <link1> <link2> <link3> \.\.\.\ndirectlink version \d\.\d\.\d\.\d\d? \(https:\/\/github\.com\/nakilon\/directlink\)\n\z/, nil],
-        [/\Ausage: directlink \[--debug\] \[--json\] \[--github\] <link1> <link2> <link3> \.\.\.\ndirectlink version \d\.\d\.\d\.\d\d? \(https:\/\/github\.com\/nakilon\/directlink\)\n\z/, "-h"],
-        [/\Ausage: directlink \[--debug\] \[--json\] \[--github\] <link1> <link2> <link3> \.\.\.\ndirectlink version \d\.\d\.\d\.\d\d? \(https:\/\/github\.com\/nakilon\/directlink\)\n\z/, "--help"],
-        [/\Ausage: directlink \[--debug\] \[--json\] \[--github\] <link1> <link2> <link3> \.\.\.\ndirectlink version \d\.\d\.\d\.\d\d? \(https:\/\/github\.com\/nakilon\/directlink\)\n\z/, "-v"],
-        [/\Ausage: directlink \[--debug\] \[--json\] \[--github\] <link1> <link2> <link3> \.\.\.\ndirectlink version \d\.\d\.\d\.\d\d? \(https:\/\/github\.com\/nakilon\/directlink\)\n\z/, "--version"],
+        [/\Ausage: directlink \[--debug\] \[--json\] \[--github\] \[--ignore-meta\] <link1> <link2> <link3> \.\.\.\ndirectlink version \d\.\d\.\d\.\d\d? \(https:\/\/github\.com\/nakilon\/directlink\)\n\z/, nil],
+        [/\Ausage: directlink \[--debug\] \[--json\] \[--github\] \[--ignore-meta\] <link1> <link2> <link3> \.\.\.\ndirectlink version \d\.\d\.\d\.\d\d? \(https:\/\/github\.com\/nakilon\/directlink\)\n\z/, "-h"],
+        [/\Ausage: directlink \[--debug\] \[--json\] \[--github\] \[--ignore-meta\] <link1> <link2> <link3> \.\.\.\ndirectlink version \d\.\d\.\d\.\d\d? \(https:\/\/github\.com\/nakilon\/directlink\)\n\z/, "--help"],
+        [/\Ausage: directlink \[--debug\] \[--json\] \[--github\] \[--ignore-meta\] <link1> <link2> <link3> \.\.\.\ndirectlink version \d\.\d\.\d\.\d\d? \(https:\/\/github\.com\/nakilon\/directlink\)\n\z/, "-v"],
+        [/\Ausage: directlink \[--debug\] \[--json\] \[--github\] \[--ignore-meta\] <link1> <link2> <link3> \.\.\.\ndirectlink version \d\.\d\.\d\.\d\d? \(https:\/\/github\.com\/nakilon\/directlink\)\n\z/, "--version"],
         ["DirectLink::ErrorBadLink: \"--\"\n", "--"],
         ["DirectLink::ErrorBadLink: \"-\"\n", "-"],
         ["DirectLink::ErrorBadLink: \"-\"\n", "- -"],
@@ -790,6 +790,16 @@ describe DirectLink do
     it "reddit_bot gem logger does not flood STDOUT" do
       string, status = Open3.capture2e "RUBYOPT='-rbundler/setup' ./bin/directlink http://redd.it/997he7"
       assert_equal "<= http://redd.it/997he7\n=> https://i.imgur.com/QpOBvRY.png\n   image/png 460x460\n", string
+    end
+
+    # TODO: test about --json
+    it "uses <meta> tag" do
+      string, status = Open3.capture2e "RUBYOPT='-rbundler/setup' ./bin/directlink --json https://www.kp.ru/daily/26342.7/3222103/"
+      assert_equal [0, "https://s9.stc.all.kpcdn.net/share/i/12/8054352/cr-1200-630.wm-asnpmfru-100-tr-0-0.t-13-3222103-ttps-47-8-0083CD-1010-l-85-b-41.t-13-3222103-ttps-47-8-FFF-1010-l-85-b-42.t-207-5-asb-37-10-FFF-788-l-370-t-68.m2018-03-14x02-10-20.jpg"], [status.exitstatus, JSON.load(string).fetch("url")]
+    end
+    it "ignores <meta> tag" do
+      string, status = Open3.capture2e "RUBYOPT='-rbundler/setup' ./bin/directlink --json --ignore-meta https://www.kp.ru/daily/26342.7/3222103/"
+      assert_equal [0, 21, "https://s11.stc.all.kpcdn.net/share/i/12/8024261/wx1080.jpg"], [status.exitstatus, JSON.load(string).size, JSON.load(string).first.fetch("url")]
     end
 
   end

@@ -12,15 +12,13 @@ end
 
 
 # TODO: use OptionParser?
-debug = json = github = nil
+debug = json = github = ignore_meta = nil
 loop do
   case ARGV.first
-  when "--debug"
-    debug = ARGV.shift
-  when "--json"
-    json = ARGV.shift
-  when "--github"
-    github = ARGV.shift
+  when "--debug"       ; debug = ARGV.shift
+  when "--json"        ; json = ARGV.shift
+  when "--github"      ; github = ARGV.shift
+  when "--ignore-meta" ; ignore_meta = ARGV.shift
   else
     break
   end
@@ -46,7 +44,7 @@ end
 NetHTTPUtils.logger.level = debug ? Logger::INFO : Logger::FATAL unless ENV.include? "LOGLEVEL_NetHTTPUtils"
 # TODO --timeout=
 DirectLink.silent = !debug
-abort "usage: directlink [--debug] [--json] [--github] <link1> <link2> <link3> ...\n#{
+abort "usage: directlink [--debug] [--json] [--github] [--ignore-meta] <link1> <link2> <link3> ...\n#{
         if github
           "impossible to tell version for sure from raw.githubusercontent.com"
         else
@@ -58,13 +56,13 @@ begin
   if json
     require "json"
     t = ARGV.map do |link|
-      t = DirectLink link, 30
+      t = DirectLink link, 30, ignore_meta: ignore_meta
       t.is_a?(Array) ? t.map(&:to_h) : t.to_h
     end
     puts JSON.pretty_generate t.size == 1 ? t.first : t
   else
     ARGV.each do |link|
-      t = DirectLink link, 30
+      t = DirectLink link, 30, ignore_meta: ignore_meta
       puts "<= #{link}"
       (t.is_a?(Array) ? t : [t]).each{ |s| puts "=> #{s.url}\n   #{s.type} #{s.width}x#{s.height}" }
     end
