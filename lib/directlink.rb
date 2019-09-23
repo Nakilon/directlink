@@ -241,6 +241,17 @@ module DirectLink
     return [false, data["selftext"]]
   end
 
+  def self.vk link
+    raise ErrorBadLink.new link unless %r{\Ahttps?://vk\.com/id(?<user_id>\d+)\?z=photo(?<id>\k<user_id>_\d+)\z} =~ link
+    raise ErrorMissingEnvVar.new "define VK_ACCESS_TOKEN and VK_CLIENT_SECRET env vars" unless ENV["VK_ACCESS_TOKEN"] && ENV["VK_CLIENT_SECRET"]
+    json = JSON.load NetHTTPUtils.request_data "https://api.vk.com/method/photos.getById", :POST, form: { photos: id, access_token: ENV["VK_ACCESS_TOKEN"], client_secret: ENV["VK_CLIENT_SECRET"], v: "5.101" }
+    json.fetch("response").tap do |r|
+      raise ErrorAssert.new unless 1 == r.size
+    end.first.fetch("sizes").map do |s|
+      s.values_at "width", "height", "url"
+    end.max_by{ |w, h, u| w * h }
+  end
+
   class_variable_set :@@directlink, Struct.new(:url, :width, :height, :type)
 end
 
@@ -291,6 +302,8 @@ def DirectLink link, max_redirect_resolving_retry_delay = nil, giveup: false, ig
       max_read_retry_delay: max_redirect_resolving_retry_delay
     } : {})
   rescue Net::ReadTimeout
+  rescue NetHTTPUtils::Error => e
+    raise unless 418 == e.code
   else
     link = head.instance_variable_get(:@last_response).uri.to_s
   end
@@ -349,6 +362,12 @@ def DirectLink link, max_redirect_resolving_retry_delay = nil, giveup: false, ig
   rescue DirectLink::ErrorMissingEnvVar
   end if %w{ reddit com } == URI(link).host.split(?.).last(2) ||
          %w{   redd it  } == URI(link).host.split(?.)
+
+  begin
+    w, h, u = DirectLink.vk(link)
+    return struct.new u, w, h
+  rescue DirectLink::ErrorMissingEnvVar
+  end if %w{ vk com } == URI(link).host.split(?.)
 
   begin
     f = FastImage.new(link, raise_on_failure: true, timeout: 5, http_header: {"User-Agent" => "Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/66.0.3359.139 Safari/537.36"})

@@ -394,6 +394,9 @@ describe DirectLink do
         ["https://www.reddit.com/r/CatsStandingUp/duplicates/abn0ua/cat/", [true, "https://v.redd.it/s9b86afb6w721/DASH_2_4_M?source=fallback"]],
         ["https://www.reddit.com/r/hangers/comments/97you5/tara_radovic/", [true, "https://i.imgur.com/rbLqgOu.jpg"]],   # "crossport" from Imgur
       ] ],
+      [ :vk, [
+        ["https://vk.com/id57030827?z=photo57030827_456241143", [1920, 1440, "https://sun9-66.userapi.com/c845322/v845322944/167836/bP9z41BybhI.jpg"]],
+      ] ],
     ].each do |method, tests|
       describe method do
         tests.each_with_index do |(input, expectation), i|
@@ -444,6 +447,9 @@ describe DirectLink do
         ["https://reddit.com/123456", "https://www.reddit.com/r/funny/comments/123456/im_thinking_about_getting_a_dog_and_youtubed_ways/"],
         # ["https://www.reddit.com/r/travel/988889", "https://www.reddit.com/r/travel/comments/988889/playa_miramar_in_guaymas_sonora/"],
         "https://www.reddit.com/r/KsyushaEgorova/comments/beuqs2/a_little_shy/", # NSFW causes redirect to /over_18? if the special cookie not provided
+      ],
+      vk: [
+        "https://vk.com/id57030827?z=photo57030827_456241143",
       ],
     }.each do |method, tests|
       describe "DirectLink() calls #{method}" do
@@ -514,7 +520,7 @@ describe DirectLink do
     end
 
     describe "throws ErrorBadLink if method does not match the link" do
-      %i{ google imgur flickr _500px wiki reddit }.each do |method|
+      %i{ google imgur flickr _500px wiki reddit vk }.each do |method|
         ["", "test", "http://example.com/"].each_with_index do |url, i|
           it "#{method} ##{i + 1}" do
             assert_raises DirectLink::ErrorBadLink do
@@ -617,6 +623,7 @@ describe DirectLink do
         [:_500px, "https://500px.com/photo/112134597/milky-way-by-tom-hall"],
         [:wiki, "http://commons.wikimedia.org/wiki/File:Eduard_Bohlen_anagoria.jpg"],
         [:reddit, "https://www.reddit.com/123456"],
+        [:vk, "https://vk.com/"],
       ].each do |method, link|
         it "can otherwise raise DirectLink::ErrorBadLink #{method}" do
           e = assert_raises(DirectLink::ErrorBadLink, link) do
@@ -739,7 +746,7 @@ describe DirectLink do
         # TODO: a test that it appends the `exception.cause`
       ].each_with_index do |(expected_exit_code, link, expected_output, unset), i| # TODO: unset is not used anymore or I have to go sleep?
         it "##{i + 1}" do
-          string, status = Open3.capture2e "export #{File.read("api_tokens_for_travis.sh").gsub(/\n?export/, ?\s).strip}#{unset} && RUBYOPT='-rbundler/setup #{$-I.map{ |i| "-I #{i}" }.join " "}' ./bin/directlink #{link}"
+          string, status = Open3.capture2e "export #{(File.read("api_tokens_for_travis.sh") + File.read("vk.secret")).scan(/(?<=^export )\S+=\S+/).join(" ")}#{unset} && RUBYOPT='-rbundler/setup #{$-I.map{ |i| "-I #{i}" }.join " "}' ./bin/directlink #{link}"
           assert_equal [expected_exit_code, "#{expected_output}\n"], [status.exitstatus, string], "for #{link}"
         end
       end
@@ -782,7 +789,7 @@ describe DirectLink do
         '.gsub(/^ {8}/, ""), "json"],
     ].each do |expected_output, param|
       it "#{param || "default"} output format" do
-        string, status = Open3.capture2e "export #{File.read("api_tokens_for_travis.sh").gsub(/\n?export/, ?\s).strip} && RUBYOPT='-rbundler/setup' ./bin/directlink#{" --#{param}" if param} #{valid_imgur_image_url1} #{valid_imgur_image_url2}"
+        string, status = Open3.capture2e "export #{(File.read("api_tokens_for_travis.sh") + File.read("vk.secret")).scan(/(?<=^export )\S+=\S+/).join(" ")} && RUBYOPT='-rbundler/setup' ./bin/directlink#{" --#{param}" if param} #{valid_imgur_image_url1} #{valid_imgur_image_url2}"
         assert_equal [0, expected_output], [status.exitstatus, string]
       end
     end
