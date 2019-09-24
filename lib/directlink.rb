@@ -243,7 +243,11 @@ module DirectLink
 
   def self.vk link
     id, mtd, field, f = case link
-    when %r{\Ahttps://vk\.com/id(?<user_id>\d+)\?z=photo(?<id>\k<user_id>_\d+)(%2Falbum\k<user_id>_0)?\z}
+    when %r{\Ahttps://vk\.com/id(?<user_id>\d+)\?z=photo(?<id>\k<user_id>_\d+)(%2F(album\k<user_id>_0|photos\k<user_id>))\z},
+         %r{\Ahttps://vk\.com/photo(?<_>)(?<id>-?\d+_\d+)(\?all=1)?\z},
+         %r{\Ahttps://vk\.com/feed\?section=likes&z=photo(?<_>)(?<id>-(?<user_id>\d+)_\d+)%2F(liked\d+|album\k<user_id>_0)\z},
+         %r{\Ahttps://vk\.com/[a-z]+\?z=photo(?<_>)(?<id>(?<user_id>-\d+)_\d+)%2F(wall\k<user_id>_\d+|album\k<user_id>_0)\z},
+         %r{\Ahttps://vk\.com/wall(?<user_id>-\d+)_\d+\?z=photo(?<id>\k<user_id>_\d+)%2F(wall\k<user_id>_\d+|album\k<user_id>_00%2Frev|917c43448c0780da71)\z}
       [$2, :photos, :photos, lambda do |t|
         raise ErrorAssert.new "our knowledge about VK API seems to be outdated" unless 1 == t.size
         t.first
@@ -263,7 +267,10 @@ module DirectLink
     f.call( JSON.load( NetHTTPUtils.request_data "https://api.vk.com/method/#{mtd}.getById",
       :POST, form: { field => id, :access_token => ENV["VK_ACCESS_TOKEN"], :client_secret => ENV["VK_CLIENT_SECRET"], :v => "5.101" }
     ).fetch("response") ).fetch("sizes").map do |s|
-      s.values_at "width", "height", "url"
+      s.values_at("width", "height", "url").tap do |whu|
+        w, h, u = whu
+        whu[0, 2] = FastImage.new(u, raise_on_failure: true).size if [w, h].include? 0
+      end
     end.max_by{ |w, h, u| w * h }
   end
 
