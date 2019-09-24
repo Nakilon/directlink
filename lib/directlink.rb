@@ -242,12 +242,27 @@ module DirectLink
   end
 
   def self.vk link
-    raise ErrorBadLink.new link unless %r{\Ahttps://vk\.com/id(?<user_id>\d+)\?z=photo(?<id>\k<user_id>_\d+)(%2Falbum\k<user_id>_0)?\z} =~ link
+    id, mtd, field, f = case link
+    when %r{\Ahttps://vk\.com/id(?<user_id>\d+)\?z=photo(?<id>\k<user_id>_\d+)(%2Falbum\k<user_id>_0)?\z}
+      [$2, :photos, :photos, lambda do |t|
+        raise ErrorAssert.new "our knowledge about VK API seems to be outdated" unless 1 == t.size
+        t.first
+      end ]
+    when %r{\Ahttps://vk\.com/wall(?<id>-\d+_\d+)\z}
+      [$1, :wall, :posts, lambda do |t|
+        t.first.fetch("attachments").tap do |t|
+          raise ErrorAssert.new "our knowledge about VK API seems to be outdated" unless 1 == t.size
+        end.first.tap do |t|
+          raise ErrorAssert.new "our knowledge about VK API seems to be outdated" unless %w{ type photo } == t.keys
+        end.fetch("photo")
+      end ]
+    else
+      raise ErrorBadLink.new link
+    end
     raise ErrorMissingEnvVar.new "define VK_ACCESS_TOKEN and VK_CLIENT_SECRET env vars" unless ENV["VK_ACCESS_TOKEN"] && ENV["VK_CLIENT_SECRET"]
-    json = JSON.load NetHTTPUtils.request_data "https://api.vk.com/method/photos.getById", :POST, form: { photos: id, access_token: ENV["VK_ACCESS_TOKEN"], client_secret: ENV["VK_CLIENT_SECRET"], v: "5.101" }
-    json.fetch("response").tap do |r|
-      raise ErrorAssert.new unless 1 == r.size
-    end.first.fetch("sizes").map do |s|
+    f.call( JSON.load( NetHTTPUtils.request_data "https://api.vk.com/method/#{mtd}.getById",
+      :POST, form: { field => id, :access_token => ENV["VK_ACCESS_TOKEN"], :client_secret => ENV["VK_CLIENT_SECRET"], :v => "5.101" }
+    ).fetch("response") ).fetch("sizes").map do |s|
       s.values_at "width", "height", "url"
     end.max_by{ |w, h, u| w * h }
   end

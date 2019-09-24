@@ -397,6 +397,7 @@ describe DirectLink do
       [ :vk, [
         ["https://vk.com/id57030827?z=photo57030827_456241143", [1920, 1440, "https://sun9-66.userapi.com/c845322/v845322944/167836/bP9z41BybhI.jpg"]],
         ["https://vk.com/id57030827?z=photo57030827_456241143%2Falbum57030827_0", [1920, 1440, "https://sun9-66.userapi.com/c845322/v845322944/167836/bP9z41BybhI.jpg"]],
+        ["https://vk.com/wall-105984091_7806", [960, 1280, "https://sun9-41.userapi.com/c855224/v855224900/a72f1/7OZ8ux9Wcwo.jpg"]],
       ] ],
     ].each do |method, tests|
       describe method do
@@ -451,6 +452,7 @@ describe DirectLink do
       ],
       vk: [
         "https://vk.com/id57030827?z=photo57030827_456241143",
+        "https://vk.com/wall-105984091_7806",
       ],
     }.each do |method, tests|
       describe "DirectLink() calls #{method}" do
