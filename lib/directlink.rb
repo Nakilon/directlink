@@ -249,7 +249,7 @@ module DirectLink
          %r{\Ahttps://vk\.com/feed\?section=likes&z=photo(?<_>)(?<id>-(?<user_id>\d+)_\d+)%2F(liked\d+|album\k<user_id>_0)\z},
          %r{\Ahttps://vk\.com/[a-z_]+\?z=photo(?<_>)(?<id>(?<user_id>-\d+)_\d+)%2F(wall\k<user_id>_\d+|album\k<user_id>_0)\z},
          %r{\Ahttps://vk\.com/wall(?<user_id>-\d+)_\d+\?z=photo(?<id>\k<user_id>_\d+)%2F(wall\k<user_id>_\d+|album\k<user_id>_00%2Frev|\d+)\z}
-      [p($2), :photos, :photos, lambda do |t|
+      [$2, :photos, :photos, lambda do |t|
         raise ErrorAssert.new "our knowledge about VK API seems to be outdated" unless 1 == t.size
         t.first
       end ]
