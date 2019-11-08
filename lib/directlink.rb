@@ -141,14 +141,7 @@ module DirectLink
     require "nokogiri"
     resp = NetHTTPUtils.request_data link
     f = lambda do |form|
-      JSON.load(
-        NetHTTPUtils.request_data "https://api.500px.com/v1/photos",
-          form: form,
-          header: {
-            "Cookie" => resp.instance_variable_get(:@last_response).to_hash.fetch("set-cookie").join(?\s),
-            "X-CSRF-Token" => Nokogiri::HTML(resp).at_css("[name=csrf-token]")[:content]
-          }
-      ).fetch("photos").values.first
+      JSON.load(NetHTTPUtils.request_data "https://api.500px.com/v1/photos", form: form).fetch("photos").values.first
     end
     w, h = f[{"ids" => id                     }].values_at("width", "height")
     # we need the above request to find the real resolution otherwise the "url" in the next request will be wrong

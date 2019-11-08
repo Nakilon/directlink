@@ -372,7 +372,7 @@ describe DirectLink do
         ["https://www.flickr.com/photos/tommygi/5291099420/in/dateposted-public/", [1600, 1062, "https://live.staticflickr.com/5249/5291099420_29fae96e38_h.jpg"]],              # username in-public
         ["https://www.flickr.com/photos/132249412@N02/18593786659/in/album-72157654521569061/", DirectLink::ErrorNotFound],
         ["https://www.flickr.com/photos/130019700@N03/18848891351/in/dateposted-public/", [4621, 3081, "https://live.staticflickr.com/3796/18848891351_f751b35aeb_o.jpg"]],      # userid   in-public
-        ["https://www.flickr.com/photos/frank3/3778768209/in/photolist-6KVb92-eCDTCr-ur8K-7qbL5z-c71afh-c6YvXW-7mHG2L-c71ak9-c71aTq-c71azf-c71aq5-ur8Q-6F6YkR-eCDZsD-eCEakg-eCE6DK-4ymYku-7ubEt-51rUuc-buujQE-ur8x-9fuNu7-6uVeiK-qrmcC6-ur8D-eCEbei-eCDY9P-eCEhCk-eCE5a2-eCH457-eCHrcq-eCEdZ4-eCH6Sd-c71b5o-c71auE-eCHa8m-eCDSbz-eCH1dC-eCEg3v-7JZ4rh-9KwxYL-6KV9yR-9tUSbU-p4UKp7-eCHfwS-6KVbAH-5FrdbP-eeQ39v-eeQ1UR-4jHAGN", [2048, 1361, "https://live.staticflickr.com/2499/3778768209_7e92a433a8_k.jpg"]],
+        ["https://www.flickr.com/photos/frank3/3778768209/in/photolist-6KVb92-eCDTCr-ur8K-7qbL5z-c71afh-c6YvXW-7mHG2L-c71ak9-c71aTq-c71azf-c71aq5-ur8Q-6F6YkR-eCDZsD-eCEakg-eCE6DK-4ymYku-7ubEt-51rUuc-buujQE-ur8x-9fuNu7-6uVeiK-qrmcC6-ur8D-eCEbei-eCDY9P-eCEhCk-eCE5a2-eCH457-eCHrcq-eCEdZ4-eCH6Sd-c71b5o-c71auE-eCHa8m-eCDSbz-eCH1dC-eCEg3v-7JZ4rh-9KwxYL-6KV9yR-9tUSbU-p4UKp7-eCHfwS-6KVbAH-5FrdbP-eeQ39v-eeQ1UR-4jHAGN", [4096, 2723, "https://live.staticflickr.com/2499/3778768209_dfa75a41cc_4k.jpg"]],
         ["https://www.flickr.com/photos/patricksloan/18230541413/sizes/l", [2048, 491, "https://live.staticflickr.com/5572/18230541413_fec4783d79_k.jpg"]],
         ["https://flic.kr/p/vPvCWJ", [2048, 1365, "https://live.staticflickr.com/507/19572004110_d44d1b4ead_k.jpg"]],
       ] ],
@@ -407,6 +407,7 @@ describe DirectLink do
         ["https://vk.com/e_rod?z=photo298742340_457247118%2Fphotos298742340", [1728, 2160, "https://sun9-53.userapi.com/c858320/v858320596/c7714/oImGe4o1ZJI.jpg"]],
       ] ],
     ].each do |method, tests|
+      next if method == :vk && ENV.include?("TRAVIS")
       describe method do
         tests.each_with_index do |(input, expectation), i|
           it "#{method} ##{i + 1}" do
@@ -439,9 +440,9 @@ describe DirectLink do
         ["https://www.imgur.com/3eThW", "https://imgur.com/3eThW"],
         ["https://goo.gl/ySqUb5", "https://i.imgur.com/QpOBvRY.png"],
       ],
-      _500px: %w{
-        https://500px.com/photo/112134597/milky-way-by-tom-hall
-      },
+      _500px: [
+        %w{ https://500px.com/photo/112134597/milky-way-by-tom-hall https://web.500px.com/photo/112134597/milky-way-by-tom-hall? },
+      ],
       flickr: [
         "https://www.flickr.com/photos/59880970@N07/15773941043/in/dateposted-public/",
         ["https://flic.kr/p/vPvCWJ", "https://www.flickr.com/photos/mlopezphotography/19572004110/"],
