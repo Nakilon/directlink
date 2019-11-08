@@ -404,6 +404,7 @@ describe DirectLink do
         ["https://vk.com/id2272074?z=photo2272074_264578776%2Fphotos2272074", [604, 484, "https://sun9-10.userapi.com/c10472/u2272074/-7/x_407b2ba2.jpg"]],
         ["https://vk.com/feed?section=likes&z=photo-117564754_456261460%2Fliked3902406", [1024, 1335, "https://sun9-72.userapi.com/c854028/v854028353/895b6/izQJresLdf0.jpg"]],
         ["https://vk.com/likizimy?z=photo-42543351_456239941%2Fwall-42543351_1908", [1179, 1731, "https://sun9-47.userapi.com/c855036/v855036571/60f7b/ryCPJIMyMkI.jpg"]],
+        ["https://vk.com/e_rod?z=photo298742340_457247118%2Fphotos298742340", [1728, 2160, "https://sun9-53.userapi.com/c858320/v858320596/c7714/oImGe4o1ZJI.jpg"]],
       ] ],
     ].each do |method, tests|
       describe method do

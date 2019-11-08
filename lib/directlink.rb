@@ -244,11 +244,12 @@ module DirectLink
   def self.vk link
     id, mtd, field, f = case link
     when %r{\Ahttps://vk\.com/id(?<user_id>\d+)\?z=photo(?<id>\k<user_id>_\d+)(%2F(album\k<user_id>_0|photos\k<user_id>))\z},
+         %r{\Ahttps://vk\.com/[a-z_]+\?z=photo(?<_>)(?<id>(?<user_id>\d+)_\d+)%2Fphotos\k<user_id>\z},
          %r{\Ahttps://vk\.com/photo(?<_>)(?<id>-?\d+_\d+)(\?all=1)?\z},
          %r{\Ahttps://vk\.com/feed\?section=likes&z=photo(?<_>)(?<id>-(?<user_id>\d+)_\d+)%2F(liked\d+|album\k<user_id>_0)\z},
-         %r{\Ahttps://vk\.com/[a-z]+\?z=photo(?<_>)(?<id>(?<user_id>-\d+)_\d+)%2F(wall\k<user_id>_\d+|album\k<user_id>_0)\z},
-         %r{\Ahttps://vk\.com/wall(?<user_id>-\d+)_\d+\?z=photo(?<id>\k<user_id>_\d+)%2F(wall\k<user_id>_\d+|album\k<user_id>_00%2Frev|917c43448c0780da71)\z}
-      [$2, :photos, :photos, lambda do |t|
+         %r{\Ahttps://vk\.com/[a-z_]+\?z=photo(?<_>)(?<id>(?<user_id>-\d+)_\d+)%2F(wall\k<user_id>_\d+|album\k<user_id>_0)\z},
+         %r{\Ahttps://vk\.com/wall(?<user_id>-\d+)_\d+\?z=photo(?<id>\k<user_id>_\d+)%2F(wall\k<user_id>_\d+|album\k<user_id>_00%2Frev|\d+)\z}
+      [p($2), :photos, :photos, lambda do |t|
         raise ErrorAssert.new "our knowledge about VK API seems to be outdated" unless 1 == t.size
         t.first
       end ]
@@ -264,6 +265,7 @@ module DirectLink
       raise ErrorBadLink.new link
     end
     raise ErrorMissingEnvVar.new "define VK_ACCESS_TOKEN and VK_CLIENT_SECRET env vars" unless ENV["VK_ACCESS_TOKEN"] && ENV["VK_CLIENT_SECRET"]
+    sleep 0.25 # "error_msg"=>"Too many requests per second"
     f.call( JSON.load( NetHTTPUtils.request_data "https://api.vk.com/method/#{mtd}.getById",
       :POST, form: { field => id, :access_token => ENV["VK_ACCESS_TOKEN"], :client_secret => ENV["VK_CLIENT_SECRET"], :v => "5.101" }
     ).fetch("response") ).fetch("sizes").map do |s|
