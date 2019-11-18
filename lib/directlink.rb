@@ -275,7 +275,7 @@ end
 
 require "fastimage"
 
-def DirectLink link, max_redirect_resolving_retry_delay = nil, giveup: false, ignore_meta: false
+def DirectLink link, timeout = nil, giveup: false, ignore_meta: false
   ArgumentError.new("link should be a <String>, not <#{link.class}>") unless link.is_a? String
   begin
     URI link
@@ -313,10 +313,10 @@ def DirectLink link, max_redirect_resolving_retry_delay = nil, giveup: false, ig
       **( %w{ reddit com } == URI(link).host.split(?.).last(2) ||
           %w{   redd it  } == URI(link).host.split(?.) ? {Cookie: "over18=1"} : {} ),
     }
-    head = NetHTTPUtils.request_data link, :head, header: header, **(max_redirect_resolving_retry_delay ? {
-      timeout: max_redirect_resolving_retry_delay,
-      max_start_http_retry_delay: max_redirect_resolving_retry_delay,
-      max_read_retry_delay: max_redirect_resolving_retry_delay
+    head = NetHTTPUtils.request_data link, :head, header: header, **(timeout ? {
+      timeout: timeout,
+      max_start_http_retry_delay: timeout,
+      max_read_retry_delay: timeout
     } : {})
   rescue Net::ReadTimeout
   rescue NetHTTPUtils::Error => e
@@ -370,7 +370,7 @@ def DirectLink link, max_redirect_resolving_retry_delay = nil, giveup: false, ig
       f = ->_{ _.type == :a ? _.attr["href"] : _.children.flat_map(&f) }
       require "kramdown"
       return f[Kramdown::Document.new(u).root].map do |sublink|
-        DirectLink URI.join(link, sublink).to_s, max_redirect_resolving_retry_delay, giveup: giveup
+        DirectLink URI.join(link, sublink).to_s, timeout, giveup: giveup
       end
     end
     return struct.new *u.values_at(*%w{ fallback_url width height }), "video" if u.is_a? Hash
@@ -391,7 +391,10 @@ def DirectLink link, max_redirect_resolving_retry_delay = nil, giveup: false, ig
   rescue FastImage::UnknownImageType
     raise if giveup
     require "nokogiri"
-    head = NetHTTPUtils.request_data link, :head, header: {"User-Agent" => "Mozilla"}
+    head = NetHTTPUtils.request_data link, :head, header: {"User-Agent" => "Mozilla"},
+      max_start_http_retry_delay: timeout,
+      timeout: timeout,                 # NetHTTPUtild passes this as read_timeout to Net::HTTP.start
+      max_read_retry_delay: timeout     # and then compares accumulated delay to this
     # if we use :get here we will download megabytes of files just to giveup on content_type we can't process
     case head.instance_variable_get(:@last_response).content_type
     when "text/html" ; nil
