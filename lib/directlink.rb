@@ -402,7 +402,10 @@ def DirectLink link, timeout = nil, giveup: false, ignore_meta: false
     end
     html = Nokogiri::HTML NetHTTPUtils.request_data link, header: {"User-Agent" => "Mozilla"}
     if t = html.at_css("meta[@property='og:image']")
-      return DirectLink URI.join(link, t[:content]), nil, giveup: true
+      begin
+        return DirectLink URI.join(link, t[:content]), nil, giveup: true
+      rescue URI::InvalidURIError
+      end
     end unless ignore_meta
     h = {}  # TODO: maybe move it outside because of possible img[:src] recursion?...
     l = lambda do |node, s = []|
