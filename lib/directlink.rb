@@ -369,7 +369,7 @@ def DirectLink link, timeout = nil, giveup: false, ignore_meta: false
       raise DirectLink::ErrorBadLink.new link if giveup   # TODO: print original url in such cases if there was a recursion
       f = ->_{ _.type == :a ? _.attr["href"] : _.children.flat_map(&f) }
       require "kramdown"
-      return f[Kramdown::Document.new(u).root].map do |sublink|
+      return f[Kramdown::Document.new(u).root].flat_map do |sublink|
         DirectLink URI.join(link, sublink).to_s, timeout, giveup: giveup
       end
     end

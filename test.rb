@@ -681,10 +681,12 @@ describe DirectLink do
         ["https://www.deviantart.com/nadyasonika/art/Asuka-Langley-Beach-Time-590134861", FastImage::UnknownImageType, true],
         ["https://www.deviantart.com/nadyasonika/art/Asuka-Langley-Beach-Time-590134861", "https://images-wixmp-ed30a86b8c4ca887773594c2.wixmp.com/f/943f66cb-78ad-40f2-a086-44420b98b431/d9rcmz1-5cbc5670-0193-485b-ac14-755ddb9562f4.jpg/v1/fill/w_1024,h_732,q_75,strp/asuka_langley_beach_time_by_nadyasonika_d9rcmz1-fullview.jpg?token=eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJ1cm46YXBwOjdlMGQxODg5ODIyNjQzNzNhNWYwZDQxNWVhMGQyNmUwIiwiaXNzIjoidXJuOmFwcDo3ZTBkMTg4OTgyMjY0MzczYTVmMGQ0MTVlYTBkMjZlMCIsIm9iaiI6W1t7ImhlaWdodCI6Ijw9NzMyIiwicGF0aCI6IlwvZlwvOTQzZjY2Y2ItNzhhZC00MGYyLWEwODYtNDQ0MjBiOThiNDMxXC9kOXJjbXoxLTVjYmM1NjcwLTAxOTMtNDg1Yi1hYzE0LTc1NWRkYjk1NjJmNC5qcGciLCJ3aWR0aCI6Ijw9MTAyNCJ9XV0sImF1ZCI6WyJ1cm46c2VydmljZTppbWFnZS5vcGVyYXRpb25zIl19.M-a_heYtVPwnR4eC9KIPk2mIYeNzEaTg4b4jqr_GwyI"],
         ["https://calgary.skyrisecities.com/news/2019/11/blue-morning-light", "https://cdn.skyrisecities.com/sites/default/files/images/articles/2019/11/39834/39834-132071.jpg"], # og:image without scheme
+        ["https://www.reddit.com/r/darksouls3/comments/e59djh/hand_it_over_that_thing_your_wallpaper/", DirectLink::ErrorBadLink, true],
+        ["https://www.reddit.com/r/darksouls3/comments/e59djh/hand_it_over_that_thing_your_wallpaper/", 6],
       ].each_with_index do |(input, expectation, giveup), i|
         it "##{i + 1} (#{URI(input).host}) (giveup=#{!!giveup})" do  # to match with minitest `-n` run flag
-          ti = ENV.delete "IMGUR_CLIENT_ID"
-          tr = ENV.delete "REDDIT_SECRETS"
+          ti = ENV.delete "IMGUR_CLIENT_ID" if %w{ imgur com } == URI(input).host.split(?.).last(2)
+          tr = ENV.delete "REDDIT_SECRETS" if %w{ reddit com } == URI(input).host.split(?.).last(2)
           begin
             case expectation
             when Class
@@ -703,8 +705,8 @@ describe DirectLink do
               }
             end
           ensure
-            ENV["IMGUR_CLIENT_ID"] = ti
-            ENV["REDDIT_SECRETS"] = tr
+            ENV["IMGUR_CLIENT_ID"] = ti if ti
+            ENV["REDDIT_SECRETS"] = tr if tr
           end
         end
       end
@@ -817,7 +819,7 @@ describe DirectLink do
     end
     it "ignores <meta> tag" do
       string, status = Open3.capture2e "RUBYOPT='-rbundler/setup' ./bin/directlink --json --ignore-meta https://www.kp.ru/daily/26342.7/3222103/"
-      assert_equal [0, 21, "https://s11.stc.all.kpcdn.net/share/i/12/8024261/wx1080.jpg"], [status.exitstatus, JSON.load(string).size, JSON.load(string).first.fetch("url")]
+      assert_equal [0, 21, "https://s11.stc.all.kpcdn.net/share/i/12/8024261/inx960x640.jpg"], [status.exitstatus, JSON.load(string).size, JSON.load(string).first.fetch("url")]
     end
 
   end

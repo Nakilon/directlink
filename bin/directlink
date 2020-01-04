@@ -53,6 +53,7 @@ abort "usage: directlink [--debug] [--json] [--github] [--ignore-meta] <link1> <
       }" if [nil, "-h", "--help", "-v", "--version"].include? ARGV.first
 
 begin
+  # Struct instances have #each and Array() ruins them so we use .is_a?(Array)
   if json
     require "json"
     t = ARGV.map do |link|
