@@ -396,7 +396,9 @@ describe DirectLink do
       ] ],
       [ :vk, [
         ["https://vk.com/wall-105984091_7806", [960, 1280, "https://sun9-41.userapi.com/c855224/v855224900/a72f1/7OZ8ux9Wcwo.jpg"]],
+        ["https://vk.com/wall298742340_4715", [1080, 1080, "https://sun9-24.userapi.com/c857136/v857136625/15e38b/CsCqsJD174A.jpg"]],
         ["https://vk.com/id57030827?z=photo57030827_456241143%2Falbum57030827_0", [1920, 1440, "https://sun9-66.userapi.com/c845322/v845322944/167836/bP9z41BybhI.jpg"]],
+        ["https://vk.com/id57030827?z=photo57030827_456241143", [1920, 1440, "https://sun9-66.userapi.com/c845322/v845322944/167836/bP9z41BybhI.jpg"]],
         ["https://vk.com/wall-185182611_454?z=photo-185182611_457239340%2Fwall-185182611_454", [1280, 960, "https://sun9-46.userapi.com/c851028/v851028578/1a62f6/VB4SdR1O6Tg.jpg"]],
         ["https://vk.com/wall-105984091_7946?z=photo-105984091_457243312%2Falbum-105984091_00%2Frev", [1280, 875, "https://sun9-37.userapi.com/c852020/v852020134/1b6b36/0IsDFb-Hda4.jpg"]],
         ["https://vk.com/photo533531776_456239427?all=1", [750, 938, "https://sun9-25.userapi.com/c849416/v849416600/14b949/V01Ch1gYjhc.jpg"]],
@@ -648,7 +650,7 @@ describe DirectLink do
 
     describe "other domains tests" do
       [
-        ["http://www.aeronautica.difesa.it/organizzazione/REPARTI/divolo/PublishingImages/6%C2%B0%20Stormo/2013-decollo%20al%20tramonto%20REX%201280.jpg", ["http://www.aeronautica.difesa.it/organizzazione/REPARTI/divolo/PublishingImages/6%C2%B0%20Stormo/2013-decollo%20al%20tramonto%20REX%201280.jpg", 1280, 853, :jpeg], nil, 1],
+        # ["http://www.aeronautica.difesa.it/organizzazione/REPARTI/divolo/PublishingImages/6%C2%B0%20Stormo/2013-decollo%20al%20tramonto%20REX%201280.jpg", ["http://www.aeronautica.difesa.it/organizzazione/REPARTI/divolo/PublishingImages/6%C2%B0%20Stormo/2013-decollo%20al%20tramonto%20REX%201280.jpg", 1280, 853, :jpeg], nil, 1],   # website is dead?
         # ["http://minus.com/lkP3hgRJd9npi", SocketError, /nodename nor servname provided, or not known|No address associated with hostname/, 0],
         ["http://www.cutehalloweencostumeideas.org/wp-content/uploads/2017/10/Niagara-Falls_04.jpg", SocketError, /nodename nor servname provided, or not known|Name or service not known/, 0],
       ].each_with_index do |(input, expectation, message_string_or_regex, max_redirect_resolving_retry_delay), i|
@@ -679,7 +681,7 @@ describe DirectLink do
         ["http://imgur.com/HQHBBBD",              FastImage::UnknownImageType, true],
         ["http://imgur.com/HQHBBBD",              "https://i.imgur.com/HQHBBBD.jpg?fb"],  # .at_css("meta[@property='og:image']")
         ["https://www.deviantart.com/nadyasonika/art/Asuka-Langley-Beach-Time-590134861", FastImage::UnknownImageType, true],
-        ["https://www.deviantart.com/nadyasonika/art/Asuka-Langley-Beach-Time-590134861", "https://images-wixmp-ed30a86b8c4ca887773594c2.wixmp.com/f/943f66cb-78ad-40f2-a086-44420b98b431/d9rcmz1-5cbc5670-0193-485b-ac14-755ddb9562f4.jpg/v1/fill/w_1024,h_732,q_75,strp/asuka_langley_beach_time_by_nadyasonika_d9rcmz1-fullview.jpg?token=eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJ1cm46YXBwOjdlMGQxODg5ODIyNjQzNzNhNWYwZDQxNWVhMGQyNmUwIiwiaXNzIjoidXJuOmFwcDo3ZTBkMTg4OTgyMjY0MzczYTVmMGQ0MTVlYTBkMjZlMCIsIm9iaiI6W1t7ImhlaWdodCI6Ijw9NzMyIiwicGF0aCI6IlwvZlwvOTQzZjY2Y2ItNzhhZC00MGYyLWEwODYtNDQ0MjBiOThiNDMxXC9kOXJjbXoxLTVjYmM1NjcwLTAxOTMtNDg1Yi1hYzE0LTc1NWRkYjk1NjJmNC5qcGciLCJ3aWR0aCI6Ijw9MTAyNCJ9XV0sImF1ZCI6WyJ1cm46c2VydmljZTppbWFnZS5vcGVyYXRpb25zIl19.M-a_heYtVPwnR4eC9KIPk2mIYeNzEaTg4b4jqr_GwyI"],
+        ["https://www.deviantart.com/nadyasonika/art/Asuka-Langley-Beach-Time-590134861", "https://images-wixmp-ed30a86b8c4ca887773594c2.wixmp.com/f/943f66cb-78ad-40f2-a086-44420b98b431/d9rcmz1-5cbc5670-0193-485b-ac14-755ddb9562f4.jpg/v1/fill/w_1024,h_732,q_75,strp/asuka_langley_beach_time_by_nadyasonika_d9rcmz1-fullview.jpg?token=eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJ1cm46YXBwOiIsImlzcyI6InVybjphcHA6Iiwib2JqIjpbW3siaGVpZ2h0IjoiPD03MzIiLCJwYXRoIjoiXC9mXC85NDNmNjZjYi03OGFkLTQwZjItYTA4Ni00NDQyMGI5OGI0MzFcL2Q5cmNtejEtNWNiYzU2NzAtMDE5My00ODViLWFjMTQtNzU1ZGRiOTU2MmY0LmpwZyIsIndpZHRoIjoiPD0xMDI0In1dXSwiYXVkIjpbInVybjpzZXJ2aWNlOmltYWdlLm9wZXJhdGlvbnMiXX0.L6OhXuQZ_9ovKOdjjuQbvxpD0mG8M_KiqV4ljEDfW3Q"],
         ["https://calgary.skyrisecities.com/news/2019/11/blue-morning-light", "https://cdn.skyrisecities.com/sites/default/files/images/articles/2019/11/39834/39834-132071.jpg"], # og:image without scheme
         ["https://www.reddit.com/r/darksouls3/comments/e59djh/hand_it_over_that_thing_your_wallpaper/", DirectLink::ErrorBadLink, true],
         ["https://www.reddit.com/r/darksouls3/comments/e59djh/hand_it_over_that_thing_your_wallpaper/", 6],
