@@ -244,15 +244,22 @@ module DirectLink
          %r{\Ahttps://vk\.com/wall(?<user_id>-\d+)_\d+\?z=photo(?<id>\k<user_id>_\d+)%2F(wall\k<user_id>_\d+|album\k<user_id>_00%2Frev|\d+)\z}
       [$2, :photos, :photos, lambda do |t|
         raise ErrorAssert.new "our knowledge about VK API seems to be outdated" unless 1 == t.size
-        t.first
+        t
       end ]
-    when %r{\Ahttps://vk\.com/wall(?<id>-?\d+_\d+)\z}
+    when %r{\Ahttps://vk\.com/wall(?<id>-?\d+_\d+)\z},
+         %r{\Ahttps://vk\.com/[a-z\.]+\?w=wall(?<id>\d+_\d+)\z}
       [$1, :wall, :posts, lambda do |t|
-        t.first.fetch("attachments").tap do |t|
-          raise ErrorAssert.new "our knowledge about VK API seems to be outdated" unless 1 == t.size
-        end.first.tap do |t|
-          raise ErrorAssert.new "our knowledge about VK API seems to be outdated" unless %w{ type photo } == t.keys
-        end.fetch("photo")
+        t.first.fetch("attachments").select do |item|
+          case item.keys
+          when %w{ type photo }
+            raise ErrorAssert.new "our knowledge about VK API seems to be outdated" unless item["type"] == "photo"
+            next true
+          when %w{ type audio }
+            raise ErrorAssert.new "our knowledge about VK API seems to be outdated" unless item["type"] == "audio"
+          else
+            raise ErrorAssert.new "our knowledge about VK API seems to be outdated"
+          end
+        end.map{ |i| i.fetch "photo" }
       end ]
     else
       raise ErrorBadLink.new link
@@ -261,12 +268,14 @@ module DirectLink
     sleep 0.25 # "error_msg"=>"Too many requests per second"
     f.call( JSON.load( NetHTTPUtils.request_data "https://api.vk.com/method/#{mtd}.getById",
       :POST, form: { field => id, :access_token => ENV["VK_ACCESS_TOKEN"], :client_secret => ENV["VK_CLIENT_SECRET"], :v => "5.101" }
-    ).fetch("response") ).fetch("sizes").map do |s|
-      s.values_at("width", "height", "url").tap do |whu|
-        w, h, u = whu
-        whu[0, 2] = FastImage.new(u, raise_on_failure: true).size if [w, h].include? 0
-      end
-    end.max_by{ |w, h, u| w * h }
+    ).fetch("response") ).map do |photos|
+      photos.fetch("sizes").map do |size|
+        size.values_at("width", "height", "url").tap do |whu|
+          w, h, u = whu
+          whu[0, 2] = FastImage.new(u, raise_on_failure: true).size if [w, h].include? 0
+        end
+      end.max_by{ |w, h, u| w * h }
+    end
   end
 
   class_variable_set :@@directlink, Struct.new(:url, :width, :height, :type)
@@ -381,8 +390,9 @@ def DirectLink link, timeout = nil, giveup: false, ignore_meta: false
          %w{   redd it  } == URI(link).host.split(?.)
 
   begin
-    w, h, u = DirectLink.vk(link)
-    return struct.new u, w, h
+    return DirectLink.vk(link).map do |w, h, u|
+      struct.new u, w, h
+    end
   rescue DirectLink::ErrorMissingEnvVar
   end if %w{ vk com } == URI(link).host.split(?.)
 
