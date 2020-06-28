@@ -137,7 +137,7 @@ module DirectLink
   end
 
   def self._500px link
-    raise ErrorBadLink.new link unless %r{\Ahttps://500px\.com/photo/(?<id>[^/]+)/[^/]+\z} =~ link
+    raise ErrorBadLink.new link unless %r{\Ahttps://500px\.com/photo/(?<id>[^/]+)/[-[a-zA-Z]]+\/?\z} =~ link
     require "nokogiri"
     resp = NetHTTPUtils.request_data link
     f = lambda do |form|
