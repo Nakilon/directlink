@@ -429,9 +429,10 @@ def DirectLink link, timeout = nil, giveup: false, ignore_meta: false
         end
       end
     end
-    l[html].group_by(&:first).map{ |k, v| [k.join(?>), v.map(&:last)] }.tap do |results|
-      raise if results.empty?
-    end.max_by{ |_, v| v.map{ |i| i.width * i.height }.inject(:+) / v.size }.last
+    l[html].
+      tap{ |results| raise if results.empty? }.
+      group_by(&:first).map{ |k, v| [k.join(?>), v.map(&:last)] }.
+      max_by{ |_, v| v.map{ |i| i.width * i.height }.inject(:+) }.last
   else
     # TODO: maybe move this to right before `rescue` line
     w, h = f.size

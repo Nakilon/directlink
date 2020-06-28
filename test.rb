@@ -677,8 +677,8 @@ describe DirectLink do
     describe "giving up" do
       [
         ["http://example.com",                    FastImage::UnknownImageType],
-        ["https://www.tic.com/index.html",        FastImage::UnknownImageType, true],
-        ["https://www.tic.com/index.html",        2],
+        # ["https://www.tic.com/index.html",        FastImage::UnknownImageType, true],   # needs new test or stub
+        # ["https://www.tic.com/index.html",        2],                                   # needs new test or stub
         ["http://imgur.com/HQHBBBD",              FastImage::UnknownImageType, true],
         ["http://imgur.com/HQHBBBD",              "https://i.imgur.com/HQHBBBD.jpg?fb"],  # .at_css("meta[@property='og:image']")
         ["https://www.deviantart.com/nadyasonika/art/Asuka-Langley-Beach-Time-590134861", FastImage::UnknownImageType, true],
@@ -694,14 +694,14 @@ describe DirectLink do
             case expectation
             when Class
               e = assert_raises expectation, "for #{input} (giveup = #{giveup})" do
-                DirectLink input, nil, giveup: giveup
+                DirectLink input, 10, giveup: giveup
               end
               assert_equal expectation.to_s, e.class.to_s, "for #{input} (giveup = #{giveup})"
             when String
-              result = DirectLink input, nil, giveup: giveup
+              result = DirectLink input, 10, giveup: giveup
               assert_equal expectation, result.url, "for #{input} (giveup = #{giveup})"
             else
-              result = DirectLink input, nil, giveup: giveup
+              result = DirectLink input, 10, giveup: giveup
               result = [result] unless result.is_a? Array   # we can't do `Array(<Struct>)` because it splats by elements
               assert_equal expectation, result.size, ->{
                 "for #{input} (giveup = #{giveup}): #{result.map &:url}"
