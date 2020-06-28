@@ -364,6 +364,7 @@ describe DirectLink do
       [ :_500px, [
         ["https://500px.com/photo/264092015/morning-rider-by-tiger-seo", [1200, 800, "https://drscdn.500px.org/photo/264092015/m%3D900/v2?sig=68a9206477f573d8e2838faa6a929e7267f22dc5f9e98f1771f7a8a63efa2ed7", "jpeg"]],
         ["https://500px.com/photo/1017579834/-poppies-flowers-by-David-Dubnitskiy/", [1819, 2500, "https://drscdn.500px.org/photo/1017579834/m%3D900/v2?sig=022e3e9dd836ffd8c1d31ae26c83735e4e42b4c8733d0c4380d8270aebbca44e", "jpeg"]],
+        ["https://500px.com/photo/1017557263/iss%E5%87%8C%E6%97%A5%E5%81%8F%E9%A3%9F-by-%E7%A7%8B%E8%A3%A4Choku-/", [2048, 2048, "https://drscdn.500px.org/photo/1017557263/m%3D2048/v2?sig=1994a09e33794117082e91fa58c40614a2bfd19d3e0dd78e067968d38aca92be", "jpeg"]]
       ] ],
       [ :flickr, [
         ["https://www.flickr.com/photos/tomas-/17220613278/", DirectLink::ErrorNotFound],
