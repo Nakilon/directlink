@@ -461,13 +461,13 @@ describe DirectLink do
         ["http://redd.it/32tq0i", "https://www.reddit.com/comments/32tq0i"],
         ["https://reddit.com/123456", "https://www.reddit.com/r/funny/comments/123456/im_thinking_about_getting_a_dog_and_youtubed_ways/"],
         # ["https://www.reddit.com/r/travel/988889", "https://www.reddit.com/r/travel/comments/988889/playa_miramar_in_guaymas_sonora/"],
-        "https://www.reddit.com/r/KsyushaEgorova/comments/beuqs2/a_little_shy/", # NSFW causes redirect to /over_18? if the special cookie not provided
+        "https://www.reddit.com/r/PareidoliaGoneWild/comments/hzrlq6/beard_trimmer_on_display_at_best_buy_they_knew/", # NSFW causes redirect to /over_18? if the special cookie not provided
       ],
       vk: [
         "https://vk.com/id57030827?z=photo57030827_456241143",
       ],
     }.each do |method, tests|
-      describe "DirectLink() calls #{method}" do
+      describe "DirectLink() sees domain name and calls #{method}" do
         tests.each_with_index do |(input, expected), i|
           it "##{i + 1}" do
             DirectLink.stub method, ->link{

@@ -191,11 +191,11 @@ module DirectLink
     attr_accessor :reddit_bot
   end
   def self.reddit link, timeout = 1000
-    unless id = URI(link).path[/\A(?:\/r\/[0-9a-zA-Z_]+)?(?:\/comments|\/duplicates)?\/([0-9a-z]{5,6})(?:\/|\z)/, 1]
-      raise DirectLink::ErrorBadLink.new link unless URI(link).host &&
-                                                     URI(link).host.split(?.) == %w{ i redd it } &&
-                                                     URI(link).path[/\A\/[a-z0-9]{12,13}\.(gif|jpg)\z/]
-      return [true, link]
+    return [true, link] if URI(link).host &&
+                           URI(link).host.split(?.) == %w{ i redd it } &&
+                           URI(link).path[/\A\/[a-z0-9]{12,13}\.(gif|jpg)\z/]
+    unless id = link[/\Ahttps:\/\/www\.reddit\.com\/gallery\/([0-9a-z]{5,6})\z/, 1]
+      raise DirectLink::ErrorBadLink.new link unless id = URI(link).path[/\A(?:\/r\/[0-9a-zA-Z_]+)?(?:\/comments|\/duplicates)?\/([0-9a-z]{5,6})(?:\/|\z)/, 1]
     end
     retry_on_json_parseerror = lambda do |&b|
       t = 1
