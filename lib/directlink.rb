@@ -47,7 +47,7 @@ module DirectLink
     when /\A(\/\/lh3\.googleusercontent\.com\/cOh2Nsv7EGo0QbuoKxoKZVZO_NcBzufuvPtzirMJfPmAzCzMtnEncfA7zGIDTJfkc1YZFX2MhgKnjA=)w530-h398-p\z/
       "https:#{$1}s#{width}/"
     when /\A(\/\/lh3\.googleusercontent\.com\/-[a-zA-Z0-9-]{11}\/[VW][a-zA-Z0-9_-]{9}I\/AAAAAAA[AC][a-zA-Z0-9]{3}\/[a-zA-Z0-9_-]{32}[gwAQ]CJoC\/)w530-h[23]\d\d-p\/[^\/]+\z/,
-         /\A(?:https?:)?(\/\/[1-4]\.bp\.blogspot\.com\/-[a-zA-Z0-9_-]{11}\/[UVWX][a-zA-Z0-9_-]{9}I\/AAAAAAAA[A-Z][a-zA-Z0-9_-]{2}\/[a-zA-Z0-9_-]{33}C(?:EwYBhgL|(?:Lc|Kg)BGAs)\/)(?:s640|w\d\d\d?-h\d\d\d?-p(?:-k-no-nu)?)\/[^\/]+\z/,
+         /\A(?:https?:)?(\/\/[1-4]\.bp\.blogspot\.com\/-[a-zA-Z0-9_-]{11}\/[UVWX][a-zA-Z0-9_-]{9}I\/AAAAAAAA[A-Z][a-zA-Z0-9_-]{2}\/[a-zA-Z0-9_-]{33}C(?:EwYBhgL|(?:Lc|Kg)BGAs(?:YHQ)?)\/)(?:s640|w\d{2,4}-h\d\d\d?-p(?:-k-no-nu)?)\/[^\/]+\z/,
          /\A(?:https?:)?(\/\/[1-4]\.bp\.blogspot\.com\/-[a-zA-Z0-9-]{11}\/[UV][a-zA-Z0-9_-]{9}I\/AAAAAAAA[A-Z][a-zA-Z0-9]{2}\/[a-zA-Z0-9-]{11}\/)w72-h72-p-k-no-nu\/[^\/]+\z/
       "https:#{$1}s#{width}/"
     when /\A(https:\/\/lh3\.googleusercontent\.com\/-[a-zA-Z0-9_]{11}\/AAAAAAAAAAI\/AAAAAAAAAAQ\/[a-zA-Z0-9_]{11}\/)w530-h[13]\d\d-n\/[^\/]+\z/,
@@ -221,6 +221,7 @@ module DirectLink
       raise ErrorAssert.new "our knowledge about Reddit API seems to be outdated" unless json.size == 2
       json.find{ |_| _["data"]["children"].first["kind"] == "t3" }
     end
+    # TODO: do we handle linking Imgur albums?
     data = json["data"]["children"].first["data"]
     if data["media"]["reddit_video"]
       return [true, data["media"]["reddit_video"]["fallback_url"]]
@@ -228,6 +229,9 @@ module DirectLink
       raise ErrorAssert.new "our knowledge about Reddit API seems to be outdated" unless data["media"].keys.sort == %w{ oembed type } && %w{ youtube.com gfycat.com imgur.com }.include?(data["media"]["type"])
       return [true, data["media"]["oembed"]["thumbnail_url"]]
     end if data["media"]
+    return [true, data["media_metadata"].values.map do |media|
+      [media["m"], *media["p"].max_by{ |_| _["x"] * _["y"] }.values_at("x", "y", "u")]
+    end] if data["media_metadata"]
     return [true, data["url"]] if data["crosspost_parent"]
     return [true, data["url"]] unless data["is_self"]
     raise ErrorAssert.new "our knowledge about Reddit API seems to be outdated" if data["url"] != "https://www.reddit.com" + data["permalink"]
@@ -382,7 +386,13 @@ def DirectLink link, timeout = nil, giveup: false, ignore_meta: false
         DirectLink URI.join(link, sublink).to_s, timeout, giveup: giveup
       end
     end
-    return struct.new *u.values_at(*%w{ fallback_url width height }), "video" if u.is_a? Hash
+    if u.is_a? Hash
+      return struct.new *u.values_at(*%w{ fallback_url width height }), "video"
+    elsif u.is_a? Array
+      return u.map do |t, x, y, u|
+        struct.new u, x, y, t
+      end
+    end
     return DirectLink u
     fail if link == u
   rescue DirectLink::ErrorMissingEnvVar
@@ -413,7 +423,7 @@ def DirectLink link, timeout = nil, giveup: false, ignore_meta: false
     html = Nokogiri::HTML NetHTTPUtils.request_data link, header: {"User-Agent" => "Mozilla"}
     if t = html.at_css("meta[@property='og:image']")
       begin
-        return DirectLink URI.join(link, t[:content]), nil, giveup: true
+        return DirectLink URI.join(link, t[:content]).to_s, nil, giveup: true
       rescue URI::InvalidURIError
       end
     end unless ignore_meta

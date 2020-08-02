@@ -171,6 +171,7 @@ describe DirectLink do
         http://1.bp.blogspot.com/-iSU4orVuR9Y/VFYrwQZ5qYI/AAAAAAAAMnc/WY4VfCaeplw/w72-h72-p-k-no-nu/Wolf%2Bphotography2.jpg
         http://1.bp.blogspot.com/-vPQSh6RKijU/VEi7r3D-jJI/AAAAAAAAL2Q/bGHmyuoDp5M/w72-h72-p-k-no-nu/Building%2BIn%2BLondon1-4__880.jpeg
         http://1.bp.blogspot.com/-W4xKJSsVf3M/Uz73jPlctbI/AAAAAAAAGz4/K8Tw6PILMeY/w72-h72-p-k-no-nu/Beautiful+Japanese+places4.jpg
+        https://1.bp.blogspot.com/-__qsdLxNtcQ/XhaOQle-ECI/AAAAAAAABQ4/S_7SGG_K8eQ7VXIU2wyPvTj9OyBfr_1sQCLcBGAsYHQ/w1200-h630-p-k-no-nu/iceland_poppies_orange_flowers_field-wallpaper-3840x2160.jpg
         https://lh3.googleusercontent.com/-tV86KJvppss/XE2Nb2Z2aAI/AAAAAAAAGu4/94E_AuB4YWAaJ59n43wmmd9rFa--OUuSQCJoC/w530-h338-n/IMG_6845%252C.png
         https://lh3.googleusercontent.com/-cr-2ZSQGMPg/XFWLfetwr7I/AAAAAAAAQQQ/TbwDk56BBIwb4IDDO0SwfArFSZyDG0i0wCJoC/w530-h360-n/DSC07294.JPG
       }.each_with_index do |link, i|
@@ -222,7 +223,7 @@ describe DirectLink do
 
       # TODO: expand this for every branch in lib
       %w{
-        https_long_blogspot https://2.bp.blogspot.com/-rb2PXLGZy0s/W2nQe3mXOSI/AAAAAAAARhQ/P8gV-bMtYbY2xxpTJNcYVxu3XDTUaugxQCLcBGAs/s640/beach-bora-bora-clouds-753626.jpg https://2.bp.blogspot.com/-rb2PXLGZy0s/W2nQe3mXOSI/AAAAAAAARhQ/P8gV-bMtYbY2xxpTJNcYVxu3XDTUaugxQCLcBGAs/s0/
+        https_long_blogspot https://1.bp.blogspot.com/-__qsdLxNtcQ/XhaOQle-ECI/AAAAAAAABQ4/S_7SGG_K8eQ7VXIU2wyPvTj9OyBfr_1sQCLcBGAsYHQ/w1200-h630-p-k-no-nu/iceland_poppies_orange_flowers_field-wallpaper-3840x2160.jpg https://1.bp.blogspot.com/-__qsdLxNtcQ/XhaOQle-ECI/AAAAAAAABQ4/S_7SGG_K8eQ7VXIU2wyPvTj9OyBfr_1sQCLcBGAsYHQ/s0/
         http_short_blogspot http://4.bp.blogspot.com/-poH-QXn7YGg/U-3ZTDkeF_I/AAAAAAAAISE/ms2gNIb-v-g/w72-h72-p-k-no-nu/Top-24-Inspired-181.jpg https://4.bp.blogspot.com/-poH-QXn7YGg/U-3ZTDkeF_I/AAAAAAAAISE/ms2gNIb-v-g/s0/
         just_gplus https://lh3.googleusercontent.com/-NiGph3ObOPg/XE3DgnavXlI/AAAAAAABvgE/pcPPCe88rsU1r941wwP76TVf_o89i74kwCJoC/w530-h353-n/DSCF0753.JPG https://lh3.googleusercontent.com/-NiGph3ObOPg/XE3DgnavXlI/AAAAAAABvgE/pcPPCe88rsU1r941wwP76TVf_o89i74kwCJoC/s0/
         google_keep https://lh5.googleusercontent.com/fRmAL_04p7oomNHCiV4tH4-agHSDBtLaWi_Tb6bgE5ZSHVu5OjQF3iRn06nNwP3ywZwdFP92zWM-o8yw0cn6m0tDTBARuO6F9e0wYu_1=s685 https://lh5.googleusercontent.com/fRmAL_04p7oomNHCiV4tH4-agHSDBtLaWi_Tb6bgE5ZSHVu5OjQF3iRn06nNwP3ywZwdFP92zWM-o8yw0cn6m0tDTBARuO6F9e0wYu_1=s0
