@@ -329,6 +329,7 @@ describe DirectLink do
         ["https://imgur.com/9yaMdJq", "https://i.imgur.com/9yaMdJq.mp4", 720, 404, "video/mp4"],
         ["http://imgur.com/gallery/dCQprEq/new", "https://i.imgur.com/dCQprEq.jpg", 5760, 3840, "image/jpeg"],
         ["https://i.imgur.com/fFUTSJu.jpg?fb", "https://i.imgur.com/fFUTSJu.jpg", 1469, 2200, "image/jpeg"],    # from reddit.com/93mtba
+        ["https://i.imgur.com/IxUrhGX.jpeg", "https://i.imgur.com/IxUrhGX.jpg", 4384, 3012, "image/jpeg"],  # jpEg
       ].each_with_index do |t, i|
         url, n, first, last, type = t
         it "##{i + 1}" do
