@@ -330,6 +330,7 @@ describe DirectLink do
         ["http://imgur.com/gallery/dCQprEq/new", "https://i.imgur.com/dCQprEq.jpg", 5760, 3840, "image/jpeg"],
         ["https://i.imgur.com/fFUTSJu.jpg?fb", "https://i.imgur.com/fFUTSJu.jpg", 1469, 2200, "image/jpeg"],    # from reddit.com/93mtba
         ["https://i.imgur.com/IxUrhGX.jpeg", "https://i.imgur.com/IxUrhGX.jpg", 4384, 3012, "image/jpeg"],  # jpEg
+        ["https://www.reddit.com/gallery/i3y7pc", DirectLink::ErrorBadLink],   # deleted gallery
       ].each_with_index do |t, i|
         url, n, first, last, type = t
         it "##{i + 1}" do
@@ -378,7 +379,7 @@ describe DirectLink do
         ["https://www.flickr.com/photos/130019700@N03/18848891351/in/dateposted-public/", [4621, 3081, "https://live.staticflickr.com/3796/18848891351_f751b35aeb_o.jpg"]],      # userid   in-public
         ["https://www.flickr.com/photos/frank3/3778768209/in/photolist-6KVb92-eCDTCr-ur8K-7qbL5z-c71afh-c6YvXW-7mHG2L-c71ak9-c71aTq-c71azf-c71aq5-ur8Q-6F6YkR-eCDZsD-eCEakg-eCE6DK-4ymYku-7ubEt-51rUuc-buujQE-ur8x-9fuNu7-6uVeiK-qrmcC6-ur8D-eCEbei-eCDY9P-eCEhCk-eCE5a2-eCH457-eCHrcq-eCEdZ4-eCH6Sd-c71b5o-c71auE-eCHa8m-eCDSbz-eCH1dC-eCEg3v-7JZ4rh-9KwxYL-6KV9yR-9tUSbU-p4UKp7-eCHfwS-6KVbAH-5FrdbP-eeQ39v-eeQ1UR-4jHAGN", [4096, 2723, "https://live.staticflickr.com/2499/3778768209_dfa75a41cc_4k.jpg"]],
         ["https://www.flickr.com/photos/patricksloan/18230541413/sizes/l", [2048, 491, "https://live.staticflickr.com/5572/18230541413_fec4783d79_k.jpg"]],
-        ["https://flic.kr/p/vPvCWJ", [2048, 1365, "https://live.staticflickr.com/507/19572004110_d44d1b4ead_k.jpg"]],
+        ["https://flic.kr/p/vPvCWJ", [5120, 3413, "https://live.staticflickr.com/507/19572004110_1bd49c5ebd_5k.jpg"]],
       ] ],
       [ :wiki, [
         ["https://en.wikipedia.org/wiki/Prostitution_by_country#/media/File:Prostitution_laws_of_the_world.PNG", "https://upload.wikimedia.org/wikipedia/commons/e/e8/Prostitution_laws_of_the_world.PNG"],
@@ -397,18 +398,20 @@ describe DirectLink do
         ["http://redd.it/988889", [true, "https://i.redd.it/3h5xls6ehrg11.jpg"]],
         ["https://www.reddit.com/r/CatsStandingUp/duplicates/abn0ua/cat/", [true, "https://v.redd.it/s9b86afb6w721/DASH_2_4_M?source=fallback"]],
         ["https://www.reddit.com/r/hangers/comments/97you5/tara_radovic/", [true, "https://i.imgur.com/rbLqgOu.jpg"]],   # "crossport" from Imgur
+        ["https://www.reddit.com/gallery/i1u6rb", [true, [["image/jpg", 1080, 1080, "https://preview.redd.it/x31msdj6vee51.jpg?width=1080&amp;crop=smart&amp;auto=webp&amp;s=9ac10b55568c4835fafb1472e0cce5db87fd6fcd"], ["image/jpg", 1080, 1080, "https://preview.redd.it/mwkzq6j6vee51.jpg?width=1080&amp;crop=smart&amp;auto=webp&amp;s=a18c37f3fdb0198f28031fb2127e699fd7838c1f"], ["image/jpg", 1080, 1080, "https://preview.redd.it/0ws1j8j6vee51.jpg?width=1080&amp;crop=smart&amp;auto=webp&amp;s=7747080671ce7c7d705736ff01fef4c27dcac46e"], ["image/jpg", 1080, 1080, "https://preview.redd.it/2un68aj6vee51.jpg?width=1080&amp;crop=smart&amp;auto=webp&amp;s=3058372063b8e043395d19521482a314cf675ca4"], ["image/jpg", 1080, 1350, "https://preview.redd.it/5bsfaej6vee51.jpg?width=1080&amp;crop=smart&amp;auto=webp&amp;s=8625a47592a904324eb92cb0cef9052fe96b7f94"], ["image/jpg", 1080, 1080, "https://preview.redd.it/0z010ej6vee51.jpg?width=1080&amp;crop=smart&amp;auto=webp&amp;s=7f29636db1c913da72ee22b95026a8b00596e609"], ["image/jpg", 1080, 1080, "https://preview.redd.it/aylm2ej6vee51.jpg?width=1080&amp;crop=smart&amp;auto=webp&amp;s=f100acd3c6028bee1dd3ed009a4a1386cf178307"]]]],   # TODO: find smaller gallery
+        ["https://www.reddit.com/i1u6rb", [true, [["image/jpg", 1080, 1080, "https://preview.redd.it/x31msdj6vee51.jpg?width=1080&amp;crop=smart&amp;auto=webp&amp;s=9ac10b55568c4835fafb1472e0cce5db87fd6fcd"], ["image/jpg", 1080, 1080, "https://preview.redd.it/mwkzq6j6vee51.jpg?width=1080&amp;crop=smart&amp;auto=webp&amp;s=a18c37f3fdb0198f28031fb2127e699fd7838c1f"], ["image/jpg", 1080, 1080, "https://preview.redd.it/0ws1j8j6vee51.jpg?width=1080&amp;crop=smart&amp;auto=webp&amp;s=7747080671ce7c7d705736ff01fef4c27dcac46e"], ["image/jpg", 1080, 1080, "https://preview.redd.it/2un68aj6vee51.jpg?width=1080&amp;crop=smart&amp;auto=webp&amp;s=3058372063b8e043395d19521482a314cf675ca4"], ["image/jpg", 1080, 1350, "https://preview.redd.it/5bsfaej6vee51.jpg?width=1080&amp;crop=smart&amp;auto=webp&amp;s=8625a47592a904324eb92cb0cef9052fe96b7f94"], ["image/jpg", 1080, 1080, "https://preview.redd.it/0z010ej6vee51.jpg?width=1080&amp;crop=smart&amp;auto=webp&amp;s=7f29636db1c913da72ee22b95026a8b00596e609"], ["image/jpg", 1080, 1080, "https://preview.redd.it/aylm2ej6vee51.jpg?width=1080&amp;crop=smart&amp;auto=webp&amp;s=f100acd3c6028bee1dd3ed009a4a1386cf178307"]]]],           # TODO: find smaller gallery
       ] ],
       [ :vk, [
-        ["https://vk.com/wall-105984091_7806", [[960, 1280, "https://sun9-41.userapi.com/c855224/v855224900/a72f1/7OZ8ux9Wcwo.jpg"]]],
-        ["https://vk.com/wall298742340_4715", [[1080, 1080, "https://sun9-24.userapi.com/c857136/v857136625/15e38b/CsCqsJD174A.jpg"]]],
-        ["https://vk.com/id57030827?z=photo57030827_456241143%2Falbum57030827_0", [[1920, 1440, "https://sun9-66.userapi.com/c845322/v845322944/167836/bP9z41BybhI.jpg"]]],
-        ["https://vk.com/id57030827?z=photo57030827_456241143", [[1920, 1440, "https://sun9-66.userapi.com/c845322/v845322944/167836/bP9z41BybhI.jpg"]]],
+        ["https://vk.com/wall-105984091_7806", [[960, 1280, "https://sun9-21.userapi.com/c855224/v855224900/a72f1/7OZ8ux9Wcwo.jpg"]]],
+        ["https://vk.com/wall298742340_4715", [[1080, 1080, "https://sun9-40.userapi.com/c857136/v857136625/15e38b/CsCqsJD174A.jpg"]]],
+        ["https://vk.com/id57030827?z=photo57030827_456241143%2Falbum57030827_0", [[1920, 1440, "https://sun9-73.userapi.com/c845322/v845322944/167836/bP9z41BybhI.jpg"]]],
+        ["https://vk.com/id57030827?z=photo57030827_456241143", [[1920, 1440, "https://sun9-73.userapi.com/c845322/v845322944/167836/bP9z41BybhI.jpg"]]],
         ["https://vk.com/wall-185182611_454?z=photo-185182611_457239340%2Fwall-185182611_454", [[1280, 960, "https://sun9-46.userapi.com/c851028/v851028578/1a62f6/VB4SdR1O6Tg.jpg"]]],
         ["https://vk.com/wall-105984091_7946?z=photo-105984091_457243312%2Falbum-105984091_00%2Frev", [[1280, 875, "https://sun9-37.userapi.com/c852020/v852020134/1b6b36/0IsDFb-Hda4.jpg"]]],
-        ["https://vk.com/photo533531776_456239427?all=1", [[750, 938, "https://sun9-25.userapi.com/c849416/v849416600/14b949/V01Ch1gYjhc.jpg"]]],
+        ["https://vk.com/photo1_215187843?all=1", [[2560, 1913, "https://sun1-90.userapi.com/c210/v210001/6/53_VwoACy4I.jpg"]]],
         ["https://vk.com/photo-155488973_456242404", [[1486, 1000, "https://sun9-7.userapi.com/c852132/v852132877/8578e/m6AJWiskiKE.jpg"]]],
         ["https://vk.com/id2272074?z=photo2272074_264578776%2Fphotos2272074", [[604, 484, "https://sun9-10.userapi.com/c10472/u2272074/-7/x_407b2ba2.jpg"]]],
-        ["https://vk.com/feed?section=likes&z=photo-117564754_456261460%2Fliked3902406", [[1024, 1335, "https://sun9-72.userapi.com/c854028/v854028353/895b6/izQJresLdf0.jpg"]]],
+        ["https://vk.com/feed?section=likes&z=photo-117564754_456261460%2Fliked3902406", [[1024, 1335, "https://sun9-30.userapi.com/c854028/v854028353/895b6/izQJresLdf0.jpg"]]],
         ["https://vk.com/likizimy?z=photo-42543351_456239941%2Fwall-42543351_1908", [[1179, 1731, "https://sun9-47.userapi.com/c855036/v855036571/60f7b/ryCPJIMyMkI.jpg"]]],
         ["https://vk.com/e_rod?z=photo298742340_457247118%2Fphotos298742340", [[1728, 2160, "https://sun9-53.userapi.com/c858320/v858320596/c7714/oImGe4o1ZJI.jpg"]]],
       ] ],
@@ -821,12 +824,13 @@ describe DirectLink do
     # TODO: test about --json
     it "uses <meta> tag" do
       string, status = Open3.capture2e "RUBYOPT='-rbundler/setup' ./bin/directlink --json https://www.kp.ru/daily/26342.7/3222103/"
-      assert_equal [0, "https://s9.stc.all.kpcdn.net/share/i/12/8054352/cr-1200-630.wm-asnpmfru-100-tr-0-0.t-13-3222103-ttps-47-8-0083CD-1010-l-85-b-41.t-13-3222103-ttps-47-8-FFF-1010-l-85-b-42.t-207-5-asb-37-10-FFF-788-l-370-t-68.m2018-03-14x02-10-20.jpg"], [status.exitstatus, JSON.load(string).fetch("url")]
+      assert_equal [0, "https://s9.stc.all.kpcdn.net/share/i/12/8054352/cr-1200-630.wm-asnpmfru-100-tr-0-0.t-13-3222103-ttps-47-8-0083CD-1010-l-85-b-41.t-13-3222103-ttps-47-8-FFF-1010-l-85-b-42.t-207-5-asb-37-10-FFF-788-l-370-t-68.mx2018-03-14T02-10-20.jpg"], [status.exitstatus, JSON.load(string).fetch("url")]
     end
-    it "ignores <meta> tag" do
-      string, status = Open3.capture2e "RUBYOPT='-rbundler/setup' ./bin/directlink --json --ignore-meta https://www.kp.ru/daily/26342.7/3222103/"
-      assert_equal [0, 21, "https://s11.stc.all.kpcdn.net/share/i/12/8024261/inx960x640.jpg"], [status.exitstatus, JSON.load(string).size, JSON.load(string).first.fetch("url")]
-    end
+    # TODO: kp.ru broke the page -- images are gone
+    # it "ignores <meta> tag" do
+    #   string, status = Open3.capture2e "RUBYOPT='-rbundler/setup' ./bin/directlink --json --ignore-meta https://www.kp.ru/daily/26342.7/3222103/"
+    #   assert_equal [0, 21, "https://s11.stc.all.kpcdn.net/share/i/12/8024261/inx960x640.jpg"], [status.exitstatus, JSON.load(string).size, JSON.load(string).first.fetch("url")]
+    # end
 
   end
 

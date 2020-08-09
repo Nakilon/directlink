@@ -383,7 +383,7 @@ def DirectLink link, timeout = nil, giveup: false, ignore_meta: false
       f = ->_{ _.type == :a ? _.attr["href"] : _.children.flat_map(&f) }
       require "kramdown"
       return f[Kramdown::Document.new(u).root].flat_map do |sublink|
-        DirectLink URI.join(link, sublink).to_s, timeout, giveup: giveup
+        DirectLink URI.join(link, sublink).to_s, timeout, giveup: giveup   # TODO: maybe subtract from timeout the time we've already wasted
       end
     end
     if u.is_a? Hash
@@ -393,8 +393,8 @@ def DirectLink link, timeout = nil, giveup: false, ignore_meta: false
         struct.new u, x, y, t
       end
     end
-    return DirectLink u
-    fail if link == u
+    raise DirectLink::ErrorBadLink.new link if link == u
+    return DirectLink u, timeout, giveup: giveup
   rescue DirectLink::ErrorMissingEnvVar
   end if %w{ reddit com } == URI(link).host.split(?.).last(2) ||
          %w{   redd it  } == URI(link).host.split(?.)
