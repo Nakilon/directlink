@@ -767,6 +767,8 @@ describe DirectLink do
 
         [1, "https://imgur.com/a/badlinkpattern", "NetHTTPUtils::Error: HTTP error #404 "],
         # TODO: a test that it appends the `exception.cause`
+
+        [1, "https://groundingpositivity.com/2020/08/13/new-quantum-app-will-make-you-wonder-do-we-live-in-a-simulation/", "NetHTTPUtils::EOFError_from_rbuf_fill: probably the old Ruby empty backtrace EOFError exception from net/protocol.rb: end of file reached"],  # TODO: add also a test to nethttputils gem
       ].each_with_index do |(expected_exit_code, link, expected_output, unset), i| # TODO: unset is not used anymore or I have to go sleep?
         it "##{i + 1}" do
           string, status = Open3.capture2e "export #{(File.read("api_tokens_for_travis.sh") + File.read("vk.secret")).scan(/(?<=^export )\S+=\S+/).join(" ")}#{unset} && RUBYOPT='-rbundler/setup #{$-I.map{ |i| "-I #{i}" }.join " "}' ./bin/directlink #{link}"

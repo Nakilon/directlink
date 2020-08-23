@@ -68,16 +68,7 @@ begin
       (t.is_a?(Array) ? t : [t]).each{ |s| puts "=> #{s.url}\n   #{s.type} #{s.width}x#{s.height}" }
     end
   end
-rescue SocketError,
-       Net::OpenTimeout,
-       Errno::ECONNRESET,
-       NetHTTPUtils::Error,
-       FastImage::UnknownImageType,
-       FastImage::ImageFetchFailure,
-       # DirectLink::ErrorMissingEnvVar,
-       # DirectLink::ErrorAssert,
-       DirectLink::ErrorNotFound,
-       DirectLink::ErrorBadLink => e
+rescue *DirectLink::NORMAL_EXCEPTIONS => e
   puts e.backtrace if debug
   cause = e.cause if e.cause if e.respond_to? :cause
   c = e.class.to_s

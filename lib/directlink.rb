@@ -35,6 +35,20 @@ module DirectLink
     end
   end
 
+  require "nethttputils"
+  require "fastimage"
+  NORMAL_EXCEPTIONS = [
+    SocketError,
+    Net::OpenTimeout,
+    Errno::ECONNRESET,
+    NetHTTPUtils::Error,
+    NetHTTPUtils::EOFError_from_rbuf_fill,
+    FastImage::UnknownImageType,
+    FastImage::ImageFetchFailure,
+    DirectLink::ErrorNotFound,
+    DirectLink::ErrorBadLink,
+  ]  # the only exceptions gem user should expect and handle
+
 
   def self.google src, width = 0
     # this can handle links without schema because it's used for parsing community HTML pages
@@ -76,7 +90,6 @@ module DirectLink
   end
 
   require "json"
-  require "nethttputils"
 
   # TODO make the timeout handling respect the way the Directlink method works with timeouts
   def self.imgur link, timeout = 1000
@@ -285,8 +298,6 @@ module DirectLink
   class_variable_set :@@directlink, Struct.new(:url, :width, :height, :type)
 end
 
-
-require "fastimage"
 
 def DirectLink link, timeout = nil, giveup: false, ignore_meta: false
   ArgumentError.new("link should be a <String>, not <#{link.class}>") unless link.is_a? String

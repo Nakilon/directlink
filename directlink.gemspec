@@ -11,7 +11,7 @@ Gem::Specification.new do |spec|
 
   spec.add_dependency "fastimage", "~>2.1.3"
   spec.add_dependency "nokogiri"
-  spec.add_dependency "nethttputils", "~>0.4.0.0"
+  spec.add_dependency "nethttputils", "~>0.4.1.0"
   spec.add_dependency "reddit_bot", "~>1.7.0"
   spec.add_dependency "kramdown"
   spec.add_dependency "addressable"
