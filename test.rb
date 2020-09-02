@@ -330,7 +330,6 @@ describe DirectLink do
         ["http://imgur.com/gallery/dCQprEq/new", "https://i.imgur.com/dCQprEq.jpg", 5760, 3840, "image/jpeg"],
         ["https://i.imgur.com/fFUTSJu.jpg?fb", "https://i.imgur.com/fFUTSJu.jpg", 1469, 2200, "image/jpeg"],    # from reddit.com/93mtba
         ["https://i.imgur.com/IxUrhGX.jpeg", "https://i.imgur.com/IxUrhGX.jpg", 4384, 3012, "image/jpeg"],  # jpEg
-        ["https://www.reddit.com/gallery/i3y7pc", DirectLink::ErrorBadLink],   # deleted gallery
       ].each_with_index do |t, i|
         url, n, first, last, type = t
         it "##{i + 1}" do
@@ -400,6 +399,7 @@ describe DirectLink do
         ["https://www.reddit.com/r/hangers/comments/97you5/tara_radovic/", [true, "https://i.imgur.com/rbLqgOu.jpg"]],   # "crossport" from Imgur
         ["https://www.reddit.com/gallery/i1u6rb", [true, [["image/jpg", 1080, 1080, "https://preview.redd.it/x31msdj6vee51.jpg?width=1080&amp;crop=smart&amp;auto=webp&amp;s=9ac10b55568c4835fafb1472e0cce5db87fd6fcd"], ["image/jpg", 1080, 1080, "https://preview.redd.it/mwkzq6j6vee51.jpg?width=1080&amp;crop=smart&amp;auto=webp&amp;s=a18c37f3fdb0198f28031fb2127e699fd7838c1f"], ["image/jpg", 1080, 1080, "https://preview.redd.it/0ws1j8j6vee51.jpg?width=1080&amp;crop=smart&amp;auto=webp&amp;s=7747080671ce7c7d705736ff01fef4c27dcac46e"], ["image/jpg", 1080, 1080, "https://preview.redd.it/2un68aj6vee51.jpg?width=1080&amp;crop=smart&amp;auto=webp&amp;s=3058372063b8e043395d19521482a314cf675ca4"], ["image/jpg", 1080, 1350, "https://preview.redd.it/5bsfaej6vee51.jpg?width=1080&amp;crop=smart&amp;auto=webp&amp;s=8625a47592a904324eb92cb0cef9052fe96b7f94"], ["image/jpg", 1080, 1080, "https://preview.redd.it/0z010ej6vee51.jpg?width=1080&amp;crop=smart&amp;auto=webp&amp;s=7f29636db1c913da72ee22b95026a8b00596e609"], ["image/jpg", 1080, 1080, "https://preview.redd.it/aylm2ej6vee51.jpg?width=1080&amp;crop=smart&amp;auto=webp&amp;s=f100acd3c6028bee1dd3ed009a4a1386cf178307"]]]],   # TODO: find smaller gallery
         ["https://www.reddit.com/i1u6rb", [true, [["image/jpg", 1080, 1080, "https://preview.redd.it/x31msdj6vee51.jpg?width=1080&amp;crop=smart&amp;auto=webp&amp;s=9ac10b55568c4835fafb1472e0cce5db87fd6fcd"], ["image/jpg", 1080, 1080, "https://preview.redd.it/mwkzq6j6vee51.jpg?width=1080&amp;crop=smart&amp;auto=webp&amp;s=a18c37f3fdb0198f28031fb2127e699fd7838c1f"], ["image/jpg", 1080, 1080, "https://preview.redd.it/0ws1j8j6vee51.jpg?width=1080&amp;crop=smart&amp;auto=webp&amp;s=7747080671ce7c7d705736ff01fef4c27dcac46e"], ["image/jpg", 1080, 1080, "https://preview.redd.it/2un68aj6vee51.jpg?width=1080&amp;crop=smart&amp;auto=webp&amp;s=3058372063b8e043395d19521482a314cf675ca4"], ["image/jpg", 1080, 1350, "https://preview.redd.it/5bsfaej6vee51.jpg?width=1080&amp;crop=smart&amp;auto=webp&amp;s=8625a47592a904324eb92cb0cef9052fe96b7f94"], ["image/jpg", 1080, 1080, "https://preview.redd.it/0z010ej6vee51.jpg?width=1080&amp;crop=smart&amp;auto=webp&amp;s=7f29636db1c913da72ee22b95026a8b00596e609"], ["image/jpg", 1080, 1080, "https://preview.redd.it/aylm2ej6vee51.jpg?width=1080&amp;crop=smart&amp;auto=webp&amp;s=f100acd3c6028bee1dd3ed009a4a1386cf178307"]]]],           # TODO: find smaller gallery
+        ["https://www.reddit.com/gallery/i3y7pc", [true, "https://www.reddit.com/gallery/i3y7pc"]],   # deleted gallery
       ] ],
       [ :vk, [
         ["https://vk.com/wall-105984091_7806", [[960, 1280, "https://sun9-21.userapi.com/c855224/v855224900/a72f1/7OZ8ux9Wcwo.jpg"]]],
@@ -606,6 +606,12 @@ describe DirectLink do
           DirectLink "https://www.flickr.com/photos/leogaggl/28488925847/%20[2048x1152]"
         end.code
       )
+    end
+
+    it "throws ErrorNotFound when Reddit gallery is removed" do
+      assert_raises DirectLink::ErrorNotFound do
+        DirectLink "https://www.reddit.com/gallery/i3y7pc"
+      end
     end
 
     it "throws ErrorBadLink if link is invalid" do

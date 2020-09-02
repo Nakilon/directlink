@@ -404,7 +404,7 @@ def DirectLink link, timeout = nil, giveup: false, ignore_meta: false
         struct.new u, x, y, t
       end
     end
-    raise DirectLink::ErrorBadLink.new link if link == u
+    raise DirectLink::ErrorNotFound.new link.inspect if link == u
     return DirectLink u, timeout, giveup: giveup
   rescue DirectLink::ErrorMissingEnvVar
   end if %w{ reddit com } == URI(link).host.split(?.).last(2) ||
