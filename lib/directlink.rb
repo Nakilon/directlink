@@ -245,7 +245,7 @@ module DirectLink
     return [true, data["media_metadata"].values.map do |media|
       [media["m"], *media["p"].max_by{ |_| _["x"] * _["y"] }.values_at("x", "y", "u")]
     end] if data["media_metadata"]
-    return [true, data["url"]] if data["crosspost_parent"]
+    return [true, "#{"https://www.reddit.com" if /\A\/r\/[0-9a-zA-Z_]+\/comments\/[0-9a-z]{5,6}\// =~ data["url"]}#{data["url"]}"] if data["crosspost_parent"]
     return [true, data["url"]] unless data["is_self"]
     raise ErrorAssert.new "our knowledge about Reddit API seems to be outdated" if data["url"] != "https://www.reddit.com" + data["permalink"]
     return [false, data["selftext"]]
