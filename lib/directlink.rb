@@ -92,7 +92,7 @@ module DirectLink
   require "json"
 
   # TODO make the timeout handling respect the way the Directlink method works with timeouts
-  def self.imgur link, timeout = 1000
+  def self.imgur link, timeout = 2000
     raise ErrorMissingEnvVar.new "define IMGUR_CLIENT_ID env var" unless ENV["IMGUR_CLIENT_ID"]
 
     request_data = lambda do |url|
