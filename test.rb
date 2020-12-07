@@ -330,9 +330,10 @@ describe DirectLink do
         ["http://imgur.com/gallery/dCQprEq/new", "https://i.imgur.com/dCQprEq.jpg", 5760, 3840, "image/jpeg"],
         ["https://i.imgur.com/fFUTSJu.jpg?fb", "https://i.imgur.com/fFUTSJu.jpg", 1469, 2200, "image/jpeg"],    # from reddit.com/93mtba
         ["https://i.imgur.com/IxUrhGX.jpeg", "https://i.imgur.com/IxUrhGX.jpg", 4384, 3012, "image/jpeg"],  # jpEg
+        ["https://imgur.com/gallery/9f2s9EE", "https://i.imgur.com/9f2s9EE.mp4", 960, 1438, "video/mp4"],  # mp4
       ].each_with_index do |t, i|
         url, n, first, last, type = t
-        it "##{i + 1}" do
+        it "kinds of post ##{i + 1}" do
           case last
           when NilClass
             if n.is_a? Class
@@ -698,7 +699,7 @@ describe DirectLink do
         # ["https://www.tic.com/index.html",        FastImage::UnknownImageType, true],   # needs new test or stub
         # ["https://www.tic.com/index.html",        2],                                   # needs new test or stub
         ["http://imgur.com/HQHBBBD",              FastImage::UnknownImageType, true],
-        ["http://imgur.com/HQHBBBD",              "https://i.imgur.com/HQHBBBD.jpg?fb"],  # .at_css("meta[@property='og:image']")
+        ["http://imgur.com/HQHBBBD",              "https://i.imgur.com/HQHBBBD.jpeg?fb"],  # .at_css("meta[@property='og:image']")
         ["https://www.deviantart.com/nadyasonika/art/Asuka-Langley-Beach-Time-590134861", FastImage::UnknownImageType, true],
         ["https://www.deviantart.com/nadyasonika/art/Asuka-Langley-Beach-Time-590134861", "https://images-wixmp-ed30a86b8c4ca887773594c2.wixmp.com/f/943f66cb-78ad-40f2-a086-44420b98b431/d9rcmz1-5cbc5670-0193-485b-ac14-755ddb9562f4.jpg/v1/fill/w_1024,h_732,q_75,strp/asuka_langley_beach_time_by_nadyasonika_d9rcmz1-fullview.jpg?token=eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJ1cm46YXBwOiIsImlzcyI6InVybjphcHA6Iiwib2JqIjpbW3siaGVpZ2h0IjoiPD03MzIiLCJwYXRoIjoiXC9mXC85NDNmNjZjYi03OGFkLTQwZjItYTA4Ni00NDQyMGI5OGI0MzFcL2Q5cmNtejEtNWNiYzU2NzAtMDE5My00ODViLWFjMTQtNzU1ZGRiOTU2MmY0LmpwZyIsIndpZHRoIjoiPD0xMDI0In1dXSwiYXVkIjpbInVybjpzZXJ2aWNlOmltYWdlLm9wZXJhdGlvbnMiXX0.L6OhXuQZ_9ovKOdjjuQbvxpD0mG8M_KiqV4ljEDfW3Q"],
         ["https://calgary.skyrisecities.com/news/2019/11/blue-morning-light", "https://cdn.skyrisecities.com/sites/default/files/images/articles/2019/11/39834/39834-132071.jpg"], # og:image without scheme

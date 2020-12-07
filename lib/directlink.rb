@@ -120,14 +120,14 @@ module DirectLink
       elsif data["images"]
         raise ErrorNotFound.new link.inspect if data["images"].empty?
         data["images"]
-      elsif data["type"] && data["type"].start_with?("image/")
+      elsif data["type"] && %w{ image/jpeg image/png image/gif video/mp4 }.include?(data["type"])
         # TODO check if this branch is possible at all
         [ data ]
       # elsif data["comment"]
       #   fi["https://imgur.com/" + data["image_id"]]
       else
         # one day single-video item should hit this but somehow it didn't yet
-        raise ErrorAssert.new "unknown data format #{data.inspect} for #{link}"
+        raise ErrorAssert.new "unknown data format #{json} for #{link}"
       end
     when /\Ahttps?:\/\/(?:(?:i|m|www)\.)?imgur\.com\/([a-zA-Z0-9]{7,8})(?:\.(?:gifv|jpe?g(?:\?fb)?|png))?\z/,
          /\Ahttps?:\/\/(?:(?:i|m|www)\.)?imgur\.com\/([a-zA-Z0-9]{5})\.mp4\z/,
@@ -141,7 +141,7 @@ module DirectLink
       raise ErrorBadLink.new link
     end.map do |image|
       case image["type"]
-      when "image/jpeg", "image/png", "image/gif", "video/mp4"
+      when *%w{ image/jpeg image/png image/gif video/mp4 }
         image.values_at "link", "width", "height", "type"
       else
         raise ErrorAssert.new "unknown type of #{link}: #{image}"
