@@ -407,7 +407,7 @@ describe DirectLink do
         # TODO: empty result? https://redd.it/9hhtsq
       ] ],
     ].each do |method, tests|
-      next if method == :vk && ENV.include?("TRAVIS")
+      next if method == :vk && ENV.include?("CI")
       describe "kinds of links #{method}" do
         tests.each_with_index do |(input, expectation), i|
           it "##{i + 1}" do
@@ -425,7 +425,7 @@ describe DirectLink do
     end
 
     describe "kinds of links vk" do
-      next if ENV.include? "TRAVIS"
+      next if ENV.include? "CI"
       [
         ["https://vk.com/wall-105984091_7806", [960, 1280, "https://userapi.com/impf/c855224/v855224900/a72f1/7OZ8ux9Wcwo.jpg"]],
         # ["https://vk.com/wall298742340_4715", [1080, 1080, "https://userapi.com/impf/c857136/v857136625/15e38b/CsCqsJD174A.jpg"]],  # TODO: it's now 404

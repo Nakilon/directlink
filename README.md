@@ -1,5 +1,4 @@
-[![Build Status](https://travis-ci.org/Nakilon/directlink.png?)](https://travis-ci.org/Nakilon/directlink)  
-![Gem Version](https://badge.fury.io/rb/directlink.png?)
+[![Test](https://github.com/Nakilon/directlink/workflows/.github/workflows/test.yaml/badge.svg)](https://github.com/Nakilon/directlink/actions)
 
 # gem directlink
 
