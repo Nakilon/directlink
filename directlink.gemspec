@@ -1,7 +1,7 @@
 Gem::Specification.new do |spec|
   spec.name         = "directlink"
   spec.version      = "0.0.9.2"
-  spec.summary      = "converts any kind of image hyperlink to direct link, type of image and its resolution"
+  spec.summary      = "obtains from any kind of hyperlink a link to an image, its format and resolution"
 
   spec.author       = "Victor Maslov aka Nakilon"
   spec.email        = "nakilon@gmail.com"
@@ -12,18 +12,17 @@ Gem::Specification.new do |spec|
   spec.add_dependency "fastimage", "~>2.1.3"
   spec.add_dependency "nokogiri"
   spec.add_dependency "nethttputils", "~>0.4.1.0"
-  spec.add_dependency "reddit_bot", "~>1.7.7"
+  spec.add_dependency "reddit_bot", "~>1.7.8"
   spec.add_dependency "kramdown"
   spec.add_dependency "addressable"
   spec.add_development_dependency "minitest"
-  spec.add_development_dependency "byebug"
 
   spec.require_path = "lib"
   spec.bindir       = "bin"
   spec.executable   = "directlink"
   spec.test_file    = "test.rb"
-  spec.files        = `git ls-files -z`.split(?\0) - spec.test_files
+  spec.files        = %w{ LICENSE directlink.gemspec lib/directlink.rb bin/directlink }
 
-  spec.requirements << "you may need to create apps and provide their API tokens:"
+  spec.requirements << "you may want to create apps and provide API tokens:"
   spec.requirements << "IMGUR_CLIENT_ID, FLICKR_API_KEY, REDDIT_SECRETS"
 end

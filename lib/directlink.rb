@@ -2,11 +2,10 @@ module DirectLink
 
   class << self
     attr_accessor :silent
+    attr_accessor :logger
+    attr_accessor :timeout
   end
   self.silent = false
-  class << self
-    attr_accessor :logger
-  end
   self.logger = Object.new
   self.logger.define_singleton_method :error do |str|
     puts str unless Module.nesting.first.silent
@@ -299,7 +298,8 @@ module DirectLink
 end
 
 
-def DirectLink link, timeout = nil, giveup: false, ignore_meta: false
+def DirectLink link, timeout = nil, proxy = nil, giveup: false, ignore_meta: false
+  timeout ||= DirectLink.timeout
   ArgumentError.new("link should be a <String>, not <#{link.class}>") unless link.is_a? String
   begin
     URI link
@@ -337,7 +337,7 @@ def DirectLink link, timeout = nil, giveup: false, ignore_meta: false
       **( %w{ reddit com } == URI(link).host.split(?.).last(2) ||
           %w{   redd it  } == URI(link).host.split(?.) ? {Cookie: "over18=1"} : {} ),
     }
-    head = NetHTTPUtils.request_data link, :head, header: header, **(timeout ? {
+    head = NetHTTPUtils.request_data link, :HEAD, header: header, **(proxy ? {proxy: proxy} : {}), **(timeout ? {
       timeout: timeout,
       max_start_http_retry_delay: timeout,
       max_read_retry_delay: timeout
@@ -418,11 +418,15 @@ def DirectLink link, timeout = nil, giveup: false, ignore_meta: false
   end if %w{ vk com } == URI(link).host.split(?.)
 
   begin
-    f = FastImage.new(link, raise_on_failure: true, timeout: 5, http_header: {"User-Agent" => "Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/66.0.3359.139 Safari/537.36"})
+    f = FastImage.new link,
+      raise_on_failure: true,
+      timeout: timeout,
+      **(proxy ? {proxy: "http://#{proxy}"} : {}),
+      http_header: {"User-Agent" => "Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/66.0.3359.139 Safari/537.36"}
   rescue FastImage::UnknownImageType
     raise if giveup
     require "nokogiri"
-    head = NetHTTPUtils.request_data link, :head, header: {"User-Agent" => "Mozilla"},
+    head = NetHTTPUtils.request_data link, :HEAD, header: {"User-Agent" => "Mozilla"},
       max_start_http_retry_delay: timeout,
       timeout: timeout,                 # NetHTTPUtild passes this as read_timeout to Net::HTTP.start
       max_read_retry_delay: timeout     # and then compares accumulated delay to this
@@ -434,7 +438,7 @@ def DirectLink link, timeout = nil, giveup: false, ignore_meta: false
     html = Nokogiri::HTML NetHTTPUtils.request_data link, header: {"User-Agent" => "Mozilla"}
     if t = html.at_css("meta[@property='og:image']")
       begin
-        return DirectLink URI.join(link, t[:content]).to_s, nil, giveup: true
+        return DirectLink URI.join(link, t[:content]).to_s, nil, *proxy, giveup: true
       rescue URI::InvalidURIError
       end
     end unless ignore_meta

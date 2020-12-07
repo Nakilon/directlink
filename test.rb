@@ -13,6 +13,8 @@ fail unless ENV.include? "REDDIT_SECRETS"
 
 require_relative "lib/directlink"
 DirectLink.silent = true
+DirectLink.timeout = 30   # TODO: tests about this attribute
+
 describe DirectLink do
 
   describe "./lib" do
@@ -402,27 +404,13 @@ describe DirectLink do
         ["https://www.reddit.com/i1u6rb", [true, [["image/jpg", 1080, 1080, "https://preview.redd.it/x31msdj6vee51.jpg?width=1080&amp;crop=smart&amp;auto=webp&amp;s=9ac10b55568c4835fafb1472e0cce5db87fd6fcd"], ["image/jpg", 1080, 1080, "https://preview.redd.it/mwkzq6j6vee51.jpg?width=1080&amp;crop=smart&amp;auto=webp&amp;s=a18c37f3fdb0198f28031fb2127e699fd7838c1f"], ["image/jpg", 1080, 1080, "https://preview.redd.it/0ws1j8j6vee51.jpg?width=1080&amp;crop=smart&amp;auto=webp&amp;s=7747080671ce7c7d705736ff01fef4c27dcac46e"], ["image/jpg", 1080, 1080, "https://preview.redd.it/2un68aj6vee51.jpg?width=1080&amp;crop=smart&amp;auto=webp&amp;s=3058372063b8e043395d19521482a314cf675ca4"], ["image/jpg", 1080, 1350, "https://preview.redd.it/5bsfaej6vee51.jpg?width=1080&amp;crop=smart&amp;auto=webp&amp;s=8625a47592a904324eb92cb0cef9052fe96b7f94"], ["image/jpg", 1080, 1080, "https://preview.redd.it/0z010ej6vee51.jpg?width=1080&amp;crop=smart&amp;auto=webp&amp;s=7f29636db1c913da72ee22b95026a8b00596e609"], ["image/jpg", 1080, 1080, "https://preview.redd.it/aylm2ej6vee51.jpg?width=1080&amp;crop=smart&amp;auto=webp&amp;s=f100acd3c6028bee1dd3ed009a4a1386cf178307"]]]],           # TODO: find smaller gallery
         ["https://www.reddit.com/gallery/i3y7pc", [true, "https://www.reddit.com/gallery/i3y7pc"]],   # deleted gallery
         ["https://www.reddit.com/ik6c6a", [true, "https://www.reddit.com/r/Firewatch/comments/ik6brf/new_wallpaper_for_my_triple_monitor_setup/"]],   # deleted gallery
-      ] ],
-      [ :vk, [
-        ["https://vk.com/wall-105984091_7806", [[960, 1280, "https://sun9-21.userapi.com/c855224/v855224900/a72f1/7OZ8ux9Wcwo.jpg"]]],
-        ["https://vk.com/wall298742340_4715", [[1080, 1080, "https://sun9-40.userapi.com/c857136/v857136625/15e38b/CsCqsJD174A.jpg"]]],
-        ["https://vk.com/wall-185182611_454?z=photo-185182611_457239340%2Fwall-185182611_454", [[1280, 960, "https://sun9-46.userapi.com/c851028/v851028578/1a62f6/VB4SdR1O6Tg.jpg"]]],
-        ["https://vk.com/wall-105984091_7946?z=photo-105984091_457243312%2Falbum-105984091_00%2Frev", [[1280, 875, "https://sun9-37.userapi.com/c852020/v852020134/1b6b36/0IsDFb-Hda4.jpg"]]],
-        ["https://vk.com/id57030827?z=photo57030827_456241143%2Falbum57030827_0", [[1920, 1440, "https://sun9-73.userapi.com/c845322/v845322944/167836/bP9z41BybhI.jpg"]]],
-        ["https://vk.com/id57030827?z=photo57030827_456241143", [[1920, 1440, "https://sun9-73.userapi.com/c845322/v845322944/167836/bP9z41BybhI.jpg"]]],
-        ["https://vk.com/photo1_215187843?all=1", [[2560, 1913, "https://sun1-90.userapi.com/c210/v210001/6/53_VwoACy4I.jpg"]]],
-        ["https://vk.com/photo298742340_456243948?rev=1", [[1583, 1080, "https://sun9-1.userapi.com/c852224/v852224479/321be/9rZaJ2QTdz4.jpg"]]],
-        ["https://vk.com/photo-155488973_456242404", [[1486, 1000, "https://sun9-7.userapi.com/c852132/v852132877/8578e/m6AJWiskiKE.jpg"]]],
-        ["https://vk.com/id2272074?z=photo2272074_264578776%2Fphotos2272074", [[604, 484, "https://sun9-10.userapi.com/c10472/u2272074/-7/x_407b2ba2.jpg"]]],
-        ["https://vk.com/feed?section=likes&z=photo-117564754_456261460%2Fliked3902406", [[1024, 1335, "https://sun9-30.userapi.com/c854028/v854028353/895b6/izQJresLdf0.jpg"]]],
-        ["https://vk.com/likizimy?z=photo-42543351_456239941%2Fwall-42543351_1908", [[1179, 1731, "https://sun9-47.userapi.com/c855036/v855036571/60f7b/ryCPJIMyMkI.jpg"]]],
-        ["https://vk.com/e_rod?z=photo298742340_457247118%2Fphotos298742340", [[1728, 2160, "https://sun9-53.userapi.com/c858320/v858320596/c7714/oImGe4o1ZJI.jpg"]]],
+        # TODO: empty result? https://redd.it/9hhtsq
       ] ],
     ].each do |method, tests|
       next if method == :vk && ENV.include?("TRAVIS")
-      describe method do
+      describe "kinds of links #{method}" do
         tests.each_with_index do |(input, expectation), i|
-          it "#{method} ##{i + 1}" do
+          it "##{i + 1}" do
             if expectation.is_a? Class
               assert_raises expectation, input do
                 DirectLink.method(method).call input
@@ -432,6 +420,37 @@ describe DirectLink do
               assert_equal expectation, result, "#{input} :: #{result.inspect} != #{expectation.inspect}"
             end
           end
+        end
+      end
+    end
+
+    describe "kinds of links vk" do
+      next if ENV.include? "TRAVIS"
+      [
+        ["https://vk.com/wall-105984091_7806", [960, 1280, "https://userapi.com/impf/c855224/v855224900/a72f1/7OZ8ux9Wcwo.jpg"]],
+        # ["https://vk.com/wall298742340_4715", [1080, 1080, "https://userapi.com/impf/c857136/v857136625/15e38b/CsCqsJD174A.jpg"]],  # TODO: it's now 404
+        ["https://vk.com/wall-185182611_454?z=photo-185182611_457239340%2Fwall-185182611_454", [1280, 960, "https://userapi.com/impf/c851028/v851028578/1a62f6/VB4SdR1O6Tg.jpg"]],
+        ["https://vk.com/wall-105984091_7946?z=photo-105984091_457243312%2Falbum-105984091_00%2Frev", [1280, 875, "https://userapi.com/impf/c852020/v852020134/1b6b36/0IsDFb-Hda4.jpg"]],
+        ["https://vk.com/id57030827?z=photo57030827_456241143%2Falbum57030827_0", [1920, 1440, "https://userapi.com/impf/c845322/v845322944/167836/bP9z41BybhI.jpg"]],
+        ["https://vk.com/id57030827?z=photo57030827_456241143", [1920, 1440, "https://userapi.com/impf/c845322/v845322944/167836/bP9z41BybhI.jpg"]],
+        ["https://vk.com/photo1_215187843?all=1", [2560, 1913, "https://userapi.com/impf/c210/v210001/6/53_VwoACy4I.jpg"]],
+        ["https://vk.com/photo298742340_456243948?rev=1", [1583, 1080, "https://userapi.com/impf/c852224/v852224479/321be/9rZaJ2QTdz4.jpg"]],
+        ["https://vk.com/photo-155488973_456242404", [1486, 1000, "https://userapi.com/impf/c852132/v852132877/8578e/m6AJWiskiKE.jpg"]],
+        # ["https://vk.com/id2272074?z=photo2272074_264578776%2Fphotos2272074", [604, 484, "https://userapi.com/impf/c10472/u2272074/-7/x_407b2ba2.jpg"]],  # TODO: it's now 404
+        ["https://vk.com/feed?section=likes&z=photo-117564754_456261460%2Fliked3902406", [1024, 1335, "https://userapi.com/impf/c854028/v854028353/895b6/izQJresLdf0.jpg"]],
+        ["https://vk.com/likizimy?z=photo-42543351_456239941%2Fwall-42543351_1908", [1179, 1731, "https://userapi.com/impf/c855036/v855036571/60f7b/ryCPJIMyMkI.jpg"]],
+        ["https://vk.com/e_rod?z=photo298742340_457247118%2Fphotos298742340", [1728, 2160, "https://userapi.com/impf/c858320/v858320596/c7714/oImGe4o1ZJI.jpg"]],
+      ].each_with_index do |(input, expectation), i|
+        it "##{i + 1}" do
+          result = DirectLink.method(:vk).call input
+          assert_equal 1, result.size
+          result[0][-1].tap do |url|
+            url.replace( URI.parse(url).tap do |_|
+              _.host = _.host.split(?.).drop(1).join(?.)
+              _.query = nil
+            end.to_s )
+          end
+          assert_equal [expectation], result, "#{input} :: #{result.inspect} != #{expectation.inspect}"
         end
       end
     end
@@ -672,7 +691,7 @@ describe DirectLink do
       [
         # ["http://www.aeronautica.difesa.it/organizzazione/REPARTI/divolo/PublishingImages/6%C2%B0%20Stormo/2013-decollo%20al%20tramonto%20REX%201280.jpg", ["http://www.aeronautica.difesa.it/organizzazione/REPARTI/divolo/PublishingImages/6%C2%B0%20Stormo/2013-decollo%20al%20tramonto%20REX%201280.jpg", 1280, 853, :jpeg], nil, 1],   # website is dead?
         # ["http://minus.com/lkP3hgRJd9npi", SocketError, /nodename nor servname provided, or not known|No address associated with hostname/, 0],
-        ["http://www.cutehalloweencostumeideas.org/wp-content/uploads/2017/10/Niagara-Falls_04.jpg", SocketError, /nodename nor servname provided, or not known|Name or service not known/, 0],
+        ["http://www.cutehalloweencostumeideas.org/wp-content/uploads/2017/10/Niagara-Falls_04.jpg", SocketError, /nodename nor servname provided, or not known|Name or service not known|getaddrinfo: Name does not resolve/, 0],
       ].each_with_index do |(input, expectation, message_string_or_regex, max_redirect_resolving_retry_delay), i|
         it "##{i + 1}" do
           if expectation.is_a? Class
@@ -699,7 +718,7 @@ describe DirectLink do
         # ["https://www.tic.com/index.html",        FastImage::UnknownImageType, true],   # needs new test or stub
         # ["https://www.tic.com/index.html",        2],                                   # needs new test or stub
         ["http://imgur.com/HQHBBBD",              FastImage::UnknownImageType, true],
-        ["http://imgur.com/HQHBBBD",              "https://i.imgur.com/HQHBBBD.jpeg?fb"],  # .at_css("meta[@property='og:image']")
+        ["http://imgur.com/HQHBBBD",              "https://i.imgur.com/HQHBBBD.jpg?fb"],  # .at_css("meta[@property='og:image']")
         ["https://www.deviantart.com/nadyasonika/art/Asuka-Langley-Beach-Time-590134861", FastImage::UnknownImageType, true],
         ["https://www.deviantart.com/nadyasonika/art/Asuka-Langley-Beach-Time-590134861", "https://images-wixmp-ed30a86b8c4ca887773594c2.wixmp.com/f/943f66cb-78ad-40f2-a086-44420b98b431/d9rcmz1-5cbc5670-0193-485b-ac14-755ddb9562f4.jpg/v1/fill/w_1024,h_732,q_75,strp/asuka_langley_beach_time_by_nadyasonika_d9rcmz1-fullview.jpg?token=eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJ1cm46YXBwOiIsImlzcyI6InVybjphcHA6Iiwib2JqIjpbW3siaGVpZ2h0IjoiPD03MzIiLCJwYXRoIjoiXC9mXC85NDNmNjZjYi03OGFkLTQwZjItYTA4Ni00NDQyMGI5OGI0MzFcL2Q5cmNtejEtNWNiYzU2NzAtMDE5My00ODViLWFjMTQtNzU1ZGRiOTU2MmY0LmpwZyIsIndpZHRoIjoiPD0xMDI0In1dXSwiYXVkIjpbInVybjpzZXJ2aWNlOmltYWdlLm9wZXJhdGlvbnMiXX0.L6OhXuQZ_9ovKOdjjuQbvxpD0mG8M_KiqV4ljEDfW3Q"],
         ["https://calgary.skyrisecities.com/news/2019/11/blue-morning-light", "https://cdn.skyrisecities.com/sites/default/files/images/articles/2019/11/39834/39834-132071.jpg"], # og:image without scheme
@@ -713,19 +732,20 @@ describe DirectLink do
             case expectation
             when Class
               e = assert_raises expectation, "for #{input} (giveup = #{giveup})" do
-                DirectLink input, 10, giveup: giveup
+                DirectLink input, 5, *ENV["PROXY"], giveup: giveup
               end
               assert_equal expectation.to_s, e.class.to_s, "for #{input} (giveup = #{giveup})"
             when String
-              result = DirectLink input, 10, giveup: giveup
+              result = DirectLink input, 5, *ENV["PROXY"], giveup: giveup
               assert_equal expectation, result.url, "for #{input} (giveup = #{giveup})"
             else
-              result = DirectLink input, 10, giveup: giveup
+              result = DirectLink input, 5, *ENV["PROXY"], giveup: giveup
               result = [result] unless result.is_a? Array   # we can't do `Array(<Struct>)` because it splats by elements
               assert_equal expectation, result.size, ->{
                 "for #{input} (giveup = #{giveup}): #{result.map &:url}"
               }
             end
+            # weird that this test may take longer than 5 sec
           ensure
             ENV["IMGUR_CLIENT_ID"] = ti if ti
             ENV["REDDIT_SECRETS"] = tr if tr
@@ -768,23 +788,28 @@ describe DirectLink do
 
     describe "fails" do
       [
-        [1, "http://example.com/", "FastImage::UnknownImageType"],
-        [1, "http://example.com/404", "NetHTTPUtils::Error: HTTP error #404 "],
+        [1, "http://example.com/", /\AFastImage::UnknownImageType\n\z/],
+        [1, "http://example.com/404", /\ANetHTTPUtils::Error: HTTP error #404 \n\z/],
 
         # TODO: a test when the giveup=false fails and reraises the DirectLink::ErrorMissingEnvVar
         #       maybe put it to ./lib tests
 
         # by design it should be impossible to write a test for DirectLink::ErrorAssert
-        [1, "https://flic.kr/p/DirectLinkErrorNotFound", "NetHTTPUtils::Error: HTTP error #404 "],
+        [1, "https://flic.kr/p/DirectLinkErrorNotFound", /\ANetHTTPUtils::Error: HTTP error #404 \n\z/],
 
-        [1, "https://imgur.com/a/badlinkpattern", "NetHTTPUtils::Error: HTTP error #404 "],
+        [1, "https://imgur.com/a/badlinkpattern", /\ANetHTTPUtils::Error: HTTP error #404 \n\z/],
         # TODO: a test that it appends the `exception.cause`
 
-        [1, "https://groundingpositivity.com/2020/08/13/new-quantum-app-will-make-you-wonder-do-we-live-in-a-simulation/", "NetHTTPUtils::EOFError_from_rbuf_fill: probably the old Ruby empty backtrace EOFError exception from net/protocol.rb: end of file reached"],  # TODO: add also a test to nethttputils gem
+        [1, "https://groundingpositivity.com/2020/08/13/new-quantum-app-will-make-you-wonder-do-we-live-in-a-simulation/", (
+          Gem::Version.new(RUBY_VERSION) < Gem::Version.new("2.4.0") ?
+          /\ANetHTTPUtils::EOFError_from_rbuf_fill: probably the old Ruby empty backtrace EOFError exception from net\/protocol\.rb: end of file reached\n\z/ :
+          /\A\S+\/net\/protocol\.rb:\d+:in `rbuf_fill': end of file reached \(EOFError\)\n/
+        ) ],  # TODO: add also a test to nethttputils gem
       ].each_with_index do |(expected_exit_code, link, expected_output, unset), i| # TODO: unset is not used anymore or I have to go sleep?
         it "##{i + 1}" do
           string, status = Open3.capture2e "export #{(File.read("api_tokens_for_travis.sh") + File.read("vk.secret")).scan(/(?<=^export )\S+=\S+/).join(" ")}#{unset} && RUBYOPT='-rbundler/setup #{$-I.map{ |i| "-I #{i}" }.join " "}' ./bin/directlink #{link}"
-          assert_equal [expected_exit_code, "#{expected_output}\n"], [status.exitstatus, string], "for #{link}"
+          assert_equal expected_exit_code, status.exitstatus, "for #{link}"
+          assert string[expected_output], "for #{link}"
         end
       end
     end
@@ -839,7 +864,7 @@ describe DirectLink do
     # TODO: test about --json
     it "uses <meta> tag" do
       string, status = Open3.capture2e "RUBYOPT='-rbundler/setup' ./bin/directlink --json https://www.kp.ru/daily/26342.7/3222103/"
-      assert_equal [0, "https://s9.stc.all.kpcdn.net/share/i/12/8054352/cr-1200-630.wm-asnpmfru-100-tr-0-0.t-13-3222103-ttps-47-8-0083CD-1010-l-85-b-41.t-13-3222103-ttps-47-8-FFF-1010-l-85-b-42.t-207-5-asb-37-10-FFF-788-l-370-t-68.mx2018-03-14T02-10-20.jpg"], [status.exitstatus, JSON.load(string).fetch("url")]
+      assert_equal [0, "https://s11.stc.all.kpcdn.net/share/i/12/8054352/cr-1200-630.wm-asnplfru-100-tr-0-0.t-13-3222103-ttps-54-14-0083CD-1010-l-85-b-42.t-13-3222103-ttps-54-14-FFF-1010-l-85-b-42.t-207-5-asb-37-10-FFF-788-l-370-t-68.m2018-03-14T02-10-20.jpg"], [status.exitstatus, JSON.load(string).fetch("url")]
     end
     # TODO: kp.ru broke the page -- images are gone
     # it "ignores <meta> tag" do
