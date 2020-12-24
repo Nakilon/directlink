@@ -6,5 +6,5 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v2
-    - run: docker run -v $(pwd):/checkout ruby:alpine sh -c "cd /checkout && apk add build-base && bundle install && source api_tokens_for_travis.sh && ruby test.rb"
+    - run: docker run -e CI -v $(pwd):/checkout ruby:alpine sh -c "cd /checkout && apk add build-base && bundle install && source api_tokens_for_travis.sh && ruby test.rb"
       timeout-minutes: 10

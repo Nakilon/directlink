@@ -235,15 +235,16 @@ module DirectLink
     end
     # TODO: do we handle linking Imgur albums?
     data = json["data"]["children"].first["data"]
-    if data["media"]["reddit_video"]
-      return [true, data["media"]["reddit_video"]["fallback_url"]]
-    else
+    if data["media"]
+      return [true, data["media"]["reddit_video"]["fallback_url"]] if data["media"]["reddit_video"]
       raise ErrorAssert.new "our knowledge about Reddit API seems to be outdated" unless data["media"].keys.sort == %w{ oembed type } && %w{ youtube.com gfycat.com imgur.com }.include?(data["media"]["type"])
       return [true, data["media"]["oembed"]["thumbnail_url"]]
-    end if data["media"]
+    end
     return [true, data["media_metadata"].values.map do |media|
-      [media["m"], *media["p"].max_by{ |_| _["x"] * _["y"] }.values_at("x", "y", "u")]
-    end] if data["media_metadata"]
+      next if media == {"status"=>"failed"}
+      raise ErrorAssert.new "our knowledge about Reddit API seems to be outdated" unless media["status"] == "valid"
+      [media["m"], *media["s"].values_at("x", "y"), CGI.unescapeHTML(media["s"]["u"])]
+    end.compact] if data["media_metadata"]
     return [true, "#{"https://www.reddit.com" if /\A\/r\/[0-9a-zA-Z_]+\/comments\/[0-9a-z]{5,6}\// =~ data["url"]}#{data["url"]}"] if data["crosspost_parent"]
     return [true, data["url"]] unless data["is_self"]
     raise ErrorAssert.new "our knowledge about Reddit API seems to be outdated" if data["url"] != "https://www.reddit.com" + data["permalink"]
