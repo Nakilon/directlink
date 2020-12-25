@@ -497,7 +497,7 @@ describe DirectLink do
       describe "DirectLink() sees domain name and calls #{method}" do
         tests.each_with_index do |(input, expected), i|
           it "##{i + 1}" do
-            DirectLink.stub method, ->link{
+            DirectLink.stub method, ->(link, timeout = nil){
               assert_equal (expected || input), link
               throw :_
             } do
