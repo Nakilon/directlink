@@ -91,7 +91,7 @@ module DirectLink
   require "json"
 
   # TODO make the timeout handling respect the way the Directlink method works with timeouts
-  def self.imgur link, timeout = 2000
+  def self.imgur link, timeout = 1000
     raise ErrorMissingEnvVar.new "define IMGUR_CLIENT_ID env var" unless ENV["IMGUR_CLIENT_ID"]
 
     request_data = lambda do |url|
@@ -357,7 +357,7 @@ def DirectLink link, timeout = nil, proxy = nil, giveup: false, ignore_meta: fal
   t = google_without_schema_crutch[] and return t
 
   begin
-    imgur = DirectLink.imgur(link).sort_by{ |u, w, h, t| - w * h }.map do |u, w, h, t|
+    imgur = DirectLink.imgur(link, timeout).sort_by{ |u, w, h, t| - w * h }.map do |u, w, h, t|
       struct.new u, w, h, t
     end
     # `DirectLink.imgur` return value is always an Array
