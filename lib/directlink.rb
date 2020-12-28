@@ -83,6 +83,9 @@ module DirectLink
     # mp4
     when /\A(https:\/\/lh3\.googleusercontent\.com\/-[a-zA-Z]{11}\/W[a-zA-Z0-9]{9}I\/AAAAAAAAODw\/[a-zA-Z0-9]{32}QCJoC\/)w530-h883-n-k-no\/[^\/]+\.mp4\z/
       "#{$1}s#{width}/"
+    # something else
+    when /\A(https:\/\/lh3\.googleusercontent\.com\/-[a-zA-Z0-9_]{11}\/X-[a-zA-Z0-9]{8}I\/AAAAAAAAALE\/[a-zA-Z0-9]{23}_[a-zA-Z0-9]{19}\/)w1200-h630-p-k-no-nu\/[\d-]+\.png\z/
+      "#{$1}s#{width}/"
     else
       raise ErrorBadLink.new src
     end
