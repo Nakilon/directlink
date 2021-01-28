@@ -1,11 +1,5 @@
-STDOUT.sync = true
-require "pp"
-
 require "minitest/autorun"
 require "minitest/mock"
-
-# TODO: I'm not sure it's ok that after we started using NetHTTPUtils for redirect resolving
-#       we don't raise `FastImage::ImageFetchFailure` anymore in any test
 
 fail unless ENV.include? "IMGUR_CLIENT_ID"
 fail unless ENV.include? "FLICKR_API_KEY"

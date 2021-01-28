@@ -9,13 +9,16 @@ Gem::Specification.new do |spec|
   spec.homepage     = "https://github.com/nakilon/directlink"
   spec.metadata     = {"source_code_uri" => "https://github.com/nakilon/directlink"}
 
+  spec.required_ruby_version = ">=2.3"  # because <<~ heredocs in tests
+
   spec.add_dependency "fastimage", "~>2.1.3"
   spec.add_dependency "nokogiri"
   spec.add_dependency "nethttputils", "~>0.4.1.0"
   spec.add_dependency "reddit_bot", "~>1.7.8"
   spec.add_dependency "kramdown"
   spec.add_dependency "addressable"
-  spec.add_development_dependency "minitest"
+  spec.add_development_dependency "minitest-around"
+  spec.add_development_dependency "webmock"
 
   spec.require_path = "lib"
   spec.bindir       = "bin"
