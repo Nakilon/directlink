@@ -1,19 +1,38 @@
 require "minitest/autorun"
+require "minitest/around/spec"
 require "minitest/mock"
+require "webmock/minitest"
+require_relative "webmock_patch"
 
-fail unless ENV.include? "IMGUR_CLIENT_ID"
-fail unless ENV.include? "FLICKR_API_KEY"
-fail unless ENV.include? "REDDIT_SECRETS"
+ENV["IMGUR_CLIENT_ID"] = "001788999ccdddf"
+ENV["FLICKR_API_KEY"] = "00123333456678889bbbbcccddddddff"
+ENV["REDDIT_SECRETS"] = "reddit_token_for_travis.yaml"
+ENV["VK_ACCESS_TOKEN"] = "0011222222233334455566667777778888888888999999aaaaaaabbbbcddddddddddddddeeeeeeeffffff"
+ENV["VK_CLIENT_SECRET"] = "0011223445555555555566777777888999999999999aaaaaaabccddddddddeeefffffff"
 
 require_relative "lib/directlink"
-DirectLink.silent = true
+DirectLink.silent = true  # TODO: remove?
 DirectLink.timeout = 30   # TODO: tests about this attribute
 
 describe DirectLink do
+  around{ |test| Timeout.timeout(4){ test.call } }
+  before{ WebMock.reset! }
 
   describe "./lib" do
 
     describe "google" do
+
+      # TODO: expand this for every branch in the lib
+      %w{
+        https_long_blogspot https://1.bp.blogspot.com/-__qsdLxNtcQ/XhaOQle-ECI/AAAAAAAABQ4/S_7SGG_abcDE6XIU2wyPvTj9OyBfr_1sQCLcBGAsYHQ/w1200-h630-p-k-no-nu/iceland_poppies_orange_flowers_field-wallpaper-3840x2160.jpg https://1.bp.blogspot.com/-__qsdLxNtcQ/XhaOQle-ECI/AAAAAAAABQ4/S_7SGG_abcDE6XIU2wyPvTj9OyBfr_1sQCLcBGAsYHQ/s0/
+        http_short_blogspot http://4.bp.blogspot.com/-poH-QXn7YGg/U-3ZTDkeF_I/AAAAAAAAISE/mabcDE6-v-g/w72-h72-p-k-no-nu/Top-24-Inspired-181.jpg https://4.bp.blogspot.com/-poH-QXn7YGg/U-3ZTDkeF_I/AAAAAAAAISE/mabcDE6-v-g/s0/
+        just_gplus https://lh3.googleusercontent.com/-NiGph3ObOPg/XE3DgnavXlI/AAAAAAABvgE/pcPPCe88rsU1r941wwP76TVf_abcDE6kwCJoC/w530-h353-n/DSCF0753.JPG https://lh3.googleusercontent.com/-NiGph3ObOPg/XE3DgnavXlI/AAAAAAABvgE/pcPPCe88rsU1r941wwP76TVf_abcDE6kwCJoC/s0/
+        google_keep https://lh5.googleusercontent.com/fRmAL_04p7oomNHCiV4tH4-agHSDBtLaWi_Tb6bgE5ZSHVu5OjQF3iRn06nNwP3ywZwdFP92zWM-abcDE6n6m0tDTBARuO6F9e0wYu_1=s685 https://lh5.googleusercontent.com/fRmAL_04p7oomNHCiV4tH4-agHSDBtLaWi_Tb6bgE5ZSHVu5OjQF3iRn06nNwP3ywZwdFP92zWM-abcDE6n6m0tDTBARuO6F9e0wYu_1=s0
+      }.each_slice 3 do |name, link, o|
+        it "replaces s0 and schema correctly #{name}" do
+          assert_equal o, DirectLink.google(link)
+        end
+      end
 
       describe "does not fail" do
         # TODO: also check the #google is being called
@@ -218,25 +237,14 @@ describe DirectLink do
 
       end
 
-      # TODO: expand this for every branch in lib
-      %w{
-        https_long_blogspot https://1.bp.blogspot.com/-__qsdLxNtcQ/XhaOQle-ECI/AAAAAAAABQ4/S_7SGG_K8eQ7VXIU2wyPvTj9OyBfr_1sQCLcBGAsYHQ/w1200-h630-p-k-no-nu/iceland_poppies_orange_flowers_field-wallpaper-3840x2160.jpg https://1.bp.blogspot.com/-__qsdLxNtcQ/XhaOQle-ECI/AAAAAAAABQ4/S_7SGG_K8eQ7VXIU2wyPvTj9OyBfr_1sQCLcBGAsYHQ/s0/
-        http_short_blogspot http://4.bp.blogspot.com/-poH-QXn7YGg/U-3ZTDkeF_I/AAAAAAAAISE/ms2gNIb-v-g/w72-h72-p-k-no-nu/Top-24-Inspired-181.jpg https://4.bp.blogspot.com/-poH-QXn7YGg/U-3ZTDkeF_I/AAAAAAAAISE/ms2gNIb-v-g/s0/
-        just_gplus https://lh3.googleusercontent.com/-NiGph3ObOPg/XE3DgnavXlI/AAAAAAABvgE/pcPPCe88rsU1r941wwP76TVf_o89i74kwCJoC/w530-h353-n/DSCF0753.JPG https://lh3.googleusercontent.com/-NiGph3ObOPg/XE3DgnavXlI/AAAAAAABvgE/pcPPCe88rsU1r941wwP76TVf_o89i74kwCJoC/s0/
-        google_keep https://lh5.googleusercontent.com/fRmAL_04p7oomNHCiV4tH4-agHSDBtLaWi_Tb6bgE5ZSHVu5OjQF3iRn06nNwP3ywZwdFP92zWM-o8yw0cn6m0tDTBARuO6F9e0wYu_1=s685 https://lh5.googleusercontent.com/fRmAL_04p7oomNHCiV4tH4-agHSDBtLaWi_Tb6bgE5ZSHVu5OjQF3iRn06nNwP3ywZwdFP92zWM-o8yw0cn6m0tDTBARuO6F9e0wYu_1=s0
-      }.each_slice 3 do |name, link, o|
-        it "replaces s0 and schema correctly #{name}" do
-          assert_equal o, DirectLink.google(link)
-        end
-      end
-
     end
 
     describe "imgur" do
+
       %w{
         https://imgur.com/a/badlinkpattern
         http://example.com/
-        https://imgur.com/gallery/YO49F.
+        https://imgur.com/gallery/abcD5.
       }.each_with_index do |url, i|
         it "ErrorBadLink_##{i + 1}" do
           assert_raises DirectLink::ErrorBadLink do
@@ -246,32 +254,30 @@ describe DirectLink do
       end
 
       it "ErrorNotFound when album is empty" do
+        stub_request(:head, "https://api.imgur.com/3/album/abcDEF7/0.json")#.to_return(status: 200, body: "", headers: {})
+        stub_request(:get, "https://api.imgur.com/3/album/abcDEF7/0.json").to_return body: {data: {images: {}}}.to_json
         e = assert_raises DirectLink::ErrorNotFound do
-          DirectLink.imgur "https://imgur.com/a/wPi63mj"
+          DirectLink.imgur "https://imgur.com/a/abcDEF7"
         end
         assert_nil e.cause if Exception.instance_methods.include? :cause  # Ruby 2.1
       end
 
-      valid_imgur_image_url_direct = "https://i.imgur.com/dCQprEq.jpg"
-      it 200 do
-        assert_equal [[valid_imgur_image_url_direct, 5760, 3840, "image/jpeg"]],
-                     DirectLink.imgur(valid_imgur_image_url_direct)
-      end
-      valid_imgur_image_url_album = "https://imgur.com/a/wPi63mj"
+      valid_imgur_image_url_direct = "https://i.imgur.com/abcDEF7.jpg"
+      valid_imgur_image_url_album = "https://imgur.com/a/abcDEF7"
       [400, 500, 503].each do |error_code|
         [
           [valid_imgur_image_url_direct, :direct],
           [valid_imgur_image_url_album, :album],
         ].each do |url, kind|
-          it "retries limited amout of times on error #{error_code} (#{kind})" do
+          it "retries a limited number of times on error #{error_code} (#{kind})" do
             tries = 0
             e = assert_raises DirectLink::ErrorAssert do
               NetHTTPUtils.stub :request_data, ->*{ tries += 1; raise NetHTTPUtils::Error.new "", error_code } do
-                DirectLink.imgur url, 4   # do not remove `4` or test will hang
+                DirectLink.imgur url, 1.5
               end
             end
             assert_equal error_code, e.cause.code if Exception.instance_methods.include? :cause  # Ruby 2.1
-            assert_equal 3, tries
+            assert_equal 2, tries
           end
         end
       end
@@ -282,8 +288,8 @@ describe DirectLink do
           raise NetHTTPUtils::Error.new "", 400 if 1 == f += 1
           m.call *args
         } do
-          assert_equal [[valid_imgur_image_url_direct, 5760, 3840, "image/jpeg"]],
-            DirectLink.imgur(valid_imgur_image_url_direct, 4)   # do not remove `4` or test may hang
+          assert_equal [[valid_imgur_image_url_direct, 100, 200, "image/jpeg"]],
+            DirectLink.imgur(valid_imgur_image_url_direct, 1.5)
         end
       end
       it 404 do
@@ -329,28 +335,26 @@ describe DirectLink do
         ["https://i.imgur.com/IxUrhGX.jpeg", "https://i.imgur.com/IxUrhGX.jpg", 4384, 3012, "image/jpeg"],  # jpEg
         ["https://imgur.com/gallery/9f2s9EE", "https://i.imgur.com/9f2s9EE.mp4", 960, 1438, "video/mp4"],  # mp4
       ].each_with_index do |t, i|
-        url, n, first, last, type = t
-        it "kinds of post ##{i + 1}" do
-          case last
-          when NilClass
-            if n.is_a? Class
-              assert_raises n do
-                DirectLink.imgur url
-              end
-            else
-              real = DirectLink.imgur url
-              assert_equal 1, real.size
-              assert_equal n, real.first.first
+        desc, url, stub_head, stub, m = t
+        it "kinds of post ##{i + 1}#{" (#{desc})" if desc}" do
+          case m
+          when Class
+            stub_request(:head, stub_head).to_return(stub) if stub_head
+            assert_raises m do
+              DirectLink.imgur url
             end
-          when Numeric
+          when NilClass
+            stub_request(:head, stub_head) if stub_head
+            stub_request(:get, stub_head).to_return body: {data: stub}.to_json if stub
             real = DirectLink.imgur url
             assert_equal 1, real.size
-            assert_equal [n, first, last, type], real.first
-          when String
+            assert_equal((stub["images"] ? stub["images"][0].values : stub.values), real.first)
+          when Numeric
+            stub_request(:head, stub_head) if stub_head
+            stub_request(:get, stub_head).to_return body: {data: stub}.to_json if stub
             real = DirectLink.imgur url
-            assert_equal n, real.size
-            assert_equal first, real.first.first
-            assert_equal last, real.last.first
+            assert_equal m, real.size
+            assert_equal stub["images"][0].values, real.first
           else
             fail "bug in tests"
           end
@@ -461,41 +465,93 @@ describe DirectLink do
         "https://lh5.googleusercontent.com/FcYUQBKLXWtFLEvbQduvu7FHUm2f7U_MVdMBVnNbpwfzKHIU-xABkudxw-m21SlM0jFYRHedh7Is5Dg6qlgIQF1iSndlWjiKCTTsUo1w=s1080",
       ],
       imgur: [
-        ["https://imgur.com/3eThW", "https://imgur.com/3eThW"],
-        ["https://i.imgur.com/3eThW", "https://imgur.com/3eThW"],
-        ["https://m.imgur.com/3eThW", "https://imgur.com/3eThW"],
-        ["https://www.imgur.com/3eThW", "https://imgur.com/3eThW"],
-        ["https://goo.gl/ySqUb5", "https://i.imgur.com/QpOBvRY.png"],
+        [%w{ https://imgur.com/abcD5 https://imgur.com/abcD5 }, [
+          %w{ https://imgur.com/abcD5 },
+        ] ],
+        [%w{ https://i.imgur.com/abcD5 https://imgur.com/abcD5 }, [
+          [*%w{ https://i.imgur.com/abcD5 https://imgur.com/abcD5 }, [302, "Moved Temporarily"]],
+          %w{ https://imgur.com/abcD5 },
+        ] ],
+        [%w{ https://m.imgur.com/abcD5 https://imgur.com/abcD5 }, [
+          %w{ https://m.imgur.com/abcD5 https://imgur.com/abcD5 },
+          %w{ https://imgur.com/abcD5 },
+        ] ],
+        [%w{ https://www.imgur.com/abcD5 https://imgur.com/abcD5 }, [
+          [*%w{ https://www.imgur.com/abcD5 https://imgur.com/abcD5 }, [301, "Moved Permanently"]],
+          %w{ https://imgur.com/abcD5 },
+        ] ],
+        [%w{ https://goo.gl/abcDE6 https://i.imgur.com/abcDEFY.png }, [
+          %w{ https://goo.gl/abcDE6 https://i.imgur.com/abcDEFY.png },
+          %w{ https://i.imgur.com/abcDEFY.png },
+        ] ],
       ],
       _500px: [
-        %w{ https://500px.com/photo/112134597/milky-way-by-tom-hall https://500px.com/photo/112134597/milky-way-by-tom-hall },
+        [%w{ https://500px.com/photo/123456789/milky-way https://500px.com/photo/123456789/milky-way }, [
+          %w{ https://500px.com/photo/123456789/milky-way },
+        ] ],
       ],
       flickr: [
-        "https://www.flickr.com/photos/59880970@N07/15773941043/in/dateposted-public/",
-        ["https://flic.kr/p/vPvCWJ", "https://www.flickr.com/photos/mlopezphotography/19572004110/"],
+        ["https://www.flickr.com/photos/12345678@N07/12345678901/in/dateposted-public/", [
+          ["https://www.flickr.com/photos/12345678@N07/12345678901/in/dateposted-public/"],
+        ] ],
+        [["https://flic.kr/p/abcDEF", "https://www.flickr.com/photos/lopez/12345678901/"], [
+          ["https://flic.kr/p/abcDEF", "https://www.flickr.com/photo.gne?short=abcDEF"],
+          ["https://www.flickr.com/photo.gne?short=abcDEF", "/photo.gne?rb=1&short=abcDEF"],
+          ["https://www.flickr.com/photo.gne?rb=1&short=abcDEF", "/photos/lopez/12345678901/"],
+          ["https://www.flickr.com/photos/lopez/12345678901/"],
+        ] ],
       ],
       wiki: [
-        "https://en.wikipedia.org/wiki/Third_Party_System#/media/File:United_States_presidential_election_results,_1876-1892.svg",
-        ["http://commons.wikimedia.org/wiki/File:Eduard_Bohlen_anagoria.jpg", "https://commons.wikimedia.org/wiki/File:Eduard_Bohlen_anagoria.jpg"],
+        ["https://en.wikipedia.org/wiki/Third_Party_System#/media/File:United_States_presidential_election_results,_1876-1892.svg", [
+          %w{ https://en.wikipedia.org/wiki/Third_Party_System },
+        ] ],
+        [%w{ http://commons.wikimedia.org/wiki/File:Eduard_Bohlen_anagoria.jpg https://commons.wikimedia.org/wiki/File:Eduard_Bohlen_anagoria.jpg }, [
+          %w{ http://commons.wikimedia.org/wiki/File:Eduard_Bohlen_anagoria.jpg https://commons.wikimedia.org/wiki/File:Eduard_Bohlen_anagoria.jpg },
+          %w{ https://commons.wikimedia.org/wiki/File:Eduard_Bohlen_anagoria.jpg }
+        ] ],
       ],
       reddit: [
-        "https://www.reddit.com/r/cacography/comments/32tq0i/c/",
-        ["http://redd.it/32tq0i", "https://www.reddit.com/comments/32tq0i"],
-        ["https://reddit.com/123456", "https://www.reddit.com/r/funny/comments/123456/im_thinking_about_getting_a_dog_and_youtubed_ways/"],
-        # ["https://www.reddit.com/r/travel/988889", "https://www.reddit.com/r/travel/comments/988889/playa_miramar_in_guaymas_sonora/"],
-        "https://www.reddit.com/r/PareidoliaGoneWild/comments/hzrlq6/beard_trimmer_on_display_at_best_buy_they_knew/", # NSFW causes redirect to /over_18? if the special cookie not provided
+        [%w{ https://www.reddit.com/r/abcdef/comments/abcde6/c/ }, [
+          %w{ https://www.reddit.com/r/abcdef/comments/abcde6/c/ },
+        ] ],
+        [%w{ http://redd.it/abcde6 https://www.reddit.com/comments/abcde6 }, [
+          [*%w{ http://redd.it/abcde6 https://redd.it/abcde6 }, [301, "Moved Permanently"]],
+          [*%w{ https://redd.it/abcde6 https://www.reddit.com/comments/abcde6 }, [302, "Temporarily Moved"]],
+          %w{ https://www.reddit.com/comments/abcde6 },
+        ] ],
+        [%w{ https://reddit.com/123456 https://www.reddit.com/r/funny/comments/123456/im_thinking/ }, [
+          [*%w{ https://reddit.com/123456 https://www.reddit.com/123456 }, [301, "Moved Permanently"]],
+          [*%w{ https://www.reddit.com/123456 https://www.reddit.com/r/funny/comments/123456/im_thinking/ }, [301, "Moved Permanently"]],
+          %w{ https://www.reddit.com/r/funny/comments/123456/im_thinking/ },
+        ] ],
+        [%w{ https://www.reddit.com/r/abcDEF/comments/abcde6/beard_trimmer/ }, [
+          %w{ https://www.reddit.com/r/abcDEF/comments/abcde6/beard_trimmer/ }
+        ] ], # NSFW causes redirect to /over_18? if the special cookie not provided # TODO: improve this test
       ],
       vk: [
-        "https://vk.com/id57030827?z=photo57030827_456241143",
+        ["https://vk.com/id12345678?z=photo12345678_456241143", [
+          ["https://vk.com/id12345678?z=photo12345678_456241143", nil, [418, ""]],
+        ] ],
       ],
     }.each do |method, tests|
-      describe "DirectLink() sees domain name and calls #{method}" do
-        tests.each_with_index do |(input, expected), i|
+      describe "DirectLink() choses a method '#{method}' according to a domain" do
+        tests.each_with_index do |((input, expected), stub), i|
           it "##{i + 1}" do
             DirectLink.stub method, ->(link, timeout = nil){
               assert_equal (expected || input), link
               throw :_
             } do
+              (stub || []).each do |u, o, code|
+                if o
+                  stub_request(:head, u).to_return status: (code || [302, "Found"]), headers: {location: o}
+                else
+                  if code
+                    stub_request(:head, u).to_return status: code
+                  else
+                    stub_request(:head, u)
+                  end
+                end
+              end
               catch :_ do
                 DirectLink input
                 fail "DirectLink.#{method} was not called"
@@ -507,52 +563,37 @@ describe DirectLink do
     end
 
     # TODO: make a Reddit describe
-    it "retries limited amout of times on error JSON::ParserError" do
-      link = "https://www.reddit.com/r/gifs/comments/9ftc8f/low_pass_wake_vortices/?st=JM2JIKII&amp;sh=c00fea4f"
+    it "retries limited amount of times on error JSON::ParserError" do
+      # TODO: the same but with the error expected to be gone after tries
+      stub_request(:post, "https://www.reddit.com/api/v1/access_token").to_return body: '{"access_token": "123456789000-17BDFFGGJJKNPVXZlt-2ACKQZfoswz", "token_type": "bearer", "expires_in": 3600, "scope": "*"}'
+      stub_request(:get, "https://oauth.reddit.com/by_id/t3_abcde6?api_type=json").to_return body: "invalid JSON"
       tries = 0
-      m = NetHTTPUtils.method :request_data
+      m = JSON.method :load
       e = assert_raises DirectLink::ErrorBadLink do
-        NetHTTPUtils.stub :request_data, lambda{ |*args|
-          if args.first == "https://www.reddit.com/9ftc8f.json"
-            tries += 1
-            raise JSON::ParserError
-          end
-          # this gem call should never return success -- it should experience JSON::ParserError
-          #   so I'm not much sure why do we need this line
-          m.call *args
-        } do
-          # why?
-          t = ENV.delete "REDDIT_SECRETS"
-          begin
-            DirectLink.reddit link, 3   # do not remove `4` or test will hang
-          ensure
-            ENV["REDDIT_SECRETS"] = t
-          end
+        JSON.stub :load, ->_{ tries += 1; m.call _ } do
+          DirectLink.reddit "https://www.reddit.com/r/gifs/comments/abcde6/", 2.5
         end
       end
       assert_instance_of JSON::ParserError, e.cause if Exception.instance_methods.include? :cause  # Ruby 2.1
-      assert_equal 3, tries
+      assert (3 <= tries)
+      assert (tries <= 4)
     end
     it "Reddit correctly parses out id when no token provided" do
-      # this URL isn't supposed to not throw exception -- FastImage does not handle this media type (see the next test)
-      t = ENV.delete "REDDIT_SECRETS"
-      FastImage.stub :new, lambda{ |link, *|
-        assert_equal "https://v.redd.it/2tyovczka8m11/DASH_4_8_M?source=fallback", link
-        throw :_
+      stub_request(:head, "https://www.reddit.com/r/gifs/comments/9ftc8f/")
+      m = NetHTTPUtils.method :request_data
+      NetHTTPUtils.stub :request_data, lambda{ |u, *_|
+        throw :_ if u == "https://www.reddit.com/9ftc8f.json"
+        m.call u, *_
       } do
+        t = ENV.delete "REDDIT_SECRETS"
         begin
           catch :_ do
-            DirectLink "https://www.reddit.com/r/gifs/comments/9ftc8f/low_pass_wake_vortices/?st=JM2JIKII&amp;sh=c00fea4f"
+            DirectLink "https://www.reddit.com/r/gifs/comments/9ftc8f/"
+            fail
           end
         ensure
           ENV["REDDIT_SECRETS"] = t
         end
-      end
-    end
-    it "it is really impossible to get dimensions from the shitty Reddit media hosting" do
-      # TODO: why does it call the same Net::HTTP::Get twice?
-      assert_raises FastImage::UnknownImageType do
-        DirectLink "https://v.redd.it/2tyovczka8m11/DASH_4_8_M"
       end
     end
 
@@ -618,21 +659,81 @@ describe DirectLink do
 
     # thanks to gem addressable
     it "does not throw URI::InvalidURIError if there are brackets" do
+      stub_request(:head, "https://www.flickr.com/photos/nakilon/12345678900/%2520%5B2048x1152%5D").to_return status: [404, "Not Found"]
       assert_equal 404, (
         assert_raises NetHTTPUtils::Error do
-          DirectLink "https://www.flickr.com/photos/leogaggl/28488925847/%20[2048x1152]"
+          DirectLink "https://www.flickr.com/photos/nakilon/12345678900/%20[2048x1152]"
         end.code
       )
     end
 
     it "throws ErrorNotFound when Reddit gallery is removed" do
+      stub_request(:head, "https://www.reddit.com/gallery/abcde6")
+      stub_request(:post, "https://www.reddit.com/api/v1/access_token").to_return body: {"access_token"=>"123456789012-abcde6cOO5V20ZD6J8WC6l36gMYRXQ"}.to_json
+      stub_request(:get, "https://oauth.reddit.com/by_id/t3_abcde6?api_type=json").to_return body: {
+        "data"=>{
+          "children"=>[{
+            "data"=>{
+              "selftext"=>"[удалено]",
+              "media_metadata"=>nil,
+              "is_self"=>false,
+              "permalink"=>"/r/woahdude/comments/abcde6/crystal_light/",
+              "url"=>"https://www.reddit.com/gallery/abcde6",
+              "media"=>nil
+            }
+          }]
+        }
+      }.to_json
       assert_raises DirectLink::ErrorNotFound do
-        DirectLink "https://www.reddit.com/gallery/i3y7pc"
+        DirectLink "https://www.reddit.com/gallery/abcde6"
       end
     end
 
     it "follows Reddit crosspost" do
-      assert_equal %w{ image/png image/png }, DirectLink("https://www.reddit.com/ik6c6a").map(&:type)
+      stub_request(:head, "https://www.reddit.com/abcde6").to_return status: [301, "Moved Permanently"], headers: {location: "https://www.reddit.com/r/wallpapers/comments/abcde6/new_wallpaper/"}
+      stub_request(:head, "https://www.reddit.com/r/wallpapers/comments/abcde6/new_wallpaper/")
+      stub_request(:post, "https://www.reddit.com/api/v1/access_token").to_return body: {"access_token"=>"123456789012-abcde6WGKuIupoi5M3NtPVdI7bk1jg"}.to_json
+      stub_request(:get, "https://oauth.reddit.com/by_id/t3_abcde6?api_type=json").to_return body: {
+        "data"=>{
+          "children"=>[{
+            "data"=>{
+              "selftext"=>"",
+              "is_self"=>false,
+              "crosspost_parent"=>"t3_abcde7",
+              "permalink"=>"/r/wallpapers/comments/abcde6/new_wallpaper/",
+              "url"=>"/r/Firewatch/comments/abcde7/new_wallpaper/",
+              "media"=>nil,
+            }
+          }]
+        }
+      }.to_json
+      stub_request(:head, "https://www.reddit.com/r/Firewatch/comments/abcde7/new_wallpaper/")
+      stub_request(:get, "https://oauth.reddit.com/by_id/t3_abcde7?api_type=json").to_return body: {
+        "data"=>{
+          "children"=>[{
+            "data"=>{
+              "selftext"=>"I",
+              "media_metadata"=>{
+                "abcde62zhek51"=>{
+                  "status"=>"valid",
+                  "m"=>"image/png",
+                  "s"=>{"y"=>1920, "x"=>4920, "u"=>"asd"},
+                },
+                "abcde72zhek51"=>{
+                  "status"=>"valid",
+                  "m"=>"image/png",
+                  "s"=>{"y"=>1920, "x"=>4920, "u"=>"asd"},
+                }
+              },
+              "is_self"=>true,
+              "media"=>nil,
+              "permalink"=>"/r/Firewatch/comments/abcde7/new_wallpaper/",
+              "url"=>"https://www.reddit.com/r/Firewatch/comments/abcde7/new_wallpaper/",
+            }
+          }],
+        }
+      }.to_json
+      assert_equal %w{ image/png image/png }, DirectLink("https://www.reddit.com/abcde6").map(&:type)
     end
 
     it "throws ErrorBadLink if link is invalid" do
@@ -664,15 +765,16 @@ describe DirectLink do
         end
       end
       [ # TODO this URLs may be reused from tests that check that this method calls internal method
-        [:google, "//lh3.googleusercontent.com/proxy/DZtTi5KL7PqiBwJc8weNGLk_Wi2UTaQH0AC_h2kuURiu0AbwyI2ywOk2XgdAjL7ceg=w530-h354-n"],
-        [:imgur, "http://imgur.com/HQHBBBD"],
-        [:flickr, "https://www.flickr.com/photos/44133687@N00/17380073505/"],
-        [:_500px, "https://500px.com/photo/112134597/milky-way-by-tom-hall"],
+        [:google, "//lh3.googleusercontent.com/proxy/578BDGJKLLNPTZceiikqtww_Wi2UTaQH0AC_h2kuURiu0AbwyI2ywOk2XgdAjL7ceg=w530-h354-n"],
+        [:imgur, "http://imgur.com/ABCDEFG"],
+        [:flickr, "https://www.flickr.com/photos/12345678@N00/00013355778/"],
+        [:_500px, "https://500px.com/photo/123456789/milky-way"],
         [:wiki, "http://commons.wikimedia.org/wiki/File:Eduard_Bohlen_anagoria.jpg"],
         [:reddit, "https://www.reddit.com/123456"],
         [:vk, "https://vk.com/"],
       ].each do |method, link|
         it "can otherwise raise DirectLink::ErrorBadLink #{method}" do
+          stub_request(:head, link)
           e = assert_raises(DirectLink::ErrorBadLink, link) do
             DirectLink.stub method, ->*{ raise DirectLink::ErrorBadLink.new "test" } do
               DirectLink link
@@ -685,12 +787,12 @@ describe DirectLink do
 
     describe "other domains tests" do
       [
-        # ["http://www.aeronautica.difesa.it/organizzazione/REPARTI/divolo/PublishingImages/6%C2%B0%20Stormo/2013-decollo%20al%20tramonto%20REX%201280.jpg", ["http://www.aeronautica.difesa.it/organizzazione/REPARTI/divolo/PublishingImages/6%C2%B0%20Stormo/2013-decollo%20al%20tramonto%20REX%201280.jpg", 1280, 853, :jpeg], nil, 1],   # website is dead?
-        # ["http://minus.com/lkP3hgRJd9npi", SocketError, /nodename nor servname provided, or not known|No address associated with hostname/, 0],
-        ["http://www.cutehalloweencostumeideas.org/wp-content/uploads/2017/10/Niagara-Falls_04.jpg", SocketError, /nodename nor servname provided, or not known|Name or service not known|getaddrinfo: Name does not resolve/, 0],
+        ["http://www.cute.org/wp-content/uploads/2010/10/Niagara.jpg", SocketError, /nodename nor servname provided, or not known|Name or service not known|getaddrinfo: Name does not resolve/, 0],
       ].each_with_index do |(input, expectation, message_string_or_regex, max_redirect_resolving_retry_delay), i|
         it "##{i + 1}" do
           if expectation.is_a? Class
+            # TODO: move the stub to the array above
+            stub_request(:head, input).to_raise expectation.new("Failed to open TCP connection to www.cute.org:80 (getaddrinfo: nodename nor servname provided, or not known)")
             e = assert_raises expectation, "for #{input}" do
               DirectLink input, max_redirect_resolving_retry_delay
             end
@@ -728,20 +830,19 @@ describe DirectLink do
             case expectation
             when Class
               e = assert_raises expectation, "for #{input} (giveup = #{giveup})" do
-                DirectLink input, 5, *ENV["PROXY"], giveup: giveup
+                DirectLink input, 5, giveup: giveup
               end
               assert_equal expectation.to_s, e.class.to_s, "for #{input} (giveup = #{giveup})"
             when String
-              result = DirectLink input, 5, *ENV["PROXY"], giveup: giveup
+              result = DirectLink input, 5, giveup: giveup
               assert_equal expectation, result.url, "for #{input} (giveup = #{giveup})"
             else
-              result = DirectLink input, 5, *ENV["PROXY"], giveup: giveup
+              result = DirectLink input, 5, giveup: giveup
               result = [result] unless result.is_a? Array   # we can't do `Array(<Struct>)` because it splats by elements
               assert_equal expectation, result.size, ->{
                 "for #{input} (giveup = #{giveup}): #{result.map &:url}"
               }
             end
-            # weird that this test may take longer than 5 sec
           ensure
             ENV["IMGUR_CLIENT_ID"] = ti if ti
             ENV["REDDIT_SECRETS"] = tr if tr
@@ -784,36 +885,86 @@ describe DirectLink do
 
     describe "fails" do
       [
-        [1, "http://example.com/", /\AFastImage::UnknownImageType\n\z/],
-        [1, "http://example.com/404", /\ANetHTTPUtils::Error: HTTP error #404 \n\z/],
+        [1, "http://example.com/", /\AFastImage::UnknownImageType\n\z/, [
+          [:head, "http://example.com/"],
+          [:get, "http://example.com/", {body: "<html></html>"}],
+        ] ],
+        [1, "http://example.com/404", /\ANetHTTPUtils::Error: HTTP error #404 \n\z/, [
+          [:head, "http://example.com/404", {status: [404, "Not Found"]}],
+        ] ],
 
         # TODO: a test when the giveup=false fails and reraises the DirectLink::ErrorMissingEnvVar
         #       maybe put it to ./lib tests
 
         # by design it should be impossible to write a test for DirectLink::ErrorAssert
-        [1, "https://flic.kr/p/DirectLinkErrorNotFound", /\ANetHTTPUtils::Error: HTTP error #404 \n\z/],
+        [1, "https://flic.kr/p/DirectLinkErrorNotFound", /\ANetHTTPUtils::Error: HTTP error #404 \n\z/, [
+          [:head, "https://flic.kr/p/DirectLinkErrorNotFound", {status: [302, "Found"], headers: {"Location"=>"https://www.flickr.com/photo.gne?short=DirectLinkErrorNotFound"}}],
+          [:head, "https://www.flickr.com/photo.gne?short=DirectLinkErrorNotFound", {status: [302, "Found"], headers: {"Location"=>"/photo.gne?rb=1&short=DirectLinkErrorNotFound"}}],
+          [:head, "https://www.flickr.com/photo.gne?rb=1&short=DirectLinkErrorNotFound", {status: [404, "Not Found"]}],
+        ] ],
 
-        [1, "https://imgur.com/a/badlinkpattern", /\ANetHTTPUtils::Error: HTTP error #404 \n\z/],
+        [1, "https://imgur.com/a/badlinkpattern", /\ANetHTTPUtils::Error: HTTP error #404 \n\z/, [
+          [:head, "https://imgur.com/a/badlinkpattern", {status: [404, "Not Found"]}],
+        ] ],
         # TODO: a test that it appends the `exception.cause`
-
-        [1, "https://groundingpositivity.com/2020/08/13/new-quantum-app-will-make-you-wonder-do-we-live-in-a-simulation/", (
-          Gem::Version.new(RUBY_VERSION) < Gem::Version.new("2.4.0") ?
-          /\ANetHTTPUtils::EOFError_from_rbuf_fill: probably the old Ruby empty backtrace EOFError exception from net\/protocol\.rb: end of file reached\n\z/ :
-          /\A\S+\/net\/protocol\.rb:\d+:in `rbuf_fill': end of file reached \(EOFError\)\n/
-        ) ],  # TODO: add also a test to nethttputils gem
-      ].each_with_index do |(expected_exit_code, link, expected_output, unset), i| # TODO: unset is not used anymore or I have to go sleep?
-        it "##{i + 1}" do
-          string, status = Open3.capture2e "export #{(File.read("api_tokens_for_travis.sh") + File.read("vk.secret")).scan(/(?<=^export )\S+=\S+/).join(" ")}#{unset} && RUBYOPT='-rbundler/setup #{$-I.map{ |i| "-I #{i}" }.join " "}' ./bin/directlink #{link}"
-          assert_equal expected_exit_code, status.exitstatus, "for #{link}"
-          assert string[expected_output], "for #{link}"
+      ].each do |expected_exit_code, input, expected_output, stubs|
+        it "fails" do
+          string, status = popen.call(input, stubs, true)
+          assert_equal expected_exit_code, status.exitstatus, "for #{input}"
+          assert string[expected_output], "for #{input}: string=#{string.inspect}"
         end
       end
-    end
 
     valid_imgur_image_url1 = "https://goo.gl/ySqUb5"
     valid_imgur_image_url2 = "https://imgur.com/a/oacI3gl"
+    stubs = [
+      [:head, "https://goo.gl/ySqUb5", {status: [302, "Found"], headers: {"Location"=>"https://i.imgur.com/QpOBvRY.png"}}],
+      [:head, "https://i.imgur.com/QpOBvRY.png"],
+      [:head, "https://api.imgur.com/3/image/QpOBvRY/0.json"],
+      [:get, "https://api.imgur.com/3/image/QpOBvRY/0.json", {body: <<~HEREDOC
+        {
+           "status" : 200,
+           "success" : true,
+           "data" : {
+              "height" : 460,
+              "link" : "https://i.imgur.com/QpOBvRY.png",
+              "type" : "image/png",
+              "width" : 460
+           }
+        }
+        HEREDOC
+      } ],
+      [:head, "https://imgur.com/a/oacI3gl"],
+      [:head, "https://api.imgur.com/3/album/oacI3gl/0.json"],
+      [:get, "https://api.imgur.com/3/album/oacI3gl/0.json", {body: <<~HEREDOC
+        {
+           "status" : 200,
+           "success" : true,
+           "data" : {
+              "id" : "oacI3gl",
+              "link" : "https://imgur.com/a/oacI3gl",
+              "images" : [
+                 {
+                    "height" : 100,
+                    "link" : "https://i.imgur.com/9j4KdkJ.png",
+                    "type" : "image/png",
+                    "width" : 100
+                 },
+                 {
+                    "height" : 460,
+                    "link" : "https://i.imgur.com/QpOBvRY.png",
+                    "type" : "image/png",
+                    "width" : 460
+                 }
+              ]
+           }
+        }
+        HEREDOC
+      } ]
+    ]
     [
-      ["<= #{valid_imgur_image_url1}
+      [stubs, <<~HEREDOC],
+        <= #{valid_imgur_image_url1}
         => https://i.imgur.com/QpOBvRY.png
            image/png 460x460
         <= #{valid_imgur_image_url2}
@@ -821,8 +972,9 @@ describe DirectLink do
            image/png 460x460
         => https://i.imgur.com/9j4KdkJ.png
            image/png 100x100
-        ".gsub(/^ {8}/, "")],
-      ['[
+        HEREDOC
+      [stubs, <<~HEREDOC, "json"]
+        [
           {
             "url": "https://i.imgur.com/QpOBvRY.png",
             "width": 460,
@@ -844,10 +996,10 @@ describe DirectLink do
             }
           ]
         ]
-        '.gsub(/^ {8}/, ""), "json"],
-    ].each do |expected_output, param|
+        HEREDOC
+    ].each do |stubs, expected_output, param|
       it "#{param || "default"} output format" do
-        string, status = Open3.capture2e "export #{(File.read("api_tokens_for_travis.sh") + File.read("vk.secret")).scan(/(?<=^export )\S+=\S+/).join(" ")} && RUBYOPT='-rbundler/setup' ./bin/directlink#{" --#{param}" if param} #{valid_imgur_image_url1} #{valid_imgur_image_url2}"
+        string, status = popen.call("#{valid_imgur_image_url1} #{valid_imgur_image_url2}", stubs, true, param)
         assert_equal [0, expected_output], [status.exitstatus, string]
       end
     end
@@ -858,15 +1010,40 @@ describe DirectLink do
     end
 
     # TODO: test about --json
-    it "uses <meta> tag" do
-      string, status = Open3.capture2e "RUBYOPT='-rbundler/setup' ./bin/directlink --json https://www.kp.ru/daily/26342.7/3222103/"
-      assert_equal [0, "https://s11.stc.all.kpcdn.net/share/i/12/8054352/cr-1200-630.wm-asnplfru-100-tr-0-0.t-13-3222103-ttps-54-14-0083CD-1010-l-85-b-42.t-13-3222103-ttps-54-14-FFF-1010-l-85-b-42.t-207-5-asb-37-10-FFF-788-l-370-t-68.m2018-03-14T02-10-20.jpg"], [status.exitstatus, JSON.load(string).fetch("url")]
+    it "does not give up" do
+      string, status = popen.call("https://www.kp.ru/daily/123/", [
+        [:head, "https://www.kp.ru/daily/123/", {headers: {"Content-Type"=>"text/html"}}],
+        [:get, "https://www.kp.ru/daily/123/", {body: <<~HEREDOC
+          <!DOCTYPE html>
+          <html xmlns="http://www.w3.org/1999/xhtml">
+            <head>
+              <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+              <link rel="icon" type="image/png" href="/favicon-16.png" sizes="16x16" />
+              <link rel="icon" type="image/png" href="/favicon-32.png" sizes="32x32" />
+              <link rel="icon" type="image/png" href="/favicon-96.png" sizes="96x96" />
+              <link rel="icon" type="image/png" href="/favicon-128.png" sizes="128x128" />
+              <meta data-react-helmet="true" property="og:image" content="https://s11.stc.all.kpcdn.net/share/20.jpg" />
+              <meta data-react-helmet="true" name="twitter:image:src" content="https://s11.stc.all.kpcdn.net/share/20.jpg" />
+              <link data-react-helmet="true" rel="image_src" href="https://s11.stc.all.kpcdn.net/share/20.jpg" />
+            </head>
+            <body>
+              <div id="app">
+                <div>
+                  <a href="/daily/author/1234">
+                    <img alt="Александра" src="https://s14.stc.all.kpcdn.net/share/i/3/1234567/avatar.jpg" data-show-on-desktop="false" data-show-on-mobile="false" />
+                    Ы
+                  </a>
+                </div>
+              </div>
+            </body>
+          </html>
+          HEREDOC
+        } ],
+        [:head, "https://s11.stc.all.kpcdn.net/share/20.jpg"],
+        [:get, "https://s11.stc.all.kpcdn.net/share/20.jpg", {body: "\xFF\xD8\xFF\xE0\x00\x10JFIF\x00\x01\x01\x01\x00H\x00H\x00\x00\xFF\xDB\x00C\x00\x03\x02\x02\x02\x02\x02\x03\x02\x02\x02\x03\x03\x03\x03\x04\x06\x04\x04\x04\x04\x04\b\x06\x06\x05\x06\t\b\n\n\t\b\t\t\n\f\x0F\f\n\v\x0E\v\t\t\r\x11\r\x0E\x0F\x10\x10\x11\x10\n\f\x12\x13\x12\x10\x13\x0F\x10\x10\x10\xFF\xC9\x00\v\b\x00\x01\x00\x01\x01\x01\x11\x00\xFF\xCC\x00\x06\x00\x10\x10\x05\xFF\xDA\x00\b\x01\x01\x00\x00?\x00\xD2\xCF \xFF\xD9"}],
+      ], false, "json")
+      assert_equal [0, "https://s11.stc.all.kpcdn.net/share/20.jpg"], [status.exitstatus, JSON.load(string).fetch("url")]
     end
-    # TODO: kp.ru broke the page -- images are gone
-    # it "ignores <meta> tag" do
-    #   string, status = Open3.capture2e "RUBYOPT='-rbundler/setup' ./bin/directlink --json --ignore-meta https://www.kp.ru/daily/26342.7/3222103/"
-    #   assert_equal [0, 21, "https://s11.stc.all.kpcdn.net/share/i/12/8024261/inx960x640.jpg"], [status.exitstatus, JSON.load(string).size, JSON.load(string).first.fetch("url")]
-    # end
 
   end
 

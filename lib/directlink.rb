@@ -11,7 +11,7 @@ module DirectLink
     puts str unless Module.nesting.first.silent
   end
 
-  class ErrorAssert < RuntimeError
+  class ErrorAssert < RuntimeError  # gem user should not face this error
     def initialize msg
       super "#{msg} -- consider reporting this issue to GitHub"
     end
@@ -57,7 +57,7 @@ module DirectLink
       "#{$1}s#{width}/"
     when /\A(\/\/lh3\.googleusercontent\.com\/proxy\/[a-zA-Z0-9_-]{66,523}=)(?:w(?:[45]\d\d)-h\d\d\d-[np]|s530-p|s110-p-k)\z/
       "https:#{$1}s#{width}/"
-    when /\A(\/\/lh3\.googleusercontent\.com\/cOh2Nsv7EGo0QbuoKxoKZVZO_NcBzufuvPtzirMJfPmAzCzMtnEncfA7zGIDTJfkc1YZFX2MhgKnjA=)w530-h398-p\z/
+    when /\A(\/\/lh3\.googleusercontent\.com\/[a-zA-Z0-9]{24}_[a-zA-Z]{30}7zGIDTJfkc1YZFX2MhgKnjA=)w530-h398-p\z/
       "https:#{$1}s#{width}/"
     when /\A(\/\/lh3\.googleusercontent\.com\/-[a-zA-Z0-9-]{11}\/[VW][a-zA-Z0-9_-]{9}I\/AAAAAAA[AC][a-zA-Z0-9]{3}\/[a-zA-Z0-9_-]{32}[gwAQ]CJoC\/)w530-h[23]\d\d-p\/[^\/]+\z/,
          /\A(?:https?:)?(\/\/[1-4]\.bp\.blogspot\.com\/-[a-zA-Z0-9_-]{11}\/[UVWX][a-zA-Z0-9_-]{9}I\/AAAAAAAA[A-Z][a-zA-Z0-9_-]{2}\/[a-zA-Z0-9_-]{33}C(?:EwYBhgL|(?:Lc|Kg)BGAs(?:YHQ)?)\/)(?:s640|w\d{2,4}-h\d\d\d?-p(?:-k-no-nu)?)\/[^\/]+\z/,
@@ -154,7 +154,6 @@ module DirectLink
   def self._500px link
     raise ErrorBadLink.new link unless %r{\Ahttps://500px\.com/photo/(?<id>[^/]+)/[-[a-zA-Z0-9]%]+\/?\z} =~ link
     require "nokogiri"
-    resp = NetHTTPUtils.request_data link
     f = lambda do |form|
       JSON.load(NetHTTPUtils.request_data "https://api.500px.com/v1/photos", form: form).fetch("photos").values.first
     end
@@ -243,11 +242,13 @@ module DirectLink
       raise ErrorAssert.new "our knowledge about Reddit API seems to be outdated" unless data["media"].keys.sort == %w{ oembed type } && %w{ youtube.com gfycat.com imgur.com }.include?(data["media"]["type"])
       return [true, data["media"]["oembed"]["thumbnail_url"]]
     end
-    return [true, data["media_metadata"].values.map do |media|
-      next if media == {"status"=>"failed"}
-      raise ErrorAssert.new "our knowledge about Reddit API seems to be outdated" unless media["status"] == "valid"
-      [media["m"], *media["s"].values_at("x", "y"), CGI.unescapeHTML(media["s"]["u"])]
-    end.compact] if data["media_metadata"]
+    if data["media_metadata"]
+      return [true, data["media_metadata"].values.map do |media|
+        next if media == {"status"=>"failed"}
+        raise ErrorAssert.new "our knowledge about Reddit API seems to be outdated" unless media["status"] == "valid"
+        [media["m"], *media["s"].values_at("x", "y"), CGI.unescapeHTML(media["s"]["u"])]
+      end.compact]
+    end
     return [true, "#{"https://www.reddit.com" if /\A\/r\/[0-9a-zA-Z_]+\/comments\/[0-9a-z]{5,6}\// =~ data["url"]}#{data["url"]}"] if data["crosspost_parent"]
     return [true, data["url"]] unless data["is_self"]
     raise ErrorAssert.new "our knowledge about Reddit API seems to be outdated" if data["url"] != "https://www.reddit.com" + data["permalink"]
@@ -285,7 +286,7 @@ module DirectLink
       raise ErrorBadLink.new link
     end
     raise ErrorMissingEnvVar.new "define VK_ACCESS_TOKEN and VK_CLIENT_SECRET env vars" unless ENV["VK_ACCESS_TOKEN"] && ENV["VK_CLIENT_SECRET"]
-    sleep 0.25 # "error_msg"=>"Too many requests per second"
+    sleep 0.25 unless ENV["CI"] # "error_msg"=>"Too many requests per second"
     f.call( JSON.load( NetHTTPUtils.request_data "https://api.vk.com/method/#{mtd}.getById",
       :POST, form: { field => id, :access_token => ENV["VK_ACCESS_TOKEN"], :client_secret => ENV["VK_CLIENT_SECRET"], :v => "5.101" }
     ).fetch("response") ).map do |photos|
@@ -344,12 +345,13 @@ def DirectLink link, timeout = nil, proxy = nil, giveup: false, ignore_meta: fal
     head = NetHTTPUtils.request_data link, :HEAD, header: header, **(proxy ? {proxy: proxy} : {}), **(timeout ? {
       timeout: timeout,
       max_start_http_retry_delay: timeout,
-      max_read_retry_delay: timeout
+      max_read_retry_delay: timeout,
     } : {})
   rescue Net::ReadTimeout
   rescue NetHTTPUtils::Error => e
     raise unless 418 == e.code
   else
+    raise DirectLink::ErrorAssert.new "last_response.uri is not set" unless head.instance_variable_get(:@last_response).uri
     link = head.instance_variable_get(:@last_response).uri.to_s
   end
 
@@ -357,7 +359,7 @@ def DirectLink link, timeout = nil, proxy = nil, giveup: false, ignore_meta: fal
   #   because they can be hidden behind URL shorteners
   #   also it can resolve NetHTTPUtils::Error(404) before trying the adapter
 
-  t = google_without_schema_crutch[] and return t
+  t = google_without_schema_crutch[] and return t   # TODO: why again?
 
   begin
     imgur = DirectLink.imgur(link, timeout).sort_by{ |u, w, h, t| - w * h }.map do |u, w, h, t|
@@ -435,11 +437,11 @@ def DirectLink link, timeout = nil, proxy = nil, giveup: false, ignore_meta: fal
       timeout: timeout,                 # NetHTTPUtild passes this as read_timeout to Net::HTTP.start
       max_read_retry_delay: timeout     # and then compares accumulated delay to this
     # if we use :get here we will download megabytes of files just to giveup on content_type we can't process
-    case head.instance_variable_get(:@last_response).content_type
+    case head.instance_variable_get(:@last_response).content_type   # webmock should provide this
     when "text/html" ; nil
     else ; raise
     end
-    html = Nokogiri::HTML NetHTTPUtils.request_data link, header: {"User-Agent" => "Mozilla"}
+    html = Nokogiri::HTML NetHTTPUtils.request_data link, :GET, header: {"User-Agent" => "Mozilla"}
     if t = html.at_css("meta[@property='og:image']")
       begin
         return DirectLink URI.join(link, t[:content]).to_s, nil, *proxy, giveup: true
