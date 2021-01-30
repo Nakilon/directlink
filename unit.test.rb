@@ -6,7 +6,7 @@ require_relative "webmock_patch"
 
 ENV["IMGUR_CLIENT_ID"] = "001788999ccdddf"
 ENV["FLICKR_API_KEY"] = "00123333456678889bbbbcccddddddff"
-ENV["REDDIT_SECRETS"] = "reddit_token_for_travis.yaml"
+ENV["REDDIT_SECRETS"] = "reddit_token.yaml"
 ENV["VK_ACCESS_TOKEN"] = "0011222222233334455566667777778888888888999999aaaaaaabbbbcddddddddddddddeeeeeeeffffff"
 ENV["VK_CLIENT_SECRET"] = "0011223445555555555566777777888999999999999aaaaaaabccddddddddeeefffffff"
 
@@ -1275,7 +1275,7 @@ describe DirectLink do
       HEREDOC
       file.flush
       begin
-        Open3.capture2e "#{"export #{File.read("api_tokens_for_travis.sh").scan(/(?<=^export )\S+=\S+/).join(" ")} && " if export}RUBYOPT='-r bundler/setup #{$-I.map{ |i| "-I #{i}" }.join " "} -r #{file.path}' ./bin/directlink#{" --#{param}" if param} #{input}"
+        Open3.capture2e "#{"export #{File.read("api_tokens.sh").scan(/(?<=^export )\S+=\S+/).join(" ")} && " if export}RUBYOPT='-r bundler/setup #{$-I.map{ |i| "-I #{i}" }.join " "} -r #{file.path}' ./bin/directlink#{" --#{param}" if param} #{input}"
       ensure
         file.close
         file.unlink

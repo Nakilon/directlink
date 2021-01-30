@@ -192,6 +192,16 @@ gem "kramdown", "<2"
 * 500px.com has discontinued API in June 2018 -- the tool now uses undocumented methods
 * `DirectLink()` can return an Array of Structs for 1) Imgur 2) Reddit unless `giveup = true` is set
 
+## Development notes:
+
+```bash
+bundle install
+bundle exec ruby unit.test.rb
+```
+
+`CI` env var skips vk sleep.
+`CI` env var skips forks specified in `Gemfile` to avoid installing the `git` and `openssh` during the Github Action. Because of that one test will fail until the new version of `gem fastimage` is released.
+
 TODO: maybe make all these web service specific methods private and discourage to use them since they all return very different things and sometimes don't raise exceptions while the `DirectLink()` does  
 TODO: what should `--json` print if exception was thrown?  
 TODO: looped prompt mode
