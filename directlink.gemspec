@@ -23,7 +23,7 @@ Gem::Specification.new do |spec|
   spec.require_path = "lib"
   spec.bindir       = "bin"
   spec.executable   = "directlink"
-  spec.test_file    = "test.rb"
+  spec.test_file    = "unit.test.rb"
   spec.files        = %w{ LICENSE directlink.gemspec lib/directlink.rb bin/directlink }
 
   spec.requirements << "you may want to create apps and provide API tokens:"
