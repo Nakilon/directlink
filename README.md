@@ -6,7 +6,7 @@ This tool obtains from any sort of hyperlink (a thumbnail URL, a link to a photo
 
 ## Usage
 
-### As a binary
+### As an executable
 
 ```
 $ gem install directlink
@@ -198,9 +198,12 @@ gem "kramdown", "<2"
 bundle install
 bundle exec ruby unit.test.rb
 ```
+```bash
+(source api_tokens.sh.secret && bundle exec ruby integration.test.rb)
+```
 
 `CI` env var skips vk sleep.
-`CI` env var skips forks specified in `Gemfile` to avoid installing the `git` and `openssh` during the Github Action. Because of that one test will fail until the new version of `gem fastimage` is released.
+`CI` env var skips forks specified in `Gemfile` to avoid installing the `git` and `openssh` during the Github Action.
 
 TODO: maybe make all these web service specific methods private and discourage to use them since they all return very different things and sometimes don't raise exceptions while the `DirectLink()` does  
 TODO: what should `--json` print if exception was thrown?  

@@ -264,7 +264,27 @@ describe DirectLink do
 
       valid_imgur_image_url_direct = "https://i.imgur.com/abcDEF7.jpg"
       valid_imgur_image_url_album = "https://imgur.com/a/abcDEF7"
-      [400, 500, 503].each do |error_code|
+      [404].each do |error_code|
+        it error_code do
+          e = assert_raises DirectLink::ErrorNotFound do
+            NetHTTPUtils.stub :request_data, ->*{ raise NetHTTPUtils::Error.new "", error_code } do
+              DirectLink.imgur valid_imgur_image_url_direct
+            end
+          end
+          assert_equal error_code, e.cause.code if Exception.instance_methods.include? :cause  # Ruby 2.1
+        end
+      end
+      [599].each do |error_code|
+        it error_code do
+          e = assert_raises DirectLink::ErrorAssert do
+            NetHTTPUtils.stub :request_data, ->*{ raise NetHTTPUtils::Error.new "", error_code } do
+              DirectLink.imgur valid_imgur_image_url_direct
+            end
+          end
+          assert_equal error_code, e.cause.code if Exception.instance_methods.include? :cause  # Ruby 2.1
+        end
+      end
+      [400, 500, 502, 503].each do |error_code|
         [
           [valid_imgur_image_url_direct, :direct],
           [valid_imgur_image_url_album, :album],
@@ -293,14 +313,6 @@ describe DirectLink do
           assert_equal [[valid_imgur_image_url_direct, 100, 200, "image/jpeg"]],
             DirectLink.imgur(valid_imgur_image_url_direct, 1.5)
         end
-      end
-      it 404 do
-        e = assert_raises DirectLink::ErrorNotFound do
-          NetHTTPUtils.stub :request_data, ->*{ raise NetHTTPUtils::Error.new "", 404 } do
-            DirectLink.imgur valid_imgur_image_url_direct
-          end
-        end
-        assert_equal 404, e.cause.code if Exception.instance_methods.include? :cause  # Ruby 2.1
       end
 
       [
@@ -1233,11 +1245,11 @@ describe DirectLink do
 
     describe "shows usage help if misused" do
       [
-        [/\Ausage: directlink \[--debug\] \[--json\] \[--github\] \[--ignore-meta\] <link1> <link2> <link3> \.\.\.\ndirectlink version \d\.\d\.\d\.\d\d? \(https:\/\/github\.com\/nakilon\/directlink\)\n\z/, nil],
-        [/\Ausage: directlink \[--debug\] \[--json\] \[--github\] \[--ignore-meta\] <link1> <link2> <link3> \.\.\.\ndirectlink version \d\.\d\.\d\.\d\d? \(https:\/\/github\.com\/nakilon\/directlink\)\n\z/, "-h"],
-        [/\Ausage: directlink \[--debug\] \[--json\] \[--github\] \[--ignore-meta\] <link1> <link2> <link3> \.\.\.\ndirectlink version \d\.\d\.\d\.\d\d? \(https:\/\/github\.com\/nakilon\/directlink\)\n\z/, "--help"],
-        [/\Ausage: directlink \[--debug\] \[--json\] \[--github\] \[--ignore-meta\] <link1> <link2> <link3> \.\.\.\ndirectlink version \d\.\d\.\d\.\d\d? \(https:\/\/github\.com\/nakilon\/directlink\)\n\z/, "-v"],
-        [/\Ausage: directlink \[--debug\] \[--json\] \[--github\] \[--ignore-meta\] <link1> <link2> <link3> \.\.\.\ndirectlink version \d\.\d\.\d\.\d\d? \(https:\/\/github\.com\/nakilon\/directlink\)\n\z/, "--version"],
+        [/\Ausage: directlink \[--debug\] \[--json\] \[--github\] \[--ignore-meta\] <link1> <link2> <link3> \.\.\.\ndirectlink version \d\.\d\.\d\d?\.\d\d? \(https:\/\/github\.com\/nakilon\/directlink\)\n\z/, nil],
+        [/\Ausage: directlink \[--debug\] \[--json\] \[--github\] \[--ignore-meta\] <link1> <link2> <link3> \.\.\.\ndirectlink version \d\.\d\.\d\d?\.\d\d? \(https:\/\/github\.com\/nakilon\/directlink\)\n\z/, "-h"],
+        [/\Ausage: directlink \[--debug\] \[--json\] \[--github\] \[--ignore-meta\] <link1> <link2> <link3> \.\.\.\ndirectlink version \d\.\d\.\d\d?\.\d\d? \(https:\/\/github\.com\/nakilon\/directlink\)\n\z/, "--help"],
+        [/\Ausage: directlink \[--debug\] \[--json\] \[--github\] \[--ignore-meta\] <link1> <link2> <link3> \.\.\.\ndirectlink version \d\.\d\.\d\d?\.\d\d? \(https:\/\/github\.com\/nakilon\/directlink\)\n\z/, "-v"],
+        [/\Ausage: directlink \[--debug\] \[--json\] \[--github\] \[--ignore-meta\] <link1> <link2> <link3> \.\.\.\ndirectlink version \d\.\d\.\d\d?\.\d\d? \(https:\/\/github\.com\/nakilon\/directlink\)\n\z/, "--version"],
         ["DirectLink::ErrorBadLink: \"--\"\n", "--"],
         ["DirectLink::ErrorBadLink: \"-\"\n", "-"],
         ["DirectLink::ErrorBadLink: \"-\"\n", "- -"],
