@@ -306,9 +306,9 @@ describe DirectLink do
         stub_request(:get, "https://api.imgur.com/3/image/abcDEF7/0.json").to_return body: {data: {width: 100, height: 200, type: "image/jpeg", link: "https://i.imgur.com/abcDEF7.jpg"}}.to_json
         f = 0
         m = NetHTTPUtils.method :request_data
-        NetHTTPUtils.stub :request_data, lambda{ |*args|
+        NetHTTPUtils.stub :request_data, lambda{ |*args, **kwargs|
           raise NetHTTPUtils::Error.new "", 400 if 1 == f += 1
-          m.call *args
+          m.call *args, **kwargs
         } do
           assert_equal [[valid_imgur_image_url_direct, 100, 200, "image/jpeg"]],
             DirectLink.imgur(valid_imgur_image_url_direct, 1.5)
@@ -797,9 +797,9 @@ describe DirectLink do
     it "Reddit correctly parses out id when no token provided" do
       stub_request(:head, "https://www.reddit.com/r/gifs/comments/9ftc8f/")
       m = NetHTTPUtils.method :request_data
-      NetHTTPUtils.stub :request_data, lambda{ |u, *_|
+      NetHTTPUtils.stub :request_data, lambda{ |u, *args, **kwargs|
         throw :_ if u == "https://www.reddit.com/9ftc8f.json"
-        m.call u, *_
+        m.call u, *args, **kwargs
       } do
         t = ENV.delete "REDDIT_SECRETS"
         begin
