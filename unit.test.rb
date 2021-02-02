@@ -753,7 +753,7 @@ describe DirectLink do
       describe "DirectLink() choses a method '#{method}' according to a domain" do
         tests.each_with_index do |((input, expected), stub), i|
           it "##{i + 1}" do
-            DirectLink.stub method, ->(link, timeout = nil){
+            DirectLink.stub method, ->(link, timeout = nil, **__){
               assert_equal (expected || input), link
               throw :_
             } do
@@ -786,7 +786,7 @@ describe DirectLink do
       tries = 0
       m = JSON.method :load
       e = assert_raises DirectLink::ErrorBadLink do
-        JSON.stub :load, ->_{ tries += 1; m.call _ } do
+        JSON.stub :load, ->*_,**__{ tries += 1; m.call *_,**__ } do
           DirectLink.reddit "https://www.reddit.com/r/gifs/comments/abcde6/", 2.5
         end
       end

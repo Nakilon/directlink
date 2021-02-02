@@ -203,7 +203,6 @@ bundle exec ruby unit.test.rb
 ```
 
 `CI` env var skips vk sleep.
-`CI` env var skips forks specified in `Gemfile` to avoid installing the `git` and `openssh` during the Github Action.
 
 TODO: maybe make all these web service specific methods private and discourage to use them since they all return very different things and sometimes don't raise exceptions while the `DirectLink()` does  
 TODO: what should `--json` print if exception was thrown?  

@@ -1,7 +1,5 @@
 source "https://rubygems.org"
 
-unless ENV.include? "CI"
-  gem "minitest", git: "git@github.com:Nakilon/minitest.git"
-end
+gem "minitest", github: "Nakilon/minitest", branch: "patch"
 
 gemspec

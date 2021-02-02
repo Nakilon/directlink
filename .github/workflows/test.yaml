@@ -7,13 +7,13 @@ jobs:
     timeout-minutes: 10
     steps:
     - uses: actions/checkout@v2
-    - run: docker run --rm -e CI -v $(pwd):/checkout ruby:2.3-alpine sh -c "cd checkout &&                                                                                      rm -f Gemfile.lock && apk add build-base && bundle install && ruby unit.test.rb"
+    - run: docker run --rm -e CI -v $(pwd):/checkout ruby:2.3-alpine sh -c "cd checkout &&                                                                                      rm -f Gemfile.lock && apk add build-base git openssh && bundle install && bundle exec ruby unit.test.rb"
       timeout-minutes: 2
-    - run: docker run --rm -e CI -v $(pwd):/checkout ruby:alpine3.7  sh -c "cd checkout &&                                                                                      rm -f Gemfile.lock && apk add build-base && bundle install && ruby unit.test.rb"
+    - run: docker run --rm -e CI -v $(pwd):/checkout ruby:alpine3.7  sh -c "cd checkout &&                                                                                      rm -f Gemfile.lock && apk add build-base git openssh && bundle install && bundle exec ruby unit.test.rb"
       timeout-minutes: 2
-    - run: docker run --rm -e CI -v $(pwd):/checkout ruby:alpine     sh -c "cd checkout &&                                                                                      rm -f Gemfile.lock && apk add build-base && bundle install && ruby unit.test.rb"
+    - run: docker run --rm -e CI -v $(pwd):/checkout ruby:alpine     sh -c "cd checkout &&                                                                                      rm -f Gemfile.lock && apk add build-base git openssh && bundle install && bundle exec ruby unit.test.rb"
       timeout-minutes: 2
-    - run: docker run --rm -e CI -v $(pwd):/checkout alpine:3.7      sh -c "cd checkout && apk add ruby ruby-dev zlib-dev                          && gem install -N bundler && rm -f Gemfile.lock && apk add build-base && bundle install && ruby unit.test.rb"
+    - run: docker run --rm -e CI -v $(pwd):/checkout alpine:3.7      sh -c "cd checkout && apk add ruby ruby-dev zlib-dev                          && gem install -N bundler && rm -f Gemfile.lock && apk add build-base git openssh && bundle install && bundle exec ruby unit.test.rb"
       timeout-minutes: 2
-    - run: docker run --rm -e CI -v $(pwd):/checkout alpine          sh -c "cd checkout && apk add ruby ruby-dev          ruby-etc ruby-bigdecimal && gem install -N bundler && rm -f Gemfile.lock && apk add build-base && bundle install && ruby unit.test.rb"
+    - run: docker run --rm -e CI -v $(pwd):/checkout alpine          sh -c "cd checkout && apk add ruby ruby-dev          ruby-etc ruby-bigdecimal && gem install -N bundler && rm -f Gemfile.lock && apk add build-base git openssh && bundle install && bundle exec ruby unit.test.rb"
       timeout-minutes: 2
