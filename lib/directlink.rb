@@ -40,13 +40,14 @@ module DirectLink
     SocketError,
     Net::OpenTimeout,
     Errno::ECONNRESET,
+    Errno::ECONNREFUSED,
     NetHTTPUtils::Error,
     NetHTTPUtils::EOFError_from_rbuf_fill,
     FastImage::UnknownImageType,
     FastImage::ImageFetchFailure,
     DirectLink::ErrorNotFound,
     DirectLink::ErrorBadLink,
-  ]  # the only exceptions gem user should expect and handle
+  ]  # all known exceptions that can be raised while using Directlink but not as its fault
 
 
   def self.google src, width = 0
