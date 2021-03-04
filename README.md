@@ -199,6 +199,16 @@ bundle install
 bundle exec ruby unit.test.rb
 ```
 ```bash
+# for webmocking new tests
+REDDIT_SECRETS=reddit_token.yaml.secret bundle exec ruby unit.test.rb
+json_pp < body.txt | pbcopy
+ruby -rpp -rjson -e "pp JSON File.read 'body.txt'" | pbcopy
+ruby -e "puts \`pbpaste\`.chars.sort.join"
+```
+```bash
+bundle exec ruby -I./lib ./bin/directlink --debug ...
+```
+```bash
 (source api_tokens.sh.secret && bundle exec ruby integration.test.rb)
 ```
 

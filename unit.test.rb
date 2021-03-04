@@ -6,7 +6,7 @@ require_relative "webmock_patch"
 
 ENV["IMGUR_CLIENT_ID"] = "001788999ccdddf"
 ENV["FLICKR_API_KEY"] = "00123333456678889bbbbcccddddddff"
-ENV["REDDIT_SECRETS"] = "reddit_token.yaml"
+ENV["REDDIT_SECRETS"] ||= "reddit_token.yaml"
 ENV["VK_ACCESS_TOKEN"] = "0011222222233334455566667777778888888888999999aaaaaaabbbbcddddddddddddddeeeeeeeffffff"
 ENV["VK_CLIENT_SECRET"] = "0011223445555555555566777777888999999999999aaaaaaabccddddddddeeefffffff"
 
@@ -567,6 +567,43 @@ describe DirectLink do
           nil,
           "https://v.redd.it/abcde6fb6w721",
         ],
+        ["https://www.reddit.com/r/MapPorn/comments/abd123/________aaaabdeeeeeefggghhhiilmmnnoorrrssttuvyyz/",
+          [true, [
+            ["image/gif", 500, 375, "https://i.redd.it/00146fghhjkox.gif"],
+            ["image/jpg", 1000, 600, "https://preview.redd.it/1369aacghkswy.jpg?width=1000&format=pjpg&auto=webp&s=0122334444557777778889aaabbbbcdddddeeeef"],
+          ]],
+          false, "abd123",
+          nil,
+          nil,
+          "https://www.reddit.com/gallery/abd123",
+          {
+            "00146fghhjkox"=>{
+              "status"=>"valid",
+              "e"=>"AnimatedImage",
+              "m"=>"image/gif",
+              "p"=>[],
+              "s"=>{
+                "y"=>375,
+                "gif"=>"https://i.redd.it/00146fghhjkox.gif",
+                "mp4"=>"",
+                "x"=>500
+              },
+              "id"=>"00146fghhjkox"
+            },
+            "1369aacghkswy"=>{
+              "status"=>"valid",
+              "e"=>"Image",
+              "m"=>"image/jpg",
+              "p"=>[],
+              "s"=>{
+                "y"=>600,
+                "x"=>1000,
+                "u"=>"https://preview.redd.it/1369aacghkswy.jpg?width=1000&amp;format=pjpg&amp;auto=webp&amp;s=0122334444557777778889aaabbbbcdddddeeeef"
+              },
+              "id"=>"1369aacghkswy"
+            }
+          },
+        ]
       ].each_with_index do |(input, expectation, is_self, id, media, crosspost_parent, url, media_metadata), i|
         it "kinds of links" do
           unless is_self.nil?

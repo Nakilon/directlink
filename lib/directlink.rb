@@ -247,7 +247,7 @@ module DirectLink
       return [true, data["media_metadata"].values.map do |media|
         next if media == {"status"=>"failed"}
         raise ErrorAssert.new "our knowledge about Reddit API seems to be outdated" unless media["status"] == "valid"
-        [media["m"], *media["s"].values_at("x", "y"), CGI.unescapeHTML(media["s"]["u"])]
+        [media["m"], *media["s"].values_at("x", "y"), CGI.unescapeHTML(media["s"][media["m"]=="image/gif" ? "gif" : "u"])]
       end.compact]
     end
     return [true, "#{"https://www.reddit.com" if /\A\/r\/[0-9a-zA-Z_]+\/comments\/[0-9a-z]{5,6}\// =~ data["url"]}#{data["url"]}"] if data["crosspost_parent"]
