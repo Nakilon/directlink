@@ -55,41 +55,41 @@ module DirectLink
     case src
     # Google Plus post image
     when /\A(https:\/\/lh3\.googleusercontent\.com\/-[a-zA-Z0-9_-]{11}\/[WX][a-zA-Z0-9_-]{9}I\/AAAAAAA[a-zA-Z0-9_-]{4}\/[a-zA-Z0-9_-]{33}(?:[gwAQ]?CJoC|CL0B(?:GAs)?)\/)w[1-7]\d\d(?:-d)?-h[1-9]\d\d\d?-n(?:-k-no|-rw|)\/[^\/]+\z/
-      "#{$1}s#{width}"
+      "#{$1}s#{width}/"
     when /\A(\/\/lh3\.googleusercontent\.com\/proxy\/[a-zA-Z0-9_-]{66,523}=)(?:w(?:[45]\d\d)-h\d\d\d-[np]|s530-p|s110-p-k)\z/
-      "https:#{$1}s#{width}"
+      "https:#{$1}s#{width}/"
     when /\A(\/\/lh3\.googleusercontent\.com\/[a-zA-Z0-9]{24}_[a-zA-Z]{30}7zGIDTJfkc1YZFX2MhgKnjA=)w530-h398-p\z/
-      "https:#{$1}s#{width}"
+      "https:#{$1}s#{width}/"
     when /\A(\/\/lh3\.googleusercontent\.com\/-[a-zA-Z0-9-]{11}\/[VW][a-zA-Z0-9_-]{9}I\/AAAAAAA[AC][a-zA-Z0-9]{3}\/[a-zA-Z0-9_-]{32}[gwAQ]CJoC\/)w530-h[23]\d\d-p\/[^\/]+\z/,
          /\A(?:https?:)?(\/\/[1-4]\.bp\.blogspot\.com\/-[a-zA-Z0-9_-]{11}\/[UVWX][a-zA-Z0-9_-]{9}I\/AAAAAAAA[A-Z][a-zA-Z0-9_-]{2}\/[a-zA-Z0-9_-]{33}C(?:EwYBhgL|(?:Lc|Kg)BGAs(?:YHQ)?)\/)(?:s640|w\d{2,4}-h\d\d\d?-p(?:-k-no-nu)?)\/[^\/]+\z/,
          /\A(?:https?:)?(\/\/[1-4]\.bp\.blogspot\.com\/-[a-zA-Z0-9-]{11}\/[UV][a-zA-Z0-9_-]{9}I\/AAAAAAAA[A-Z][a-zA-Z0-9]{2}\/[a-zA-Z0-9-]{11}\/)w72-h72-p-k-no-nu\/[^\/]+\z/
-      "https:#{$1}s#{width}"
+      "https:#{$1}s#{width}/"
     when /\A(https:\/\/lh3\.googleusercontent\.com\/-[a-zA-Z0-9_]{11}\/AAAAAAAAAAI\/AAAAAAAAAAQ\/[a-zA-Z0-9_]{11}\/)w530-h[13]\d\d-n\/[^\/]+\z/,
          /\A(https:\/\/lh3\.googleusercontent\.com\/-[a-zA-Z0-9_]{11}\/V[a-zA-Z0-9-]{9}I\/AAAAAAAA[ML][c-q4][so0]\/[a-zA-Z0-9_]{11}\/)w530(?:-d)?-h3\d\d-n\/[^\/]+\z/
-      "#{$1}s#{width}"
+      "#{$1}s#{width}/"
     # high res (s0) Google Plus post image
     when /\Ahttps:\/\/lh3\.googleusercontent\.com\/-[a-zA-Z0-9_-]{11}\/[a-zA-Z0-9_-]{10}I\/AAAAAAA[a-zA-Z0-9_-]{4}\/[a-zA-Z0-9_-]{33}CJoC\/s0\/[^\/]+\z/
       src
     # Google Plus userpic
     when /\A(https:\/\/lh3\.googleusercontent\.com\/-[a-zA-Z0-9-]{11}\/AAAAAAAAAAI\/AAAAAAAA[a-zA-Z0-9]{3}\/[a-zA-Z0-9_-]{11}\/)s\d\d-p(?:-k)?-rw-no\/photo\.jpg\z/
-      "#{$1}s#{width}"
+      "#{$1}s#{width}/"
     # Hangout userpic
     when /\A(https:\/\/lh[356]\.googleusercontent\.com\/-[a-zA-Z0-9]{11}\/AAAAAAAAAAI\/AAAAAAAA[a-zA-Z0-9]{3}\/[a-zA-Z0-9-]{11}\/)s\d\d-c-k-no\/photo\.jpg\z/,
          /\A(https:\/\/lh[356]\.googleusercontent\.com\/-[a-zA-Z0-9]{11}\/AAAAAAAAAAI\/AAAAAAAAAAA\/[a-zA-Z0-9]{11}\/)s64-c-k\/photo\.jpg\z/,
          /\A(https:\/\/lh[356]\.googleusercontent\.com\/-[a-zA-Z0-9]{11}\/AAAAAAAAAAI\/AAAAAAAAAAA\/[a-zA-Z0-9_]{34}\/)s(?:46|64)-c(?:-k(?:-no)?)?-mo\/photo\.jpg\z/
-      "#{$1}s#{width}"
+      "#{$1}s#{width}/"
     # Google Keep
-    when /\A(https:\/\/lh\d\.googleusercontent\.com\/[a-zA-Z0-9_-]{104,106}=s)\d\d\d\d?\Z/
+    when /\A(https:\/\/lh\d\.googleusercontent\.com\/[a-zA-Z0-9_-]{104,106}=s)\d\d\d\d?\z/
       "#{$1}#{width}"
     # opensea
     when /\A(https:\/\/lh3\.googleusercontent\.com\/[a-zA-Z0-9]{78}-nGx_jf_XGqqiVANe_Jr8u2g=)w1400-k\z/
       "#{$1}s#{width}"
     # mp4
     when /\A(https:\/\/lh3\.googleusercontent\.com\/-[a-zA-Z]{11}\/W[a-zA-Z0-9]{9}I\/AAAAAAAAODw\/[a-zA-Z0-9]{32}QCJoC\/)w530-h883-n-k-no\/[^\/]+\.mp4\z/
-      "#{$1}s#{width}"
+      "#{$1}s#{width}/"
     # something else
     when /\A(https:\/\/lh3\.googleusercontent\.com\/-[a-zA-Z0-9_]{11}\/X-[a-zA-Z0-9]{8}I\/AAAAAAAAALE\/[a-zA-Z0-9]{23}_[a-zA-Z0-9]{19}\/)w1200-h630-p-k-no-nu\/[\d-]+\.png\z/
-      "#{$1}s#{width}"
+      "#{$1}s#{width}/"
     else
       raise ErrorBadLink.new src
     end
