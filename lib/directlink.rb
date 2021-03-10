@@ -246,7 +246,7 @@ module DirectLink
     if data["media_metadata"]
       return [true, data["media_metadata"].values.map do |media|
         next if media == {"status"=>"failed"}
-        raise ErrorAssert.new "our knowledge about Reddit API seems to be outdated" unless media["status"] == "valid"
+        raise ErrorAssert.new "our knowledge about Reddit API seems to be outdated (media['status'] == #{media["status"].inspect})" unless media["status"] == "valid"
         [media["m"], *media["s"].values_at("x", "y"), CGI.unescapeHTML(media["s"][media["m"]=="image/gif" ? "gif" : "u"])]
       end.compact]
     end
