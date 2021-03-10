@@ -190,6 +190,7 @@ describe DirectLink do
         https://lh3.googleusercontent.com/-tV86KJvppss/XE2Nb2Z2aAI/AAAAAAAAGu4/94E_abcDE6AaJ59n43wmmd9rFa--OUuSQCJoC/w530-h338-n/IMG_6845%252C.png
         https://lh3.googleusercontent.com/-cr-2ZSQGMPg/XFWLfetwr7I/AAAAAAAAQQQ/TbwDabcDE6wb4IDDO0SwfArFSZyDG0i0wCJoC/w530-h360-n/DSC07294.JPG
         https://lh3.googleusercontent.com/-7ey25Wg_cQ4/X-Xy8LJPjMI/AAAAAAAAALE/raXQabcDE6EzEDfAg3TcsOU_xc9z4szcwCLcBGAsYHQ/w1200-h630-p-k-no-nu/1608905381407960-0.png
+        https://lh3.googleusercontent.com/C84udoMpvJmi95AqshlF9acaR11TCsUgO9rGB9gG1w5Wp3WpB7U52ntft4jBHAyDg2guo6zqI4KZim-nGx_jf_XGqqiVANe_Jr8u2g=w1400-k
       }.each_with_index do |link, i|
         it "largeimages ##{i + 1}" do
           assert DirectLink.google link
