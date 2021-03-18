@@ -352,7 +352,7 @@ def DirectLink link, timeout = nil, proxy = nil, giveup: false, ignore_meta: fal
       max_start_http_retry_delay: timeout,
       max_read_retry_delay: timeout,
     } : {})
-  rescue Net::ReadTimeout
+  rescue Net::ReadTimeout, Errno::ETIMEDOUT
   rescue NetHTTPUtils::Error => e
     raise unless 418 == e.code
   else

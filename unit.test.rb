@@ -832,6 +832,7 @@ describe DirectLink do
       assert (3 <= tries)
       assert (tries <= 4)
     end
+
     it "Reddit correctly parses out id when no token provided" do
       stub_request(:head, "https://www.reddit.com/r/gifs/comments/9ftc8f/")
       m = NetHTTPUtils.method :request_data
@@ -971,6 +972,16 @@ describe DirectLink do
         assert_raises Net::OpenTimeout do
           NetHTTPUtils.stub :request_data, ->*{ raise Net::OpenTimeout.new } do
             DirectLink "http://example.com/404"
+          end
+        end
+      end
+      it "HEAD Errno::ETIMEDOUT and GET FastImage::ImageFetchFailure are handled by DirectLink::NORMAL_EXCEPTIONS" do
+        assert_includes DirectLink::NORMAL_EXCEPTIONS, FastImage::ImageFetchFailure
+        assert_raises FastImage::ImageFetchFailure do
+          NetHTTPUtils.stub :request_data, ->_,mtd,*{ fail unless mtd == :HEAD; raise Errno::ETIMEDOUT } do
+            FastImage.stub :new, ->*{ raise FastImage::ImageFetchFailure } do
+              DirectLink "http://www.mesacc.edu/~hello12345/hello/images/photos/aerial/a1234.jpg"
+            end
           end
         end
       end
