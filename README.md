@@ -192,17 +192,26 @@ gem "kramdown", "<2"
 * 500px.com has discontinued API in June 2018 -- the tool now uses undocumented methods
 * `DirectLink()` can return an Array of Structs for 1) Imgur 2) Reddit unless `giveup = true` is set
 
-## Development notes:
+## Development notes/examples:
 
 ```bash
 bundle install
 bundle exec ruby unit.test.rb
 ```
 ```bash
-# for webmocking new tests
+# for webmocking new reddit tests:
 REDDIT_SECRETS=reddit_token.yaml.secret bundle exec ruby unit.test.rb
-json_pp < body.txt | pbcopy
+# json_pp < body.txt | pbcopy
 ruby -rpp -rjson -e "pp JSON File.read 'body.txt'" | pbcopy
+
+# for webmocking new vk tests:
+# disable the getById stub
+(source api_tokens.sh.secret && bundle exec ruby unit.test.rb -n '/vk#test_0012_kinds of links/')
+ruby -rpp -rjson -e "pp JSON File.read 'body.txt'" | pbcopy
+# edit and enable the getById stub
+# edit expectation
+
+# obfuscate urls when done
 ruby -e "puts \`pbpaste\`.chars.sort.join"
 ```
 ```bash

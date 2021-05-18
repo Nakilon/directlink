@@ -273,7 +273,7 @@ module DirectLink
         t
       end ]
     when %r{\Ahttps://vk\.com/wall(?<id>-?\d+_\d+)\z},
-         %r{\Ahttps://vk\.com/[a-z\.]+\?w=wall(?<id>\d+_\d+)\z}
+         %r{\Ahttps://vk\.com/[a-z\.]+\?w=wall(?<id>-?\d+_\d+)\z}
       [$1, :wall, :posts, lambda do |t|
         t.first.fetch("attachments").select do |item|
           case item.keys
@@ -298,7 +298,7 @@ module DirectLink
       photos.fetch("sizes").map do |size|
         size.values_at("width", "height", "url").tap do |whu|
           w, h, u = whu
-          whu[0, 2] = FastImage.new(u, raise_on_failure: true).size if [w, h].include? 0
+          whu[0, 2] = FastImage.new(u, raise_on_failure: true).size if [w, h].include? 0 # wtf?
         end
       end.max_by{ |w, h, u| w * h }
     end

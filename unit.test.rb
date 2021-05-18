@@ -4,11 +4,6 @@ require "minitest/mock"
 require "webmock/minitest"
 require_relative "webmock_patch"
 
-ENV["IMGUR_CLIENT_ID"] = "001788999ccdddf"
-ENV["FLICKR_API_KEY"] = "00123333456678889bbbbcccddddddff"
-ENV["REDDIT_SECRETS"] ||= "reddit_token.yaml"
-ENV["VK_ACCESS_TOKEN"] = "0011222222233334455566667777778888888888999999aaaaaaabbbbcddddddddddddddeeeeeeeffffff"
-ENV["VK_CLIENT_SECRET"] = "0011223445555555555566777777888999999999999aaaaaaabccddddddddeeefffffff"
 
 require_relative "lib/directlink"
 DirectLink.silent = true  # TODO: remove?
@@ -673,6 +668,10 @@ describe DirectLink do
         ["https://vk.com/e_rod?z=photo123456340_457247118%2Fphotos123456340", [1728, 2160, "https://userapi.com/impf/c123456/v123456596/c7714/oImGe4o1ZJI.jpg"], "photos", [
           [104, 130, "https://sun9-53.userapi.com/impf/c123456/v123456596/c7714/oImGe4o1ZJI.jpg?size=104x130&quality=96&sign=6ad356e84dcd6bbf2069d9b869a7bdb1&c_uniq_tag=8KN44nSlDjD-FMDiRhHqk6udwiqZfn5n1qqPNFwu_nI&type=album"],
           [1728, 2160, "https://sun9-53.userapi.com/impf/c123456/v123456596/c7714/oImGe4o1ZJI.jpg?size=1728x2160&quality=96&proxy=1&sign=c7961913ff3efd5064f2ed6c394288f2&c_uniq_tag=CA61KgCRsRXbHm4VJEYYskjpjpSiTHI7UPV4FsCPRmI&type=album"],
+        ] ],
+        ["https://vk.com/wasserman.anatoliy?w=wall-123457771_353", [864, 1080, "https://userapi.com/impg/13456AABBCDDKKOQSTUWXZbcfghhhjlpqquwyz/z0UtQg2M1s4.jpg"], "wall", [
+          [104, 130, "https://sun9-38.userapi.com/impg/13456AABBCDDKKOQSTUWXZbcfghhhjlpqquwyz/z0UtQg2M1s4.jpg?size=104x130&quality=96&sign=a6012bb508e208c7b2b22c42872215e4&c_uniq_tag=qX06fI2p7bmyvnta_Pt2omQ-l5RBLcrG1DBsLWx1jJA&type=album"],
+          [864, 1080, "https://sun9-38.userapi.com/impg/13456AABBCDDKKOQSTUWXZbcfghhhjlpqquwyz/z0UtQg2M1s4.jpg?size=864x1080&quality=96&sign=8f02c4c6794efd653ed79609bf0850c8&c_uniq_tag=6WP6TY0RTDiG_8NK1lkYUOge22jtjkzGLLwc6IDxjjg&type=album"],
         ] ],
       ].each_with_index do |(input, expectation, mtd, stub), i|
         it "kinds of links" do
