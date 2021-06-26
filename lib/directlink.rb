@@ -41,6 +41,7 @@ module DirectLink
     Net::OpenTimeout,
     Errno::ECONNRESET,
     Errno::ECONNREFUSED,
+    Errno::ETIMEDOUT,   # from FastImage
     NetHTTPUtils::Error,
     NetHTTPUtils::EOFError_from_rbuf_fill,
     FastImage::UnknownImageType,

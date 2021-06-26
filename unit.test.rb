@@ -4,7 +4,6 @@ require "minitest/mock"
 require "webmock/minitest"
 require_relative "webmock_patch"
 
-
 require_relative "lib/directlink"
 DirectLink.silent = true  # TODO: remove?
 DirectLink.timeout = 30   # TODO: tests about this attribute
