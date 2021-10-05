@@ -1,8 +1,6 @@
 WebMock.enable_net_connect!
 
-# executes the request to make us know how what to stub it with
-
-
+# executes the request to make us know what to stub it with
 WebMock.after_request real_requests_only: true do |req_signature, response|
   puts "Request:\n#{req_signature}"
   if response.body
@@ -34,5 +32,4 @@ WebMock::HttpLibAdapters::NetHttpAdapter.instance_variable_get(:@webMockNetHTTP)
       response.uri = request.uri
     end
   end
-
 end

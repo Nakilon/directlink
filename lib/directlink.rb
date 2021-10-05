@@ -256,7 +256,7 @@ module DirectLink
       end.compact]
     end
     return [true, "#{"https://www.reddit.com" if /\A\/r\/[0-9a-zA-Z_]+\/comments\/[0-9a-z]{5,6}\// =~ data["url"]}#{data["url"]}"] if data["crosspost_parent"]
-    return [true, data["url"]] unless data["is_self"]
+    return [true, CGI.unescapeHTML(data["url"])] unless data["is_self"]
     raise ErrorAssert.new "our knowledge about Reddit API seems to be outdated" if data["url"] != "https://www.reddit.com" + data["permalink"]
     return [false, data["selftext"]]
   end
