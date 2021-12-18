@@ -3,6 +3,7 @@ require "minitest/around/spec"
 require "minitest/mock"
 require "webmock/minitest"
 require_relative "webmock_patch"
+WebMock.enable!
 
 require_relative "lib/directlink"
 DirectLink.silent = true  # TODO: remove?
@@ -625,52 +626,56 @@ describe DirectLink do
     describe "vk" do
       [
         ["https://vk.com/wall-123456091_7806", [960, 1280, "https://userapi.com/impf/c123456/v123456900/a72f1/7OZ8ux9Wcwo.jpg"], "wall", [
-          [97, 130, "https://sun9-3.userapi.com/impf/c123456/v123456900/a72f1/7OZ8ux9Wcwo.jpg?size=98x130&quality=96&sign=1f2bdc7b856b2a8f60297e3ac2c58689&c_uniq_tag=ggVFjBTdFDFuIz7Ee5o48mEP3fWLixCvjuPmehhyaTI&type=album"],
-          [960, 1280, "https://sun9-3.userapi.com/impf/c123456/v123456900/a72f1/7OZ8ux9Wcwo.jpg?size=960x1280&quality=96&proxy=1&sign=985328651fa11a0daef2c2a324f2de09&c_uniq_tag=vKCnEFEDol5QYM0qPrYAkbDwzYo6U_jo0SOR8iQO7HA&type=album"],
+          [97, 130, "https://sun9-3.userapi.com/impf/c123456/v123456900/a72f1/7OZ8ux9Wcwo.jpg?size=98x130&quality=96&sign=00011222222224455677888abbbbccee&c_uniq_tag=ggVFjBTdFDFuIz7Ee5o48mEP3fWLixCvjuPmehhyaTI&type=album"],
+          [960, 1280, "https://sun9-3.userapi.com/impf/c123456/v123456900/a72f1/7OZ8ux9Wcwo.jpg?size=960x1280&quality=96&proxy=1&sign=00011222222224455677888abbbbccee&c_uniq_tag=vKCnEFEDol5QYM0qPrYAkbDwzYo6U_jo0SOR8iQO7HA&type=album"],
         ] ],
         ["https://vk.com/wall-123456611_454?z=photo-123456611_457239340%2Fwall-123456611_454", [1280, 960, "https://userapi.com/impf/c123456/v123456578/1a62f6/VB4SdR1O6Tg.jpg"], "photos", [
-          [130, 97, "https://sun9-59.userapi.com/impf/c123456/v123456578/1a62f6/VB4SdR1O6Tg.jpg?size=130x98&quality=96&sign=1e56a7310fd780cd48bed7304a369b1c&c_uniq_tag=xJlpXkJvi0P9WQhcM5acgLHqSUzXK3FGahuZHHncZQY&type=album"],
-          [1280, 960, "https://sun9-59.userapi.com/impf/c123456/v123456578/1a62f6/VB4SdR1O6Tg.jpg?size=1280x960&quality=96&proxy=1&sign=f5825d997937393a5c0a95c6775dce19&c_uniq_tag=2ulEOYXMOAN-KJm7HPNZYNcScyikyHdIsRmeqM8i16w&type=album"],
+          [130, 97, "https://sun9-59.userapi.com/impf/c123456/v123456578/1a62f6/VB4SdR1O6Tg.jpg?size=130x98&quality=96&sign=00011222222224455677888abbbbccee&c_uniq_tag=xJlpXkJvi0P9WQhcM5acgLHqSUzXK3FGahuZHHncZQY&type=album"],
+          [1280, 960, "https://sun9-59.userapi.com/impf/c123456/v123456578/1a62f6/VB4SdR1O6Tg.jpg?size=1280x960&quality=96&proxy=1&sign=00011222222224455677888abbbbccee&c_uniq_tag=2ulEOYXMOAN-KJm7HPNZYNcScyikyHdIsRmeqM8i16w&type=album"],
         ] ],
         ["https://vk.com/wall-123456091_7946?z=photo-123456091_457243312%2Falbum-123456091_00%2Frev", [1280, 875, "https://userapi.com/impf/c123456/v123456134/1b6b36/0IsDFb-Hda4.jpg"], "photos", [
-          [130, 89, "https://sun9-20.userapi.com/impf/c123456/v123456134/1b6b36/0IsDFb-Hda4.jpg?size=130x89&quality=96&sign=20f98d85da83704a93641c258dd9fb98&c_uniq_tag=PcNYWJFing2At2LiJVOYQOTUd_MbMLxiyPybwnyzaN4&type=album"],
-          [1280, 875, "https://sun9-20.userapi.com/impf/c123456/v123456134/1b6b36/0IsDFb-Hda4.jpg?size=1280x875&quality=96&proxy=1&sign=9b1e295c741c53b9485f4156da36ecde&c_uniq_tag=o7eFSi5F74SmkTirdrIS19nh8CEG32Od6yPvX9IPXds&type=album"],
+          [130, 89, "https://sun9-20.userapi.com/impf/c123456/v123456134/1b6b36/0IsDFb-Hda4.jpg?size=130x89&quality=96&sign=00011222222224455677888abbbbccee&c_uniq_tag=PcNYWJFing2At2LiJVOYQOTUd_MbMLxiyPybwnyzaN4&type=album"],
+          [1280, 875, "https://sun9-20.userapi.com/impf/c123456/v123456134/1b6b36/0IsDFb-Hda4.jpg?size=1280x875&quality=96&proxy=1&sign=00011222222224455677888abbbbccee&c_uniq_tag=o7eFSi5F74SmkTirdrIS19nh8CEG32Od6yPvX9IPXds&type=album"],
         ] ],
         ["https://vk.com/id12345627?z=photo12345627_456241143%2Falbum12345627_0", [1920, 1440, "https://userapi.com/impf/c123456/v123456944/167836/bP9z41BybhI.jpg"], "photos", [
-          [130, 97, "https://sun9-9.userapi.com/impf/c123456/v123456944/167836/bP9z41BybhI.jpg?size=130x98&quality=96&sign=5a7785886e75cde41f7ddc190775c941&c_uniq_tag=uJX7tU35qumnZFlAUe-EhyVVT1FDBoHmp_8Z-dFAH_I&type=album"],
-          [1920, 1440, "https://sun9-9.userapi.com/impf/c123456/v123456944/167836/bP9z41BybhI.jpg?size=1920x1440&quality=96&proxy=1&sign=56acc1844d38b491c1b2e4dbedd76ba4&c_uniq_tag=06VziJvbo7gkdo5t0AUEQRs6EX8UrmiT2XkfGRmfRz8&type=album"],
+          [130, 97, "https://sun9-9.userapi.com/impf/c123456/v123456944/167836/bP9z41BybhI.jpg?size=130x98&quality=96&sign=00011222222224455677888abbbbccee&c_uniq_tag=uJX7tU35qumnZFlAUe-EhyVVT1FDBoHmp_8Z-dFAH_I&type=album"],
+          [1920, 1440, "https://sun9-9.userapi.com/impf/c123456/v123456944/167836/bP9z41BybhI.jpg?size=1920x1440&quality=96&proxy=1&sign=00011222222224455677888abbbbccee&c_uniq_tag=06VziJvbo7gkdo5t0AUEQRs6EX8UrmiT2XkfGRmfRz8&type=album"],
         ] ],
         ["https://vk.com/id12345627?z=photo12345627_456241143", [1920, 1440, "https://userapi.com/impf/c123456/v123456944/167836/bP9z41BybhI.jpg"], "photos", [
-          [130, 97, "https://sun9-9.userapi.com/impf/c123456/v123456944/167836/bP9z41BybhI.jpg?size=130x98&quality=96&sign=5a7785886e75cde41f7ddc190775c941&c_uniq_tag=uJX7tU35qumnZFlAUe-EhyVVT1FDBoHmp_8Z-dFAH_I&type=album"],
-          [1920, 1440, "https://sun9-9.userapi.com/impf/c123456/v123456944/167836/bP9z41BybhI.jpg?size=1920x1440&quality=96&proxy=1&sign=56acc1844d38b491c1b2e4dbedd76ba4&c_uniq_tag=06VziJvbo7gkdo5t0AUEQRs6EX8UrmiT2XkfGRmfRz8&type=album"],
+          [130, 97, "https://sun9-9.userapi.com/impf/c123456/v123456944/167836/bP9z41BybhI.jpg?size=130x98&quality=96&sign=00011222222224455677888abbbbccee&c_uniq_tag=uJX7tU35qumnZFlAUe-EhyVVT1FDBoHmp_8Z-dFAH_I&type=album"],
+          [1920, 1440, "https://sun9-9.userapi.com/impf/c123456/v123456944/167836/bP9z41BybhI.jpg?size=1920x1440&quality=96&proxy=1&sign=00011222222224455677888abbbbccee&c_uniq_tag=06VziJvbo7gkdo5t0AUEQRs6EX8UrmiT2XkfGRmfRz8&type=album"],
         ] ],
         ["https://vk.com/photo1_123187843?all=1", [2560, 1913, "https://userapi.com/impf/c123/v123001/6/53_VwoACy4I.jpg"], "photos", [
-          [130, 98, "https://sun1-23.userapi.com/impf/c123/v123001/6/53_VwoACy4I.jpg?size=130x97&quality=96&sign=f8f5b706de9bf4cba377c4192ca0faeb&c_uniq_tag=Hq3mDN7NbJvgRd82cKsQpJ45Tze8deKbUX4FZDwVZGQ&type=album"],
-          [2560, 1913, "https://sun1-23.userapi.com/impf/c123/v123001/6/53_VwoACy4I.jpg?size=2560x1913&quality=96&proxy=1&sign=c55f340348a35dd86542875a57ad8537&c_uniq_tag=yANq6f3QAVxu7M1xuy6fMu1JgkYOPqB1jBV4bQVjc0Y&type=album"],
+          [130, 98, "https://sun1-23.userapi.com/impf/c123/v123001/6/53_VwoACy4I.jpg?size=130x97&quality=96&sign=00011222222224455677888abbbbccee&c_uniq_tag=Hq3mDN7NbJvgRd82cKsQpJ45Tze8deKbUX4FZDwVZGQ&type=album"],
+          [2560, 1913, "https://sun1-23.userapi.com/impf/c123/v123001/6/53_VwoACy4I.jpg?size=2560x1913&quality=96&proxy=1&sign=00011222222224455677888abbbbccee&c_uniq_tag=yANq6f3QAVxu7M1xuy6fMu1JgkYOPqB1jBV4bQVjc0Y&type=album"],
         ] ],
         ["https://vk.com/photo123456340_456243948?rev=1", [1583, 1080, "https://userapi.com/impf/c123456/v123456479/321be/9rZaJ2QTdz4.jpg"], "photos", [
-          [130, 89, "https://sun9-21.userapi.com/impf/c123456/v123456479/321be/9rZaJ2QTdz4.jpg?size=130x89&quality=96&sign=4095eaa6d55dbb6af3a6d3baed593ecb&c_uniq_tag=9comrJGukZcMLlCDrmQMWhFtne217kVaZcafgoQmCVM&type=album"],
-          [1583, 1080, "https://sun9-21.userapi.com/impf/c123456/v123456479/321be/9rZaJ2QTdz4.jpg?size=1583x1080&quality=96&proxy=1&sign=27a9d92fcbd2cf748531a89278281cc3&c_uniq_tag=iwiLvdT52wwR8avHhjDUwPUozsvMpVyuFHHACavY2zA&type=album"],
+          [130, 89, "https://sun9-21.userapi.com/impf/c123456/v123456479/321be/9rZaJ2QTdz4.jpg?size=130x89&quality=96&sign=00011222222224455677888abbbbccee&c_uniq_tag=9comrJGukZcMLlCDrmQMWhFtne217kVaZcafgoQmCVM&type=album"],
+          [1583, 1080, "https://sun9-21.userapi.com/impf/c123456/v123456479/321be/9rZaJ2QTdz4.jpg?size=1583x1080&quality=96&proxy=1&sign=00011222222224455677888abbbbccee&c_uniq_tag=iwiLvdT52wwR8avHhjDUwPUozsvMpVyuFHHACavY2zA&type=album"],
         ] ],
         ["https://vk.com/photo-123456973_456242404", [1486, 1000, "https://userapi.com/impf/c123456/v123456877/8578e/m6AJWiskiKE.jpg"], "photos", [
-          [130, 87, "https://sun9-51.userapi.com/impf/c123456/v123456877/8578e/m6AJWiskiKE.jpg?size=130x87&quality=96&sign=c89c47cebc77fd0063dbe4891245aebe&c_uniq_tag=pSxKInGItqdMMW_83z9SXDzIi74Zl9UJ-P-snVmzHHY&type=album"],
-          [1486, 1000, "https://sun9-51.userapi.com/impf/c123456/v123456877/8578e/m6AJWiskiKE.jpg?size=1486x1000&quality=96&proxy=1&sign=f67bdef805a49775776ba9fe3ddddfdd&c_uniq_tag=2IwG6BAja36QQl3mDsUcWS6PC7ozt6TSExLsfRXRyzA&type=album"],
+          [130, 87, "https://sun9-51.userapi.com/impf/c123456/v123456877/8578e/m6AJWiskiKE.jpg?size=130x87&quality=96&sign=00011222222224455677888abbbbccee&c_uniq_tag=pSxKInGItqdMMW_83z9SXDzIi74Zl9UJ-P-snVmzHHY&type=album"],
+          [1486, 1000, "https://sun9-51.userapi.com/impf/c123456/v123456877/8578e/m6AJWiskiKE.jpg?size=1486x1000&quality=96&proxy=1&sign=00011222222224455677888abbbbccee&c_uniq_tag=2IwG6BAja36QQl3mDsUcWS6PC7ozt6TSExLsfRXRyzA&type=album"],
         ] ],
         ["https://vk.com/feed?section=likes&z=photo-123456754_456261460%2Fliked1234566", [1024, 1335, "https://userapi.com/impf/c123456/v123456353/895b6/izQJresLdf0.jpg"], "photos", [
-          [100, 130, "https://sun9-55.userapi.com/impf/c123456/v123456353/895b6/izQJresLdf0.jpg?size=100x130&quality=96&sign=56c2f6f2e772c5cac6e891d62c6c563e&c_uniq_tag=HHJ8PsYFgnwmuq9OfND51luLXJve81QbpWvudWXv5aw&type=album"],
-          [1024, 1335, "https://sun9-55.userapi.com/impf/c123456/v123456353/895b6/izQJresLdf0.jpg?size=1024x1335&quality=96&proxy=1&sign=b66a4c70eeb4083a05907e36d18cc481&c_uniq_tag=42fraqliOifFUG1CvgahG1lg1txVMF5hbSVlAUkLwf8&type=album"],
+          [100, 130, "https://sun9-55.userapi.com/impf/c123456/v123456353/895b6/izQJresLdf0.jpg?size=100x130&quality=96&sign=00011222222224455677888abbbbccee&c_uniq_tag=HHJ8PsYFgnwmuq9OfND51luLXJve81QbpWvudWXv5aw&type=album"],
+          [1024, 1335, "https://sun9-55.userapi.com/impf/c123456/v123456353/895b6/izQJresLdf0.jpg?size=1024x1335&quality=96&proxy=1&sign=00011222222224455677888abbbbccee&c_uniq_tag=42fraqliOifFUG1CvgahG1lg1txVMF5hbSVlAUkLwf8&type=album"],
         ] ],
         ["https://vk.com/likizimy?z=photo-12345651_456239941%2Fwall-12345651_1908", [1179, 1731, "https://userapi.com/impf/c123456/v123456571/60f7b/ryCPJIMyMkI.jpg"], "photos", [
-          [89, 130, "https://sun9-37.userapi.com/impf/c123456/v123456571/60f7b/ryCPJIMyMkI.jpg?size=89x130&quality=96&sign=3ae95211e73168c7b66e12daa854f922&c_uniq_tag=uaDVTYCfixIN4JKSGzgNSTsjiuOUi0658_CgoIF-mqc&type=album"],
-          [1179, 1731, "https://sun9-37.userapi.com/impf/c123456/v123456571/60f7b/ryCPJIMyMkI.jpg?size=1179x1731&quality=96&proxy=1&sign=7930a6d1b4a88ce1fa4954fc6643d3e1&c_uniq_tag=rTxHctkqrP4SQsbcECYGDCVt03A43cLYRN8eTnOFtD0&type=album"],
+          [89, 130, "https://sun9-37.userapi.com/impf/c123456/v123456571/60f7b/ryCPJIMyMkI.jpg?size=89x130&quality=96&sign=00011222222224455677888abbbbccee&c_uniq_tag=uaDVTYCfixIN4JKSGzgNSTsjiuOUi0658_CgoIF-mqc&type=album"],
+          [1179, 1731, "https://sun9-37.userapi.com/impf/c123456/v123456571/60f7b/ryCPJIMyMkI.jpg?size=1179x1731&quality=96&proxy=1&sign=00011222222224455677888abbbbccee&c_uniq_tag=rTxHctkqrP4SQsbcECYGDCVt03A43cLYRN8eTnOFtD0&type=album"],
         ] ],
         ["https://vk.com/e_rod?z=photo123456340_457247118%2Fphotos123456340", [1728, 2160, "https://userapi.com/impf/c123456/v123456596/c7714/oImGe4o1ZJI.jpg"], "photos", [
-          [104, 130, "https://sun9-53.userapi.com/impf/c123456/v123456596/c7714/oImGe4o1ZJI.jpg?size=104x130&quality=96&sign=6ad356e84dcd6bbf2069d9b869a7bdb1&c_uniq_tag=8KN44nSlDjD-FMDiRhHqk6udwiqZfn5n1qqPNFwu_nI&type=album"],
-          [1728, 2160, "https://sun9-53.userapi.com/impf/c123456/v123456596/c7714/oImGe4o1ZJI.jpg?size=1728x2160&quality=96&proxy=1&sign=c7961913ff3efd5064f2ed6c394288f2&c_uniq_tag=CA61KgCRsRXbHm4VJEYYskjpjpSiTHI7UPV4FsCPRmI&type=album"],
+          [104, 130, "https://sun9-53.userapi.com/impf/c123456/v123456596/c7714/oImGe4o1ZJI.jpg?size=104x130&quality=96&sign=00011222222224455677888abbbbccee&c_uniq_tag=8KN44nSlDjD-FMDiRhHqk6udwiqZfn5n1qqPNFwu_nI&type=album"],
+          [1728, 2160, "https://sun9-53.userapi.com/impf/c123456/v123456596/c7714/oImGe4o1ZJI.jpg?size=1728x2160&quality=96&proxy=1&sign=00011222222224455677888abbbbccee&c_uniq_tag=CA61KgCRsRXbHm4VJEYYskjpjpSiTHI7UPV4FsCPRmI&type=album"],
         ] ],
         ["https://vk.com/wasserman.anatoliy?w=wall-123457771_353", [864, 1080, "https://userapi.com/impg/13456AABBCDDKKOQSTUWXZbcfghhhjlpqquwyz/z0UtQg2M1s4.jpg"], "wall", [
-          [104, 130, "https://sun9-38.userapi.com/impg/13456AABBCDDKKOQSTUWXZbcfghhhjlpqquwyz/z0UtQg2M1s4.jpg?size=104x130&quality=96&sign=a6012bb508e208c7b2b22c42872215e4&c_uniq_tag=qX06fI2p7bmyvnta_Pt2omQ-l5RBLcrG1DBsLWx1jJA&type=album"],
-          [864, 1080, "https://sun9-38.userapi.com/impg/13456AABBCDDKKOQSTUWXZbcfghhhjlpqquwyz/z0UtQg2M1s4.jpg?size=864x1080&quality=96&sign=8f02c4c6794efd653ed79609bf0850c8&c_uniq_tag=6WP6TY0RTDiG_8NK1lkYUOge22jtjkzGLLwc6IDxjjg&type=album"],
+          [104, 130, "https://sun9-38.userapi.com/impg/13456AABBCDDKKOQSTUWXZbcfghhhjlpqquwyz/z0UtQg2M1s4.jpg?size=104x130&quality=96&sign=00011222222224455677888abbbbccee&c_uniq_tag=qX06fI2p7bmyvnta_Pt2omQ-l5RBLcrG1DBsLWx1jJA&type=album"],
+          [864, 1080, "https://sun9-38.userapi.com/impg/13456AABBCDDKKOQSTUWXZbcfghhhjlpqquwyz/z0UtQg2M1s4.jpg?size=864x1080&quality=96&sign=00011222222224455677888abbbbccee&c_uniq_tag=6WP6TY0RTDiG_8NK1lkYUOge22jtjkzGLLwc6IDxjjg&type=album"],
+        ] ],
+        ["https://vk.com/feed?z=photo-88180328_457249666%2Falbum-88180328_00%2Frev", [3, 4, "https://userapi.com/impg/13456AABBCDDKKOQSTUWXZbcfghhhjlpqquwyz/z0UtQg2M1s4.jpg"], "photos", [
+          [1, 2, "https://sun9-38.userapi.com/impg/13456AABBCDDKKOQSTUWXZbcfghhhjlpqquwyz/z0UtQg2M1s4.jpg?size=104x130&quality=96&sign=00011222222224455677888abbbbccee&c_uniq_tag=qX06fI2p7bmyvnta_Pt2omQ-l5RBLcrG1DBsLWx1jJA&type=album"],
+          [3, 4, "https://sun9-38.userapi.com/impg/13456AABBCDDKKOQSTUWXZbcfghhhjlpqquwyz/z0UtQg2M1s4.jpg?size=864x1080&quality=96&sign=00011222222224455677888abbbbccee&c_uniq_tag=6WP6TY0RTDiG_8NK1lkYUOge22jtjkzGLLwc6IDxjjg&type=album"],
         ] ],
       ].each_with_index do |(input, expectation, mtd, stub), i|
         it "kinds of links" do
@@ -1322,8 +1327,8 @@ describe DirectLink do
       file.write <<~HEREDOC
         require "webmock"
         include WebMock::API
-        WebMock.enable!
         require "#{__dir__}/webmock_patch"
+        WebMock.enable!
         #{stubs.inspect}.each do |mtd, input, response|
           if response
             stub_request(mtd, input).to_return **response

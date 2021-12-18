@@ -1,6 +1,6 @@
 Gem::Specification.new do |spec|
   spec.name         = "directlink"
-  spec.version      = "0.0.11.1"
+  spec.version      = "0.0.11.2"
   spec.summary      = "obtains from any kind of hyperlink a link to an image, its format and resolution"
 
   spec.author       = "Victor Maslov aka Nakilon"
@@ -27,5 +27,5 @@ Gem::Specification.new do |spec|
   spec.files        = %w{ LICENSE directlink.gemspec lib/directlink.rb bin/directlink }
 
   spec.requirements << "you may want to create apps and provide API tokens:"
-  spec.requirements << "IMGUR_CLIENT_ID, FLICKR_API_KEY, REDDIT_SECRETS"
+  spec.requirements << "IMGUR_CLIENT_ID, FLICKR_API_KEY, REDDIT_SECRETS, VK_ACCESS_TOKEN, VK_CLIENT_SECRET"
 end
