@@ -4,8 +4,10 @@ module DirectLink
     attr_accessor :silent
     attr_accessor :logger
     attr_accessor :timeout
+    attr_accessor :strict
   end
   self.silent = false
+  self.strict = false
   self.logger = Object.new
   self.logger.define_singleton_method :error do |str|
     puts str unless Module.nesting.first.silent
@@ -293,9 +295,10 @@ module DirectLink
     end
     raise ErrorMissingEnvVar.new "define VK_ACCESS_TOKEN and VK_CLIENT_SECRET env vars" unless ENV["VK_ACCESS_TOKEN"] && ENV["VK_CLIENT_SECRET"]
     sleep 0.25 unless ENV["CI"] # "error_msg"=>"Too many requests per second"
-    f.call( JSON.load( NetHTTPUtils.request_data "https://api.vk.com/method/#{mtd}.getById",
+    t = JSON.load NetHTTPUtils.request_data "https://api.vk.com/method/#{mtd}.getById",
       :POST, form: { field => id, :access_token => ENV["VK_ACCESS_TOKEN"], :client_secret => ENV["VK_CLIENT_SECRET"], :v => "5.101" }
-    ).fetch("response") ).map do |photos|
+    raise ErrorMissingEnvVar.new "the VK_ACCESS_TOKEN is probably expired, get a new one at: https://api.vk.com/oauth/authorize?client_id=...&response_type=token&v=5.75&scope=offline" if t["error"] && 5 == t["error"]["error_code"]
+    f.call( t.fetch("response") ).map do |photos|
       photos.fetch("sizes").map do |size|
         size.values_at("width", "height", "url").tap do |whu|
           w, h, u = whu
@@ -374,6 +377,7 @@ def DirectLink link, timeout = nil, proxy = nil, giveup: false, ignore_meta: fal
     # `DirectLink.imgur` return value is always an Array
     return imgur.size == 1 ? imgur.first : imgur
   rescue DirectLink::ErrorMissingEnvVar
+    raise if DirectLink.strict
   end if %w{ imgur com } == URI(link).host.split(?.).last(2)
 
   if %w{ 500px com } == URI(link).host.split(?.).last(2)
@@ -386,6 +390,7 @@ def DirectLink link, timeout = nil, proxy = nil, giveup: false, ignore_meta: fal
     f = FastImage.new(u, raise_on_failure: true) # , http_header: {"User-Agent" => "Mozilla"}
     return struct.new u, w, h, f.type
   rescue DirectLink::ErrorMissingEnvVar
+    raise if DirectLink.strict
   end if %w{ www flickr com } == URI(link).host.split(?.) ||
          %w{     flic kr    } == URI(link).host.split(?.)
 
@@ -419,6 +424,7 @@ def DirectLink link, timeout = nil, proxy = nil, giveup: false, ignore_meta: fal
     raise DirectLink::ErrorNotFound.new link.inspect if link == u
     return DirectLink u, timeout, giveup: giveup
   rescue DirectLink::ErrorMissingEnvVar
+    raise if DirectLink.strict
   end if %w{ reddit com } == URI(link).host.split(?.).last(2) ||
          %w{   redd it  } == URI(link).host.split(?.)
 
@@ -427,6 +433,7 @@ def DirectLink link, timeout = nil, proxy = nil, giveup: false, ignore_meta: fal
       struct.new u, w, h
     end
   rescue DirectLink::ErrorMissingEnvVar
+    raise if DirectLink.strict
   end if %w{ vk com } == URI(link).host.split(?.)
 
   begin
