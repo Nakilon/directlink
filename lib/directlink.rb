@@ -267,9 +267,9 @@ module DirectLink
     id, mtd, field, f = case link
     when %r{\Ahttps://vk\.com/id(?<user_id>\d+)\?z=photo(?<id>\k<user_id>_\d+)(%2F(album\k<user_id>_0|photos\k<user_id>))?\z},
          %r{\Ahttps://vk\.com/[a-z_]+\?z=photo(?<_>)(?<id>(?<user_id>\d+)_\d+)%2Fphotos\k<user_id>\z},
+         %r{\Ahttps://vk\.com/[a-z_]+\?z=photo(?<_>)(?<id>(?<user_id>-\d+)_\d+)%2F(wall\k<user_id>_\d+|album\k<user_id>_0(%2Frev)?)\z},
          %r{\Ahttps://vk\.com/photo(?<_>)(?<id>-?\d+_\d+)(\?(all|rev)=1)?\z},
          %r{\Ahttps://vk\.com/feed\?(?:section=likes&)?z=photo(?<_>)(?<id>(?<user_id>-?\d+)_\d+)%2F(liked\d+|album\k<user_id>_0(0%2Frev)?)\z},
-         %r{\Ahttps://vk\.com/[a-z_]+\?z=photo(?<_>)(?<id>(?<user_id>-\d+)_\d+)%2F(wall\k<user_id>_\d+|album\k<user_id>_0)\z},
          %r{\Ahttps://vk\.com/wall(?<user_id>-\d+)_\d+\?z=photo(?<id>\k<user_id>_\d+)%2F(wall\k<user_id>_\d+|album\k<user_id>_00%2Frev|\d+)\z}
       [$2, :photos, :photos, lambda do |t|
         raise ErrorAssert.new "our knowledge about VK API seems to be outdated" unless 1 == t.size
@@ -295,15 +295,20 @@ module DirectLink
     end
     raise ErrorMissingEnvVar.new "define VK_ACCESS_TOKEN and VK_CLIENT_SECRET env vars" unless ENV["VK_ACCESS_TOKEN"] && ENV["VK_CLIENT_SECRET"]
     sleep 0.25 unless ENV["CI"] # "error_msg"=>"Too many requests per second"
-    t = JSON.load NetHTTPUtils.request_data "https://api.vk.com/method/#{mtd}.getById",
-      :POST, form: { field => id, :access_token => ENV["VK_ACCESS_TOKEN"], :client_secret => ENV["VK_CLIENT_SECRET"], :v => "5.101" }
+    t = JSON.load NetHTTPUtils.request_data "https://api.vk.com/method/#{mtd}.getById", :POST, form: {
+      :access_token => ENV["VK_ACCESS_TOKEN"],
+      :v => "5.101",
+      field => id,
+    }
     raise ErrorMissingEnvVar.new "the VK_ACCESS_TOKEN is probably expired, get a new one at: https://api.vk.com/oauth/authorize?client_id=...&response_type=token&v=5.75&scope=offline" if t["error"] && 5 == t["error"]["error_code"]
+    raise ErrorAssert.new "VK API error ##{t["error"]["error_code"]} #{t["error"]["error_msg"]}" if t["error"]
     f.call( t.fetch("response") ).map do |photos|
-      photos.fetch("sizes").map do |size|
-        size.values_at("width", "height", "url").tap do |whu|
-          w, h, u = whu
-          whu[0, 2] = FastImage.new(u, raise_on_failure: true).size if [w, h].include? 0 # wtf?
-        end
+      # https://vk.com/dev/objects/photo_sizes
+      photos.fetch("sizes").map do |_|
+        w, h, u = _.values_at("width", "height", "url")
+        _ = FastImage.new(u, raise_on_failure: true)
+        w, h = _.size if w == 0 || h == 0  # https://vk.com/dev/objects/photo_sizes - Для фотографий, загруженных на сайт до 2012 года, значения width и height могут быть недоступны, в этом случае соответствующие поля содержат 0.
+        [w, h, u, _.type]
       end.max_by{ |w, h, u| w * h }
     end
   end
@@ -358,7 +363,7 @@ def DirectLink link, timeout = nil, proxy = nil, giveup: false, ignore_meta: fal
     } : {})
   rescue Net::ReadTimeout, Errno::ETIMEDOUT
   rescue NetHTTPUtils::Error => e
-    raise unless 418 == e.code
+    raise unless 418 == e.code  # vk
   else
     raise DirectLink::ErrorAssert.new "last_response.uri is not set" unless head.instance_variable_get(:@last_response).uri
     link = head.instance_variable_get(:@last_response).uri.to_s
@@ -429,8 +434,8 @@ def DirectLink link, timeout = nil, proxy = nil, giveup: false, ignore_meta: fal
          %w{   redd it  } == URI(link).host.split(?.)
 
   begin
-    return DirectLink.vk(link).map do |w, h, u|
-      struct.new u, w, h
+    return DirectLink.vk(link).map do |w, h, u, t|
+      struct.new u, w, h, t
     end
   rescue DirectLink::ErrorMissingEnvVar
     raise if DirectLink.strict
