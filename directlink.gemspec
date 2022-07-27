@@ -1,6 +1,6 @@
 Gem::Specification.new do |spec|
   spec.name         = "directlink"
-  spec.version      = "0.0.11.3"
+  spec.version      = "0.0.12.0"
   spec.summary      = "obtains from any kind of hyperlink a link to an image, its format and resolution"
 
   spec.author       = "Victor Maslov aka Nakilon"
@@ -17,8 +17,6 @@ Gem::Specification.new do |spec|
   spec.add_dependency "reddit_bot", "~>1.10.0"
   spec.add_dependency "kramdown"
   spec.add_dependency "addressable"
-  spec.add_development_dependency "minitest-around"
-  spec.add_development_dependency "webmock"
 
   spec.require_path = "lib"
   spec.bindir       = "bin"

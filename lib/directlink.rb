@@ -266,8 +266,8 @@ module DirectLink
   def self.vk link
     id, mtd, field, f = case link
     when %r{\Ahttps://vk\.com/id(?<user_id>\d+)\?z=photo(?<id>\k<user_id>_\d+)(%2F(album\k<user_id>_0|photos\k<user_id>))?\z},
-         %r{\Ahttps://vk\.com/[a-z_]+\?z=photo(?<_>)(?<id>(?<user_id>\d+)_\d+)%2Fphotos\k<user_id>\z},
-         %r{\Ahttps://vk\.com/[a-z_]+\?z=photo(?<_>)(?<id>(?<user_id>-\d+)_\d+)%2F(wall\k<user_id>_\d+|album\k<user_id>_0(%2Frev)?)\z},
+         %r{\Ahttps://vk\.com/[a-z_.]+\?z=photo(?<_>)(?<id>(?<user_id>\d+)_\d+)%2Fphotos\k<user_id>\z},
+         %r{\Ahttps://vk\.com/[a-z_.]+\?z=photo(?<_>)(?<id>(?<user_id>-\d+)_\d+)%2F(wall\k<user_id>_\d+|album\k<user_id>_0(%2Frev)?)\z},
          %r{\Ahttps://vk\.com/photo(?<_>)(?<id>-?\d+_\d+)(\?(all|rev)=1)?\z},
          %r{\Ahttps://vk\.com/feed\?(?:section=likes&)?z=photo(?<_>)(?<id>(?<user_id>-?\d+)_\d+)%2F(liked\d+|album\k<user_id>_0(0%2Frev)?)\z},
          %r{\Ahttps://vk\.com/wall(?<user_id>-\d+)_\d+\?z=photo(?<id>\k<user_id>_\d+)%2F(wall\k<user_id>_\d+|album\k<user_id>_00%2Frev|\d+)\z}
