@@ -5,3 +5,4 @@
 /temp*
 /body.txt
 /integration.test.rb
+/.bundle/
