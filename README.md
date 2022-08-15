@@ -222,6 +222,9 @@ bundle exec ruby -I./lib ./bin/directlink --debug ...
 ```bash
 (source api_tokens.sh.secret && bundle exec ruby integration.test.rb)
 ```
+```bash
+env $(cat api_tokens.sh.secret | xargs) bundle exec ruby integration.test.rb -n '/kinds of links vk/'
+```
 
 `CI` env var skips vk sleep.
 

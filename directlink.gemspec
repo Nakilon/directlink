@@ -9,11 +9,10 @@ Gem::Specification.new do |spec|
   spec.homepage     = "https://github.com/nakilon/directlink"
   spec.metadata     = {"source_code_uri" => "https://github.com/nakilon/directlink"}
 
-  spec.required_ruby_version = ">=2.3"  # because <<~ heredocs in tests
+  spec.required_ruby_version = ">=2.3"
 
   spec.add_dependency "fastimage", "~>2.2.0"
   spec.add_dependency "nokogiri", "<1.11"   # 1.11 requires ruby 2.5  # TODO: switch to Oga?
-  # spec.add_dependency "nethttputils", "~>0.4.2.0"
   spec.add_dependency "reddit_bot", "~>1.10.0"
   spec.add_dependency "kramdown"
   spec.add_dependency "addressable"
