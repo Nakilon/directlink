@@ -16,6 +16,7 @@ Gem::Specification.new do |spec|
   spec.add_dependency "reddit_bot", "~>1.10.0"
   spec.add_dependency "kramdown"
   spec.add_dependency "addressable"
+  spec.add_dependency "nakischema"
 
   spec.require_path = "lib"
   spec.bindir       = "bin"

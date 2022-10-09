@@ -208,7 +208,7 @@ ruby -rpp -rjson -e "pp JSON File.read 'body.txt'" | pbcopy
 
 # for webmocking new vk tests:
 # disable the getById stub, source real secrets
-(source api_tokens.sh.secret && bundle exec ruby unit.test.rb -n '/vk#test_0012_kinds of links/')
+(source api_tokens.sh && bundle exec ruby unit.test.rb -n '/vk#test_0012_kinds of links/')
 ruby -rpp -rjson -e "pp JSON File.read 'body.txt'" | pbcopy
 # edit and enable the getById stub
 # edit expectation

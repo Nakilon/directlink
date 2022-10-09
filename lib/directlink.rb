@@ -273,7 +273,8 @@ module DirectLink
          %r{\Ahttps://vk\.com/feed\?(?:section=likes&)?z=photo(?<_>)(?<id>(?<user_id>-?\d+)_\d+)%2F(liked\d+|album\k<user_id>_0(0%2Frev)?)\z},
          %r{\Ahttps://vk\.com/wall(?<user_id>-\d+)_\d+\?z=photo(?<id>\k<user_id>_\d+)%2F(wall\k<user_id>_\d+|album\k<user_id>_00%2Frev|\d+)\z},
          /\Ahttps:\/\/vk\.com\/bookmarks\?from_menu=1&z=photo(?<id>-(?<user_id>\d+)_\d+)%2Fwall-\k<user_id>_\d+\z/,
-         /\Ahttps:\/\/vk\.com\/public(?<user_id>\d+)\?z=photo(?<id>-\k<user_id>_\d+)%2Fwall-\k<user_id>_\d+\z/
+         /\Ahttps:\/\/vk\.com\/public(?<user_id>\d+)\?z=photo(?<id>-\k<user_id>_\d+)%2Fwall-\k<user_id>_\d+\z/,
+         /\Ahttps:\/\/vk\.com\/feed\?w=wall-(?<_>(?<user_id>\d+)_\d+)&z=photo-(?<id>\k<user_id>_\d+)%2Fwall-\k<_>\z/
       [$~[:id], :photos, :photos, lambda do |t|
         raise ErrorAssert.new "our knowledge about VK API seems to be outdated" unless 1 == t.size
         t
@@ -282,16 +283,13 @@ module DirectLink
          %r{\Ahttps://vk\.com/[a-z\.]+\?w=wall(?<id>-?\d+_\d+)\z}
       [$1, :wall, :posts, lambda do |t|
         t.first.fetch("attachments").select do |item|
-          case item.keys
-          when %w{ type photo }
-            raise ErrorAssert.new "our knowledge about VK API seems to be outdated" unless item["type"] == "photo"
-            next true
-          when %w{ type audio }
-            raise ErrorAssert.new "our knowledge about VK API seems to be outdated" unless item["type"] == "audio"
-          else
+          begin
+            Nakischema.validate item, {keys: [["type", String]], assertions: [->_,__{_.keys[1]==_["type"]}]}
+          rescue Nakischema::Error
             raise ErrorAssert.new "our knowledge about VK API seems to be outdated"
           end
-        end.map{ |i| i.fetch "photo" }
+          "photo" == item["type"]
+        end.map{ |i| i["photo"] }
       end ]
     else
       raise ErrorBadLink.new link
@@ -309,7 +307,7 @@ module DirectLink
       # https://vk.com/dev/objects/photo_sizes
       photos.fetch("sizes").map do |_|
         w, h, u = _.values_at("width", "height", "url")
-        _ = FastImage.new(u, raise_on_failure: true)
+        _ = FastImage.new(u, raise_on_failure: true)  # TODO: ради type?
         w, h = _.size if w == 0 || h == 0  # https://vk.com/dev/objects/photo_sizes - Для фотографий, загруженных на сайт до 2012 года, значения width и height могут быть недоступны, в этом случае соответствующие поля содержат 0.
         [w, h, u, _.type]
       end.max_by{ |w, h, u| w * h }

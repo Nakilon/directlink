@@ -683,15 +683,16 @@ describe DirectLink do
           stub_request(:post, "https://api.vk.com/method/#{mtd}.getById").to_return body: {response: [
             mtd == "photos" ? stub : {attachments: [{type: :photo, photo: stub}]}
           ] }.to_json
+          stub_request(:get, /\.jpe?g(\?[^\/]*)?\z/).to_return body: "GIF89a\x01\x00\x01\x00\x00\xff\x00,\x00\x00\x00\x00\x01\x00\x01\x00\x00\x02\x00"
           result = DirectLink.method(:vk).call input
           assert_equal 1, result.size
-          result[0][-1].tap do |url|
+          result[0][2].tap do |url|
             url.replace( URI.parse(url).tap do |_|
               _.host = _.host.split(?.).drop(1).join(?.)
               _.query = nil
             end.to_s )
           end
-          assert_equal [expectation], result, "#{input} :: #{result.inspect} != #{expectation.inspect}"
+          assert_equal [[*expectation, :gif]], result, "#{input} :: #{result.inspect} != #{[[*expectation, :gif]].inspect}"
         end
       end
     end
