@@ -6,4 +6,3 @@ gem "webmock"
 
 gemspec
 
-plugin "bundler-graph"

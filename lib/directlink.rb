@@ -293,9 +293,10 @@ module DirectLink
       end
     when %r{\Ahttps://vk\.com/wall(?<id>-?\d+_\d+)\z},
          %r{\Ahttps://vk\.com/[a-z\.]+\?w=wall(?<id>-?\d+_\d+)\z}
-      f[$1, :wall, :posts].first.fetch("attachments").select do |item|
+      t = f[$1, :wall, :posts].first
+      (t["attachments"] || t.fetch("copy_history")[0]["attachments"]).select do |item|
           begin
-            Nakischema.validate item, {keys: [["type", String]], assertions: [->_,__{_.keys[1]==_["type"]}]}
+            Nakischema.validate item.keys - ["type"], [[item.fetch("type")]]
           rescue Nakischema::Error
             raise ErrorAssert.new "our knowledge about VK API seems to be outdated"
           end

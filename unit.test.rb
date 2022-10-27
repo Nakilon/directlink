@@ -623,7 +623,7 @@ describe DirectLink do
       end
     end
 
-    describe "vk" do
+    describe "vk webmock" do
       [
         ["https://vk.com/wall-123456091_7806", [960, 1280, "https://userapi.com/impf/c123456/v123456900/a72f1/7OZ8ux9Wcwo.jpg"], "wall", [
           [97, 130, "https://sun9-3.userapi.com/impf/c123456/v123456900/a72f1/7OZ8ux9Wcwo.jpg?size=98x130&quality=96&sign=00011222222224455677888abbbbccee&c_uniq_tag=ggVFjBTdFDFuIz7Ee5o48mEP3fWLixCvjuPmehhyaTI&type=album"],
@@ -677,12 +677,62 @@ describe DirectLink do
           [1, 2, "https://sun9-38.userapi.com/impg/13456AABBCDDKKOQSTUWXZbcfghhhjlpqquwyz/z0UtQg2M1s4.jpg?size=104x130&quality=96&sign=00011222222224455677888abbbbccee&c_uniq_tag=qX06fI2p7bmyvnta_Pt2omQ-l5RBLcrG1DBsLWx1jJA&type=album"],
           [3, 4, "https://sun9-38.userapi.com/impg/13456AABBCDDKKOQSTUWXZbcfghhhjlpqquwyz/z0UtQg2M1s4.jpg?size=864x1080&quality=96&sign=00011222222224455677888abbbbccee&c_uniq_tag=6WP6TY0RTDiG_8NK1lkYUOge22jtjkzGLLwc6IDxjjg&type=album"],
         ] ],
-      ].each_with_index do |(input, expectation, mtd, stub), i|
-        it "kinds of links" do
+      ].each do |input, expectation, stub_mtd, stub|
+        it "kinds of links 1" do
           stub = {sizes: stub.map{ |w,h,u| {width: w, height: h, url: u} }}
-          stub_request(:post, "https://api.vk.com/method/#{mtd}.getById").to_return body: {response: [
-            mtd == "photos" ? stub : {attachments: [{type: :photo, photo: stub}]}
+          stub_request(:post, "https://api.vk.com/method/#{stub_mtd}.getById").to_return body: {response: [
+            stub_mtd == "photos" ? stub : {attachments: [{type: :photo, photo: stub}]}
           ] }.to_json
+          stub_request(:get, /\.jpe?g(\?[^\/]*)?\z/).to_return body: "GIF89a\x01\x00\x01\x00\x00\xff\x00,\x00\x00\x00\x00\x01\x00\x01\x00\x00\x02\x00"
+          result = DirectLink.method(:vk).call input
+          assert_equal 1, result.size
+          result[0][2].tap do |url|
+            url.replace( URI.parse(url).tap do |_|
+              _.host = _.host.split(?.).drop(1).join(?.)
+              _.query = nil
+            end.to_s )
+          end
+          assert_equal [[*expectation, :gif]], result, "#{input} :: #{result.inspect} != #{[[*expectation, :gif]].inspect}"
+        end
+      end
+      [
+        ["https://vk.com/wall-01233445_244557", [720, 1080, "https://userapi.com/sun1-15/s/v1/if1/---000468999ABBBDFFGHHIIJKKLMNPQRTUUVVWYZZZ_aabcccdfffjlnooopqrrstuuvwwz.jpg"], "wall", <<~HEREDOC
+          {
+             "response" : [
+                {
+                   "copy_history" : [
+                      {
+                         "attachments" : [
+                            {
+                               "photo" : {
+                                  "sizes" : [
+                                     {
+                                        "height" : 130,
+                                        "type" : "m",
+                                        "url" : "https://sun1.userapi.com/sun1-15/s/v1/if1/--0124469AABCCFGHIIIKLMNNOOPQRSSTTTTTUWWWWXYZ__bbceeghhkklopqsstttuuxxyz.jpg?size=87x130&quality=96&type=album",
+                                        "width" : 87
+                                     },
+                                     {
+                                        "height" : 1080,
+                                        "type" : "z",
+                                        "url" : "https://sun1.userapi.com/sun1-15/s/v1/if1/---000468999ABBBDFFGHHIIJKKLMNPQRTUUVVWYZZZ_aabcccdfffjlnooopqrrstuuvwwz.jpg?size=720x1080&quality=96&type=album",
+                                        "width" : 720
+                                     }
+                                  ]
+                               },
+                               "type" : "photo"
+                            }
+                         ]
+                      }
+                   ]
+                }
+             ]
+          }
+          HEREDOC
+        ],
+      ].each do |input, expectation, stub_mtd, stub|
+        it "kinds of links 2" do
+          stub_request(:post, "https://api.vk.com/method/#{stub_mtd}.getById").to_return body: stub
           stub_request(:get, /\.jpe?g(\?[^\/]*)?\z/).to_return body: "GIF89a\x01\x00\x01\x00\x00\xff\x00,\x00\x00\x00\x00\x01\x00\x01\x00\x00\x02\x00"
           result = DirectLink.method(:vk).call input
           assert_equal 1, result.size
