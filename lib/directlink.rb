@@ -263,47 +263,47 @@ module DirectLink
     return [false, data["selftext"]]
   end
 
+  require "nakischema"
   def self.vk link
-    id, mtd, field, f = case link
+    f = lambda do |id, mtd, field|
+      raise ErrorMissingEnvVar.new "define VK_ACCESS_TOKEN and VK_CLIENT_SECRET env vars" unless ENV["VK_ACCESS_TOKEN"] && ENV["VK_CLIENT_SECRET"]
+      sleep 0.25 unless ENV["CI"] # "error_msg"=>"Too many requests per second"
+      JSON.load( NetHTTPUtils.request_data "https://api.vk.com/method/#{mtd}.getById", :POST, form: {
+        :access_token => ENV["VK_ACCESS_TOKEN"],
+        :v => "5.131",
+        field => id,
+      } ).tap do |t|
+        raise ErrorMissingEnvVar.new "the VK_ACCESS_TOKEN is probably expired, get a new one at: https://api.vk.com/oauth/authorize?client_id=...&response_type=token&v=5.75&scope=offline" if t["error"] && 5 == t["error"]["error_code"]
+        raise ErrorAssert.new "VK API error ##{t["error"]["error_code"]} #{t["error"]["error_msg"]}" if t["error"]
+      end.fetch("response")
+    end
+    case link
     when %r{\Ahttps://vk\.com/id(?<user_id>\d+)\?z=photo(?<id>\k<user_id>_\d+)(%2F(album\k<user_id>_0|photos\k<user_id>))?\z},
          %r{\Ahttps://vk\.com/[a-z_.]+\?z=photo(?<id>(?<user_id>\d+)_\d+)%2Fphotos\k<user_id>\z},
          /\Ahttps:\/\/vk\.com\/[a-z_.]+\?z=photo(?<id>(?<user_id>\d+)_\d+)%2Falbum\k<user_id>_0%2Frev\z/,
-         %r{\Ahttps://vk\.com/[a-z_.]+\?z=photo(?<id>(?<user_id>-\d+)_\d+)%2F(wall\k<user_id>_\d+|album\k<user_id>_0(%2Frev)?)\z},
+         %r{\Ahttps://vk\.com/[0-9a-z_.]+\?z=photo(?<id>(?<user_id>-\d+)_\d+)%2F(wall\k<user_id>_\d+|album\k<user_id>_0(%2Frev)?)\z},
          %r{\Ahttps://vk\.com/photo(?<id>-?\d+_\d+)(\?(all|rev)=1)?\z},
          %r{\Ahttps://vk\.com/feed\?(?:section=likes&)?z=photo(?<_>)(?<id>(?<user_id>-?\d+)_\d+)%2F(liked\d+|album\k<user_id>_0(0%2Frev)?)\z},
          %r{\Ahttps://vk\.com/wall(?<user_id>-\d+)_\d+\?z=photo(?<id>\k<user_id>_\d+)%2F(wall\k<user_id>_\d+|album\k<user_id>_00%2Frev|\d+)\z},
          /\Ahttps:\/\/vk\.com\/bookmarks\?from_menu=1&z=photo(?<id>-(?<user_id>\d+)_\d+)%2Fwall-\k<user_id>_\d+\z/,
          /\Ahttps:\/\/vk\.com\/public(?<user_id>\d+)\?z=photo(?<id>-\k<user_id>_\d+)%2Fwall-\k<user_id>_\d+\z/,
          /\Ahttps:\/\/vk\.com\/feed\?w=wall-(?<_>(?<user_id>\d+)_\d+)&z=photo-(?<id>\k<user_id>_\d+)%2Fwall-\k<_>\z/
-      [$~[:id], :photos, :photos, lambda do |t|
-        raise ErrorAssert.new "our knowledge about VK API seems to be outdated" unless 1 == t.size
-        t
-      end ]
+      f[$~[:id], :photos, :photos].tap do |_|
+        raise ErrorAssert.new "our knowledge about VK API seems to be outdated" unless 1 == _.size
+      end
     when %r{\Ahttps://vk\.com/wall(?<id>-?\d+_\d+)\z},
          %r{\Ahttps://vk\.com/[a-z\.]+\?w=wall(?<id>-?\d+_\d+)\z}
-      [$1, :wall, :posts, lambda do |t|
-        t.first.fetch("attachments").select do |item|
+      f[$1, :wall, :posts].first.fetch("attachments").select do |item|
           begin
             Nakischema.validate item, {keys: [["type", String]], assertions: [->_,__{_.keys[1]==_["type"]}]}
           rescue Nakischema::Error
             raise ErrorAssert.new "our knowledge about VK API seems to be outdated"
           end
           "photo" == item["type"]
-        end.map{ |i| i["photo"] }
-      end ]
+      end.map{ |i| i["photo"] }
     else
       raise ErrorBadLink.new link
-    end
-    raise ErrorMissingEnvVar.new "define VK_ACCESS_TOKEN and VK_CLIENT_SECRET env vars" unless ENV["VK_ACCESS_TOKEN"] && ENV["VK_CLIENT_SECRET"]
-    sleep 0.25 unless ENV["CI"] # "error_msg"=>"Too many requests per second"
-    t = JSON.load NetHTTPUtils.request_data "https://api.vk.com/method/#{mtd}.getById", :POST, form: {
-      :access_token => ENV["VK_ACCESS_TOKEN"],
-      :v => "5.101",
-      field => id,
-    }
-    raise ErrorMissingEnvVar.new "the VK_ACCESS_TOKEN is probably expired, get a new one at: https://api.vk.com/oauth/authorize?client_id=...&response_type=token&v=5.75&scope=offline" if t["error"] && 5 == t["error"]["error_code"]
-    raise ErrorAssert.new "VK API error ##{t["error"]["error_code"]} #{t["error"]["error_msg"]}" if t["error"]
-    f.call( t.fetch("response") ).map do |photos|
+    end.map do |photos|
       # https://vk.com/dev/objects/photo_sizes
       photos.fetch("sizes").map do |_|
         w, h, u = _.values_at("width", "height", "url")

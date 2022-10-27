@@ -673,7 +673,7 @@ describe DirectLink do
           [104, 130, "https://sun9-38.userapi.com/impg/13456AABBCDDKKOQSTUWXZbcfghhhjlpqquwyz/z0UtQg2M1s4.jpg?size=104x130&quality=96&sign=00011222222224455677888abbbbccee&c_uniq_tag=qX06fI2p7bmyvnta_Pt2omQ-l5RBLcrG1DBsLWx1jJA&type=album"],
           [864, 1080, "https://sun9-38.userapi.com/impg/13456AABBCDDKKOQSTUWXZbcfghhhjlpqquwyz/z0UtQg2M1s4.jpg?size=864x1080&quality=96&sign=00011222222224455677888abbbbccee&c_uniq_tag=6WP6TY0RTDiG_8NK1lkYUOge22jtjkzGLLwc6IDxjjg&type=album"],
         ] ],
-        ["https://vk.com/feed?z=photo-88180328_457249666%2Falbum-88180328_00%2Frev", [3, 4, "https://userapi.com/impg/13456AABBCDDKKOQSTUWXZbcfghhhjlpqquwyz/z0UtQg2M1s4.jpg"], "photos", [
+        ["https://vk.com/feed?z=photo-01223445_666788889%2Falbum-01223445_00%2Frev", [3, 4, "https://userapi.com/impg/13456AABBCDDKKOQSTUWXZbcfghhhjlpqquwyz/z0UtQg2M1s4.jpg"], "photos", [
           [1, 2, "https://sun9-38.userapi.com/impg/13456AABBCDDKKOQSTUWXZbcfghhhjlpqquwyz/z0UtQg2M1s4.jpg?size=104x130&quality=96&sign=00011222222224455677888abbbbccee&c_uniq_tag=qX06fI2p7bmyvnta_Pt2omQ-l5RBLcrG1DBsLWx1jJA&type=album"],
           [3, 4, "https://sun9-38.userapi.com/impg/13456AABBCDDKKOQSTUWXZbcfghhhjlpqquwyz/z0UtQg2M1s4.jpg?size=864x1080&quality=96&sign=00011222222224455677888abbbbccee&c_uniq_tag=6WP6TY0RTDiG_8NK1lkYUOge22jtjkzGLLwc6IDxjjg&type=album"],
         ] ],
