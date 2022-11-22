@@ -171,12 +171,7 @@ module DirectLink
     [w, h, u, f]
   end
 
-  def self.flickr link
-    raise ErrorBadLink.new link unless %r{\Ahttps://www\.flickr\.com/photos/[^/]+/(?<id>[^/]+)} =~ link ||
-                                       %r{\Ahttps://flic\.kr/p/(?<id>[^/]+)\z} =~ link
-    raise ErrorMissingEnvVar.new "define FLICKR_API_KEY env var" unless ENV["FLICKR_API_KEY"]
-
-    flickr = lambda do |id, method|
+  private_class_method def self._flickr id, method
       JSON.load NetHTTPUtils.request_data "https://api.flickr.com/services/rest/", form: {
         api_key: ENV["FLICKR_API_KEY"],
         format: "json",
@@ -184,8 +179,12 @@ module DirectLink
         photo_id: id,
         method: "flickr.photos.#{method}",
       }
-    end
-    json = flickr.call id, "getSizes"
+  end
+  def self.flickr link
+    raise ErrorBadLink.new link unless %r{\Ahttps://www\.flickr\.com/photos/[^/]+/(?<id>[^/]+)} =~ link ||
+                                       %r{\Ahttps://flic\.kr/p/(?<id>[^/]+)\z} =~ link
+    raise ErrorMissingEnvVar.new "define FLICKR_API_KEY env var" unless ENV["FLICKR_API_KEY"]
+    json = _flickr(id, "getSizes")
     raise ErrorNotFound.new link.inspect if json == {"stat"=>"fail", "code"=>1, "message"=>"Photo not found"}
     raise ErrorAssert.new "unhandled API response stat for #{link}: #{json}" unless json["stat"] == "ok"
     json["sizes"]["size"].map do |_|
@@ -267,14 +266,22 @@ module DirectLink
   def self.vk link
     f = lambda do |id, mtd, field|
       raise ErrorMissingEnvVar.new "define VK_ACCESS_TOKEN and VK_CLIENT_SECRET env vars" unless ENV["VK_ACCESS_TOKEN"] && ENV["VK_CLIENT_SECRET"]
-      sleep 0.25 unless ENV["CI"] # "error_msg"=>"Too many requests per second"
+
+      # К методам API ВКонтакте (за исключением методов из секций secure и ads) с ключом доступа пользователя можно обращаться не чаще 3 раз в секунду.
+      sleep 0.35 # unless defined?(::WebMock) && ::WebMock::HttpLibAdapters::HttpRbAdapter.enabled?
+      # "error_msg"=>"Too many requests per second"
+
       JSON.load( NetHTTPUtils.request_data "https://api.vk.com/method/#{mtd}.getById", :POST, form: {
         :access_token => ENV["VK_ACCESS_TOKEN"],
         :v => "5.131",
         field => id,
       } ).tap do |t|
-        raise ErrorMissingEnvVar.new "the VK_ACCESS_TOKEN is probably expired, get a new one at: https://api.vk.com/oauth/authorize?client_id=...&response_type=token&v=5.75&scope=offline" if t["error"] && 5 == t["error"]["error_code"]
-        raise ErrorAssert.new "VK API error ##{t["error"]["error_code"]} #{t["error"]["error_msg"]}" if t["error"]
+        next unless t["error"]
+        case t["error"]["error_code"]
+        when 5 ; raise ErrorMissingEnvVar.new "the VK_ACCESS_TOKEN is probably expired, get a new one at: https://api.vk.com/oauth/authorize?client_id=...&response_type=token&v=5.75&scope=offline"
+        when 200 ; raise ErrorNotFound.new link.inspect
+        else ; raise ErrorAssert.new "VK API error ##{t["error"]["error_code"]} #{t["error"]["error_msg"]}"
+        end
       end.fetch("response")
     end
     case link
@@ -291,7 +298,7 @@ module DirectLink
       f[$~[:id], :photos, :photos].tap do |_|
         raise ErrorAssert.new "our knowledge about VK API seems to be outdated" unless 1 == _.size
       end
-    when %r{\Ahttps://vk\.com/wall(?<id>-?\d+_\d+)\z},
+    when %r{\Ahttps://vk\.com/wall(?<id>-?\d+_\d+)(\?hash=[a-z0-9]{18})?\z},
          %r{\Ahttps://vk\.com/[a-z\.]+\?w=wall(?<id>-?\d+_\d+)\z}
       t = f[$1, :wall, :posts].first
       (t["attachments"] || t.fetch("copy_history")[0]["attachments"]).select do |item|
@@ -332,7 +339,16 @@ def DirectLink link, timeout = nil, proxy = nil, giveup: false, ignore_meta: fal
 
   struct = Module.const_get(__callee__).class_variable_get :@@directlink
 
-  google_without_schema_crutch = lambda do
+  # to test that we won't hang for too long if someone like aeronautica.difesa.it will be silent for some reason:
+  #   $ bundle console
+  #   > NetHTTPUtils.logger.level = Logger::DEBUG
+  #   > NetHTTPUtils.request_data "http://www.aeronautica.difesa.it/organizzazione/REPARTI/divolo/PublishingImages/6%C2%B0%20Stormo/2013-decollo%20al%20tramonto%20REX%201280.jpg",
+  #                               max_read_retry_delay: 5, timeout: 5
+
+  # why do we resolve redirects before trying the known adapters?
+  #   because they can be hidden behind URL shorteners
+  #   also it can resolve NetHTTPUtils::Error(404) before trying the adapter
+
     if %w{ lh3 googleusercontent com } == URI(link).host.split(?.).last(3) ||
        %w{ lh4 googleusercontent com } == URI(link).host.split(?.).last(3) ||
        %w{ lh5 googleusercontent com } == URI(link).host.split(?.).last(3) ||
@@ -341,41 +357,8 @@ def DirectLink link, timeout = nil, proxy = nil, giveup: false, ignore_meta: fal
       u = DirectLink.google link
       f = FastImage.new(u, raise_on_failure: true, http_header: {"User-Agent" => "Mozilla"})
       w, h = f.size
-      struct.new u, w, h, f.type
+      return struct.new u, w, h, f.type
     end
-  end
-  t = google_without_schema_crutch[] and return t
-
-  # to test that we won't hang for too long if someone like aeronautica.difesa.it will be silent for some reason:
-  #   $ bundle console
-  #   > NetHTTPUtils.logger.level = Logger::DEBUG
-  #   > NetHTTPUtils.request_data "http://www.aeronautica.difesa.it/organizzazione/REPARTI/divolo/PublishingImages/6%C2%B0%20Stormo/2013-decollo%20al%20tramonto%20REX%201280.jpg",
-  #                               max_read_retry_delay: 5, timeout: 5
-
-  begin
-    header = {
-      "User-Agent" => "Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/66.0.3359.139 Safari/537.36",
-      **( %w{ reddit com } == URI(link).host.split(?.).last(2) ||
-          %w{   redd it  } == URI(link).host.split(?.) ? {Cookie: "over18=1"} : {} ),
-    }
-    head = NetHTTPUtils.request_data link, :HEAD, header: header, **(proxy ? {proxy: proxy} : {}), **(timeout ? {
-      timeout: timeout,
-      max_start_http_retry_delay: timeout,
-      max_read_retry_delay: timeout,
-    } : {})
-  rescue Net::ReadTimeout, Errno::ETIMEDOUT
-  rescue NetHTTPUtils::Error => e
-    raise unless 418 == e.code  # vk
-  else
-    raise DirectLink::ErrorAssert.new "last_response.uri is not set" unless head.instance_variable_get(:@last_response).uri
-    link = head.instance_variable_get(:@last_response).uri.to_s
-  end
-
-  # why do we resolve redirects before trying the known adapters?
-  #   because they can be hidden behind URL shorteners
-  #   also it can resolve NetHTTPUtils::Error(404) before trying the adapter
-
-  t = google_without_schema_crutch[] and return t   # TODO: why again?
 
   begin
     imgur = DirectLink.imgur(link, timeout).sort_by{ |u, w, h, t| - w * h }.map do |u, w, h, t|
@@ -442,6 +425,24 @@ def DirectLink link, timeout = nil, proxy = nil, giveup: false, ignore_meta: fal
   rescue DirectLink::ErrorMissingEnvVar
     raise if DirectLink.strict
   end if %w{ vk com } == URI(link).host.split(?.)
+
+  host = URI(link).host
+  begin
+    head = NetHTTPUtils.request_data link, :HEAD, header: {
+      "User-Agent" => "Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/66.0.3359.139 Safari/537.36",
+      **( %w{ reddit com } == URI(link).host.split(?.).last(2) ||
+          %w{   redd it  } == URI(link).host.split(?.) ? {Cookie: "over18=1"} : {} ),
+    }, **(proxy ? {proxy: proxy} : {}), **(timeout ? {
+      timeout: timeout,
+      max_start_http_retry_delay: timeout,
+      max_read_retry_delay: timeout,
+    } : {})
+  rescue Errno::ETIMEDOUT, Net::OpenTimeout, Net::ReadTimeout
+  else
+    raise DirectLink::ErrorAssert.new "last_response.uri is not set" unless head.instance_variable_get(:@last_response).uri
+    link = head.instance_variable_get(:@last_response).uri.to_s
+    return DirectLink link, timeout, proxy, giveup: giveup, ignore_meta: ignore_meta if URI(link).host != host
+  end
 
   begin
     f = FastImage.new link,

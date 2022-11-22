@@ -381,40 +381,6 @@ describe DirectLink do
       end
     end
 
-    describe "flickr" do
-      [
-        ["https://www.flickr.com/photos/tomas-/12345678901/", DirectLink::ErrorNotFound],
-        ["https://www.flickr.com/photos/12345678@N07/12345678901", DirectLink::ErrorNotFound],
-        ["https://www.flickr.com/photos/12345678@N00/12345678901/", [3000, 2000, "https://live.staticflickr.com/7757/12345678901_ed5178cc6a_o.jpg"]],                            # trailing slash
-        ["https://www.flickr.com/photos/jacob_schmidt/12345678901/in/album-12345678901234567/", DirectLink::ErrorNotFound],                                                      # username in-album
-        ["https://www.flickr.com/photos/tommygi/1234567890/in/dateposted-public/", [1600, 1062, "https://live.staticflickr.com/5249/1234567890_29fae96e38_h.jpg"]],              # username in-public
-        ["https://www.flickr.com/photos/123456789@N02/12345678901/in/album-12345678901234567/", DirectLink::ErrorNotFound],
-        ["https://www.flickr.com/photos/123456789@N03/12345678901/in/dateposted-public/", [4621, 3081, "https://live.staticflickr.com/3796/12345678901_f751b35aeb_o.jpg"]],      # userid   in-public
-        ["https://www.flickr.com/photos/frank3/1234567890/in/photolist#{"-6KVb92"*50}", [4096, 2723, "https://live.staticflickr.com/2499/1234567890_dfa75a41cc_4k.jpg"]],
-        ["https://www.flickr.com/photos/patricksloan/12345678901/sizes/l", [2048, 491, "https://live.staticflickr.com/5572/12345678900_fec4783d79_k.jpg"]],
-        ["https://flic.kr/p/abcDEF", [5120, 3413, "https://live.staticflickr.com/507/12345678901_1bd49c5ebd_5k.jpg"]],
-      ].each_with_index do |(input, expectation), i|
-        it "kinds of links" do
-          stub_request(:head, /\Ahttps:\/\/api\.flickr\.com\/services\/rest\/\?api_key=#{ENV["FLICKR_API_KEY"]}&format=json&method=flickr\.photos\.getSizes&nojsoncallback=1&photo_id=[\da-zA-Z]+\z/)
-          if expectation.is_a? Class
-            stub_request(:get, /\Ahttps:\/\/api\.flickr\.com\/services\/rest\/\?api_key=#{ENV["FLICKR_API_KEY"]}&format=json&method=flickr\.photos\.getSizes&nojsoncallback=1&photo_id=[\da-zA-Z]+\z/).to_return body: {"stat"=>"fail", "code"=>1, "message"=>"Photo not found"}.to_json
-            assert_raises expectation, input do
-              DirectLink.method(:flickr).call input
-            end
-          else
-            w, h, u = expectation
-            stub_request(:get, /\Ahttps:\/\/api\.flickr\.com\/services\/rest\/\?api_key=#{ENV["FLICKR_API_KEY"]}&format=json&method=flickr\.photos\.getSizes&nojsoncallback=1&photo_id=[\da-zA-Z]+\z/).to_return body: {"stat"=>"ok", "sizes"=>{ "size"=>[
-              {"width"=>w/2, "height"=>h  , "source"=>u*2},
-              {"width"=>w  , "height"=>h  , "source"=>u  },
-              {"width"=>w  , "height"=>h/2, "source"=>u*2},
-            ] } }.to_json
-            result = DirectLink.method(:flickr).call input
-            assert_equal expectation, result, "#{input} :: #{result.inspect} != #{expectation.inspect}"
-          end
-        end
-      end
-    end
-
     describe "wiki" do
       [
         ["https://en.wikipedia.org/wiki/Prostitution_by_country#/media/File:Prostitution_laws_of_the_world.PNG", "https://upload.wikimedia.org/wikipedia/commons/e/e8/Prostitution_laws_of_the_world.PNG"],
@@ -747,6 +713,104 @@ describe DirectLink do
       end
     end
 
+    describe "schema" do
+      require "regexp-examples"
+      require "addressable"
+      fixture = lambda do |_|
+        case _
+        when Hash
+          case _.keys
+          when %i{ hash     } ;   _[:hash    ].map{ |k,v| [k,fixture[v]] }.shuffle.to_h
+          when %i{ hash_req } ; [*_[:hash_req].map{ |k,v| [k,fixture[v]] }, ["foo","bar"]].shuffle.to_h   # TODO: assert no collision
+          when %i{ size each } ; Array.new(fixture[_[:size]]){ fixture[_[:each]] }
+          else ; fail _.keys.inspect
+          end
+        when Array ; [Array] == _.map(&:class) ? _.map(&fixture) : fixture[_.sample]
+        when Regexp
+          t = _.random_example
+          tt = begin
+            URI t
+          rescue URI::InvalidURIError
+            URI Addressable::URI.escape t
+          end
+          tt.is_a?(URI::HTTP) ? tt.to_s : t
+        when Range ; rand _
+        when String ; _
+        when Class
+          case _.name
+          when "Integer" ; -rand(1000000)
+          else ; fail
+          end
+        else ; fail _.class.inspect
+        end
+      end
+      require_relative "schema"
+
+      [
+        ["https://flic.kr/p/aBcDeF", "aBcDeF"],
+        ["https://www.flickr.com/photos/13344678@N07/00013355778", "00013355778"],                                          # trailing slash
+        ["https://www.flickr.com/photos/13344678@N00/00013355778/", "00013355778"],                                         # trailing slash
+        ["https://www.flickr.com/photos/gimmoty/0012245999/in/dateposted-public/", "0012245999"],                           # username in-public
+        ["https://www.flickr.com/photos/12345678@N07/12345678901/in/dateposted-public/", "12345678901"],
+        ["https://www.flickr.com/photos/000011379@N03/11134588889/in/dateposted-public/", "11134588889"],                   # userid   in-public
+        ["https://www.flickr.com/photos/123456789@N02/12345678901/in/album-12345678901234567/", "12345678901"],
+        ["https://www.flickr.com/photos/abccd_hijmost/12345678901/in/album-12345678901234567/", "12345678901"],             # username in-album
+        ["https://www.flickr.com/photos/3afknr/0236777889/in/photolist-269KVb-CCDTer-8Kru-57Lbqz-17acfh", "0236777889"],
+        ["https://www.flickr.com/photos/aaciklnoprst/01112334458/sizes/l", "01112334458"],
+        ["https://www.flickr.com/photos/nakilon/12345678900/%20[2048x1152]", "12345678900"],                                # thanks to gem addressable
+      ].each do |input, id|
+        it "flickr found" do
+          stub_request(:get, "https://api.flickr.com/services/rest/?api_key=#{ENV["FLICKR_API_KEY"]}&format=json&method=flickr.photos.getSizes&nojsoncallback=1&photo_id=#{id}").
+            to_return body: JSON.dump(fixture[Schema[:flickr]])
+          stub_request(:get, /\Ahttps:\/\/live\.staticflickr\.com\/\d+\/\d+_[a-z0-9_]+(_[a-z])?\.jpg\z/).to_return body: "GIF89a\x01\x00\x01\x00\x00\xff\x00,\x00\x00\x00\x00\x01\x00\x01\x00\x00\x02\x00"
+          Nakischema.validate DirectLink(input).to_h,
+            { hash: {width: Integer, height: Integer, type: :gif, url: /\Ahttps:\/\/live\.staticflickr\.com\/\d+\/\d+_[a-z0-9_]+(_[a-z])?\.jpg\z/} }
+        end
+      end
+      it "flickr not found" do
+        stub_request(:get, "https://api.flickr.com/services/rest/?api_key=#{ENV["FLICKR_API_KEY"]}&format=json&method=flickr.photos.getSizes&nojsoncallback=1&photo_id=aBcDeF").
+          to_return body: JSON.dump(fixture[Schema[:flickr_not_found]])
+        assert_raises(DirectLink::ErrorNotFound){ DirectLink "https://flic.kr/p/aBcDeF" }
+      end
+
+      [
+        ["photos", :photos, "-111125688_023344579", "https://vk.com/wall-111125688_445?z=photo-111125688_023344579%2Fwall-111125688_445"],
+        ["photos", :photos, "-134557889_022444456", "https://vk.com/photo-134557889_022444456"],
+        ["photos", :photos, "-114455677_012445666", "https://vk.com/feed?section=likes&z=photo-114455677_012445666%2Fliked0023469"],
+        ["photos", :photos, "-12334455_123445699", "https://vk.com/iiiklmyz?z=photo-12334455_123445699%2Fwall-12334455_0189"],
+        ["photos", :photos, "-022347888_023445679", "https://vk.com/agjoops_go?z=photo-022347888_023445679%2Falbum-022347888_0%2Frev"],
+        ["photos", :photos, "-01233445_023445679", "https://vk.com/bookmarks?from_menu=1&z=photo-01233445_023445679%2Fwall-01233445_225578"],
+        ["photos", :photos, "-011133468_111234577", "https://vk.com/public011133468?z=photo-011133468_111234577%2Fwall-011133468_014667"],
+        ["photos", :photos, "00235778_112344456", "https://vk.com/id00235778?z=photo00235778_112344456%2Falbum00235778_0"],
+        ["photos", :photos, "00235778_112344456", "https://vk.com/id00235778?z=photo00235778_112344456"],
+        ["photos", :photos, "1_112345788", "https://vk.com/photo1_112345788?all=1"],
+        ["photos", :photos, "022344789_234445689", "https://vk.com/photo022344789_234445689?rev=1"],
+        ["photos", :photos, "0222477_245667778", "https://vk.com/id0222477?z=photo0222477_245667778%2Fphotos0222477"],
+        ["photos", :photos, "022344789_112445778", "https://vk.com/e_dor?z=photo022344789_112445778%2Fphotos022344789"],
+        ["photos", :photos, "00111778_023445567", "https://vk.com/aaelmsy.aeinn?z=photo00111778_023445567%2Fphotos00111778"],
+        ["photos", :photos, "2567779_224457889", "https://vk.com/aaaehiinrsvvxy?z=photo2567779_224457889%2Falbum2567779_0%2Frev"],
+        ["photos", :photos, "00235778_112344456", "https://vk.com/id00235778?z=photo00235778_112344456"],
+        ["wall", :posts, "-001222468_14", "https://vk.com/wall-001222468_14?hash=001134455666678ade"],
+        ["wall", :posts, "-111337777_335", "https://vk.com/aaemnrssw.aailnoty?w=wall-111337777_335"],
+        ["wall", :posts, "022344789_1457", "https://vk.com/wall022344789_1457"],
+      ].each do |method, key, id, input|
+        it "vk" do
+          stub_request(:post, "https://api.vk.com/method/#{method}.getById").
+            with(body: {access_token: ENV["VK_ACCESS_TOKEN"], v: "5.131", key => id}).
+            to_return body: JSON.dump(fixture[Schema[:"vk_#{method}"]])
+          stub_request(:get, Schema[:vk_url]).to_return body: "GIF89a\x01\x00\x01\x00\x00\xff\x00,\x00\x00\x00\x00\x01\x00\x01\x00\x00\x02\x00"
+          Nakischema.validate DirectLink(input).map(&:to_h),
+            [[ { hash: {width: Integer, height: Integer, type: :gif, url: Schema[:vk_url]} } ]]
+        end
+      end
+      it "vk not found" do  # banned community?
+        stub_request(:post, "https://api.vk.com/method/photos.getById").
+          with(body: {access_token: ENV["VK_ACCESS_TOKEN"], v: "5.131", photos: "-001145899_122334457"}).
+          to_return body: JSON.dump(fixture[Schema[:vk_not_found]])
+        assert_raises(DirectLink::ErrorNotFound){ DirectLink "https://vk.com/wall-001145899_4679?z=photo-001145899_122334457%2Falbum-001145899_00%2Frev" }
+      end
+    end
+
     describe "google" do
       method = :google
       [
@@ -788,25 +852,10 @@ describe DirectLink do
           [*%w{ https://www.imgur.com/abcD5 https://imgur.com/abcD5 }, [301, "Moved Permanently"]],
           %w{ https://imgur.com/abcD5 },
         ] ],
-        [%w{ https://goo.gl/abcDE6 https://i.imgur.com/abcDEFY.png }, [
-          %w{ https://goo.gl/abcDE6 https://i.imgur.com/abcDEFY.png },
-          %w{ https://i.imgur.com/abcDEFY.png },
-        ] ],
       ],
       _500px: [
         [%w{ https://500px.com/photo/123456789/milky-way https://500px.com/photo/123456789/milky-way }, [
           %w{ https://500px.com/photo/123456789/milky-way },
-        ] ],
-      ],
-      flickr: [
-        ["https://www.flickr.com/photos/12345678@N07/12345678901/in/dateposted-public/", [
-          ["https://www.flickr.com/photos/12345678@N07/12345678901/in/dateposted-public/"],
-        ] ],
-        [["https://flic.kr/p/abcDEF", "https://www.flickr.com/photos/lopez/12345678901/"], [
-          ["https://flic.kr/p/abcDEF", "https://www.flickr.com/photo.gne?short=abcDEF"],
-          ["https://www.flickr.com/photo.gne?short=abcDEF", "/photo.gne?rb=1&short=abcDEF"],
-          ["https://www.flickr.com/photo.gne?rb=1&short=abcDEF", "/photos/lopez/12345678901/"],
-          ["https://www.flickr.com/photos/lopez/12345678901/"],
         ] ],
       ],
       wiki: [
@@ -846,7 +895,7 @@ describe DirectLink do
         tests.each_with_index do |((input, expected), stub), i|
           it "##{i + 1}" do
             DirectLink.stub method, ->(link, timeout = nil, **__){
-              assert_equal (expected || input), link
+              assert_equal (expected || input), link, "wrong link passed to the ##{method}"
               throw :_
             } do
               (stub || []).each do |u, o, code|
@@ -921,16 +970,6 @@ describe DirectLink do
   end
 
   describe "DirectLink()" do
-
-    # thanks to gem addressable
-    it "does not throw URI::InvalidURIError if there are brackets" do
-      stub_request(:head, "https://www.flickr.com/photos/nakilon/12345678900/%2520%5B2048x1152%5D").to_return status: [404, "Not Found"]
-      assert_equal 404, (
-        assert_raises NetHTTPUtils::Error do
-          DirectLink "https://www.flickr.com/photos/nakilon/12345678900/%20[2048x1152]"
-        end.code
-      )
-    end
 
     it "throws ErrorNotFound when Reddit gallery is removed" do
       stub_request(:head, "https://www.reddit.com/gallery/abcde6")
@@ -1306,7 +1345,7 @@ describe DirectLink do
         ],
       ].each do |(input, expectation, giveup), stubs|
         it "#{URI(input).host} giveup=#{!!giveup}" do
-          stub_request(:head, input)
+          stub_request(:head, input) unless giveup
           stubs.each do |mtd, link, response|
             if response
               stub_request(mtd, link).to_return **response

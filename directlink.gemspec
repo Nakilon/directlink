@@ -18,8 +18,8 @@ Gem::Specification.new do |spec|
   spec.add_dependency "addressable"
   spec.add_dependency "nakischema"
 
-  spec.require_path = "lib"
-  spec.bindir       = "bin"
+  # spec.require_path = "lib"
+  # spec.bindir       = "bin"
   spec.executable   = "directlink"
   spec.test_file    = "unit.test.rb"
   spec.files        = %w{ LICENSE directlink.gemspec lib/directlink.rb bin/directlink }
