@@ -6,7 +6,6 @@ require_relative "webmock_patch"
 WebMock.enable!
 
 require_relative "lib/directlink"
-DirectLink.silent = true  # TODO: remove?
 DirectLink.timeout = 30   # TODO: tests about this attribute
 
 describe DirectLink do
@@ -247,15 +246,6 @@ describe DirectLink do
             DirectLink.imgur url
           end
         end
-      end
-
-      it "ErrorNotFound when album is empty" do
-        stub_request(:head, "https://api.imgur.com/3/album/abcDEF7/0.json")#.to_return(status: 200, body: "", headers: {})
-        stub_request(:get, "https://api.imgur.com/3/album/abcDEF7/0.json").to_return body: {data: {images: {}}}.to_json
-        e = assert_raises DirectLink::ErrorNotFound do
-          DirectLink.imgur "https://imgur.com/a/abcDEF7"
-        end
-        assert_nil e.cause if Exception.instance_methods.include? :cause  # Ruby 2.1
       end
 
       valid_imgur_image_url_direct = "https://i.imgur.com/abcDEF7.jpg"
@@ -725,7 +715,7 @@ describe DirectLink do
           when %i{ size each } ; Array.new(fixture[_[:size]]){ fixture[_[:each]] }
           else ; fail _.keys.inspect
           end
-        when Array ; [Array] == _.map(&:class) ? _.map(&fixture) : fixture[_.sample]
+        when Array ; [Array] == _.map(&:class) ? _[0].map(&fixture) : fixture[_.sample]
         when Regexp
           t = _.random_example
           tt = begin
@@ -741,7 +731,7 @@ describe DirectLink do
           when "Integer" ; -rand(1000000)
           else ; fail
           end
-        else ; fail _.class.inspect
+        else ; fail "bad fixture node class: #{_.class.inspect}"
         end
       end
       require_relative "schema"
@@ -793,6 +783,7 @@ describe DirectLink do
         ["wall", :posts, "-001222468_14", "https://vk.com/wall-001222468_14?hash=001134455666678ade"],
         ["wall", :posts, "-111337777_335", "https://vk.com/aaemnrssw.aailnoty?w=wall-111337777_335"],
         ["wall", :posts, "022344789_1457", "https://vk.com/wall022344789_1457"],
+        ["photos", :photos, "234445599_124455679", "https://vk.com/o.1189agmoorv?z=photo234445599_124455679%2Fwall234445599_1128"],
       ].each do |method, key, id, input|
         it "vk" do
           stub_request(:post, "https://api.vk.com/method/#{method}.getById").
@@ -809,6 +800,12 @@ describe DirectLink do
           to_return body: JSON.dump(fixture[Schema[:vk_not_found]])
         assert_raises(DirectLink::ErrorNotFound){ DirectLink "https://vk.com/wall-001145899_4679?z=photo-001145899_122334457%2Falbum-001145899_00%2Frev" }
       end
+
+      it "ErrorNotFound when album is empty" do
+        stub_request(:get, "https://api.imgur.com/3/album/abcDEF7/0.json").to_return body: fixture[Schema[:imgur_empty]].to_json
+        assert_nil assert_raises(DirectLink::ErrorNotFound){ DirectLink.imgur "https://imgur.com/a/abcDEF7" }.cause
+      end
+
     end
 
     describe "google" do

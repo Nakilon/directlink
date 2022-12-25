@@ -2,6 +2,8 @@ source "https://rubygems.org"
 
 gem "minitest", github: "nakilon/minitest", branch: "patch"
 gem "minitest-around"
+gem "m"
+
 gem "webmock"
 gem "regexp-examples"
 gem "nakischema", github: "nakilon/nakischema"

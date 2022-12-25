@@ -1,16 +1,20 @@
 module DirectLink
-
   class << self
-    attr_accessor :silent
-    attr_accessor :logger
     attr_accessor :timeout
     attr_accessor :strict
+    attr_accessor :logger
   end
-  self.silent = false
   self.strict = false
-  self.logger = Object.new
-  self.logger.define_singleton_method :error do |str|
-    puts str unless Module.nesting.first.silent
+  require "logger"
+  self.logger = Logger.new STDOUT
+  self.logger.formatter = lambda do |severity, datetime, progname, msg|
+    "%s%s %s %s %s\n" % [
+      (datetime.strftime "%y%m%d "),
+      (datetime.strftime "%H%M%S"),
+      name,
+      severity.to_s[0],
+      msg,
+    ]
   end
 
   class ErrorAssert < RuntimeError  # gem user should not face this error
@@ -265,7 +269,7 @@ module DirectLink
   require "nakischema"
   def self.vk link
     f = lambda do |id, mtd, field|
-      raise ErrorMissingEnvVar.new "define VK_ACCESS_TOKEN and VK_CLIENT_SECRET env vars" unless ENV["VK_ACCESS_TOKEN"] && ENV["VK_CLIENT_SECRET"]
+      raise ErrorMissingEnvVar.new "define VK_ACCESS_TOKEN env var" unless ENV["VK_ACCESS_TOKEN"]
 
       # К методам API ВКонтакте (за исключением методов из секций secure и ads) с ключом доступа пользователя можно обращаться не чаще 3 раз в секунду.
       sleep 0.35 # unless defined?(::WebMock) && ::WebMock::HttpLibAdapters::HttpRbAdapter.enabled?
@@ -288,7 +292,7 @@ module DirectLink
     when %r{\Ahttps://vk\.com/id(?<user_id>\d+)\?z=photo(?<id>\k<user_id>_\d+)(%2F(album\k<user_id>_0|photos\k<user_id>))?\z},
          %r{\Ahttps://vk\.com/[a-z_.]+\?z=photo(?<id>(?<user_id>\d+)_\d+)%2Fphotos\k<user_id>\z},
          /\Ahttps:\/\/vk\.com\/[a-z_.]+\?z=photo(?<id>(?<user_id>\d+)_\d+)%2Falbum\k<user_id>_0%2Frev\z/,
-         %r{\Ahttps://vk\.com/[0-9a-z_.]+\?z=photo(?<id>(?<user_id>-\d+)_\d+)%2F(wall\k<user_id>_\d+|album\k<user_id>_0(%2Frev)?)\z},
+         %r{\Ahttps://vk\.com/[0-9a-z_.]+\?z=photo(?<id>(?<user_id>-?\d+)_\d+)%2F(wall\k<user_id>_\d+|album\k<user_id>_0(%2Frev)?)\z},
          %r{\Ahttps://vk\.com/photo(?<id>-?\d+_\d+)(\?(all|rev)=1)?\z},
          %r{\Ahttps://vk\.com/feed\?(?:section=likes&)?z=photo(?<_>)(?<id>(?<user_id>-?\d+)_\d+)%2F(liked\d+|album\k<user_id>_0(0%2Frev)?)\z},
          %r{\Ahttps://vk\.com/wall(?<user_id>-\d+)_\d+\?z=photo(?<id>\k<user_id>_\d+)%2F(wall\k<user_id>_\d+|album\k<user_id>_00%2Frev|\d+)\z},
