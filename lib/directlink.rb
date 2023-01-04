@@ -219,8 +219,8 @@ module DirectLink
     return [true, link] if URI(link).host &&
                            URI(link).host.split(?.) == %w{ i redd it } &&
                            URI(link).path[/\A\/[a-z0-9]{12,13}\.(gif|jpg)\z/]
-    unless id = link[/\Ahttps:\/\/www\.reddit\.com\/gallery\/([0-9a-z]{5,6})\z/, 1]
-      raise DirectLink::ErrorBadLink.new link unless id = URI(link).path[/\A(?:\/r\/[0-9a-zA-Z_]+)?(?:\/comments|\/duplicates)?\/([0-9a-z]{5,6})(?:\/|\z)/, 1]
+    unless id = link[/\Ahttps:\/\/www\.reddit\.com\/gallery\/([0-9a-z]{5,7})\z/, 1]
+      raise DirectLink::ErrorBadLink.new link unless id = URI(link).path[/\A(?:\/r\/[0-9a-zA-Z_]+)?(?:\/comments|\/duplicates)?\/([0-9a-z]{5,7})(?:\/|\z)/, 1]
     end
     retry_on_json_parseerror = lambda do |&b|
       t = 1
@@ -260,7 +260,7 @@ module DirectLink
         [media["m"], *media["s"].values_at("x", "y"), CGI.unescapeHTML(media["s"][media["m"]=="image/gif" ? "gif" : "u"])]
       end.compact]
     end
-    return [true, "#{"https://www.reddit.com" if /\A\/r\/[0-9a-zA-Z_]+\/comments\/[0-9a-z]{5,6}\// =~ data["url"]}#{data["url"]}"] if data["crosspost_parent"]
+    return [true, "#{"https://www.reddit.com" if /\A\/r\/[0-9a-zA-Z_]+\/comments\/[0-9a-z]{5,7}\// =~ data["url"]}#{data["url"]}"] if data["crosspost_parent"]
     return [true, CGI.unescapeHTML(data["url"])] unless data["is_self"]
     raise ErrorAssert.new "our knowledge about Reddit API seems to be outdated" if data["url"] != "https://www.reddit.com" + data["permalink"]
     return [false, data["selftext"]]
