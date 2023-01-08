@@ -780,6 +780,7 @@ describe DirectLink do
         ["photos", :photos, "00111778_023445567", "https://vk.com/aaelmsy.aeinn?z=photo00111778_023445567%2Fphotos00111778"],
         ["photos", :photos, "2567779_224457889", "https://vk.com/aaaehiinrsvvxy?z=photo2567779_224457889%2Falbum2567779_0%2Frev"],
         ["photos", :photos, "00235778_112344456", "https://vk.com/id00235778?z=photo00235778_112344456"],
+        ["photos", :photos, "-124456678_012234457", "https://vk.com/wall-124456678_246?z=photo-124456678_012234457%2F011126789aabdddeef"],
         ["wall", :posts, "-001222468_14", "https://vk.com/wall-001222468_14?hash=001134455666678ade"],
         ["wall", :posts, "-111337777_335", "https://vk.com/aaemnrssw.aailnoty?w=wall-111337777_335"],
         ["wall", :posts, "022344789_1457", "https://vk.com/wall022344789_1457"],

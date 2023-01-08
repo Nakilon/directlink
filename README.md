@@ -193,7 +193,30 @@ gem "kramdown", "<2"
 * 500px.com has discontinued API in June 2018 -- the tool now uses undocumented methods
 * `DirectLink()` can return an Array of Structs for 1) Imgur 2) Reddit unless `giveup = true` is set
 
-## Development notes/examples:
+## Development notes/examples
+
+### to update tests:
+
+1. по настоящим ссылкам с настоящими токенами клепаем юниттест и моки
+  ```none
+  $ env $(cat api_tokens.sh.secret | xargs) bundle exec m unit.test.rb:847
+  ```
+  ```none
+  $ ruby -rpp -rjson -e "pp JSON.load STDIN.read" < body.txt
+  ```
+2. делаем ссылки липовыми, юзаем фейковые токены
+  ```none
+  $ env $(cat api_tokens.sh | xargs) bundle exec m unit.test.rb:847
+  ```
+3. по настоящей ссылке делаем интеграционный тест
+  ```none
+  $ bundle exec m test.rb:123
+  ```
+
+To get VK integration test access token:
+```none
+$ https://api.vk.com/oauth/authorize?client_id=...&response_type=token&v=5.75&scope=offline
+```
 
 ```bash
 bundle install
